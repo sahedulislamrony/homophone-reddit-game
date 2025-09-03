@@ -1,0 +1,86 @@
+@import 'tailwindcss';
+
+@layer base {
+  /* Apply custom font globally */
+  body {
+    font-family: var(--font-minecraft);
+    background-color: var(--color-gray-900);
+    color: var(--color-gray-100);
+    margin: 0;
+    padding: 0;
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-minecraft);
+    font-weight: bold;
+  }
+
+  button {
+    font-family: var(--font-minecraft);
+    cursor: pointer;
+  }
+}
+
+@theme {
+  /* Custom font */
+  --font-minecraft: 'Press Start 2P', system-ui;
+
+  /* Custom colors */
+  --color-brown-600: #8b4513;
+  --color-brown-800: #654321;
+  --color-stone-600: #7d7d7d;
+  --color-stone-800: #525252;
+  --color-lime-400: #a3e635;
+  --color-lime-600: #65a30d;
+  --color-gold-400: #facc15;
+  --color-gold-600: #ca8a04;
+}
+
+/* Custom utility classes */
+@utility btn-block {
+  padding: 1rem;
+  border-width: 4px;
+  border-color: var(--color-gray-900);
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: all 0.2s;
+  transform: scale(1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+@utility block-container {
+  background-color: var(--color-gray-800);
+  border-width: 4px;
+  border-color: var(--color-gray-900);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@utility bg-brown-gradient {
+  background-image: linear-gradient(to bottom, var(--color-brown-600), var(--color-brown-800));
+}
+
+@utility bg-stone-gradient {
+  background-image: linear-gradient(to bottom, var(--color-stone-600), var(--color-stone-800));
+}
+
+@utility bg-lime-gradient {
+  background-image: linear-gradient(to bottom, var(--color-lime-400), var(--color-lime-600));
+}
+
+@utility bg-gold-gradient {
+  background-image: linear-gradient(to bottom, var(--color-gold-400), var(--color-gold-600));
+}
