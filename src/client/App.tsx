@@ -4,8 +4,10 @@ import { AppRouter } from '@client/router';
 export function App() {
   return (
     <RouterProvider>
-      <div className="min-h-screen bg-gradient-to-b from-green-900 to-green-700 text-white font-minecraft">
-        <AppRouter />
+      <div className="h-[100dvh] min-h-[100dvh] w-full overflow-y-scroll bg-background flex items-center justify-center">
+        <div className="mx-auto flex max-w-2xl flex-col p-6 h-full min-h-0  ">
+          <AppRouter />
+        </div>
       </div>
     </RouterProvider>
   );

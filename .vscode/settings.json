@@ -13,7 +13,8 @@
     "vstack",
     "webbit",
     "webroot",
-    "zstack"
+    "zstack",
+    "Minddit4u"
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
