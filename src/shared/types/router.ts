@@ -1,6 +1,6 @@
-export type Page = 'home' | 'game' | 'leaderboard' | 'how-to-play';
+export type Pages = 'home' | 'game' | 'leaderboard' | 'how-to-play' | 'stats';
 
 export interface RouterContextType {
-  currentPage: Page;
-  goto: (page: Page) => void;
+  currentPage: Pages;
+  goto: (page: Pages) => void;
 }

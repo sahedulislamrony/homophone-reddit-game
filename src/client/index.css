@@ -15,7 +15,7 @@
   }
 
   button {
-    cursor: pointer;
+    @apply cursor-pointer;
   }
 
   /* Ensure proper webview sizing */
@@ -50,19 +50,22 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
-  --card: #f8fafc;
-  --card-foreground: #0f172a;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #e2e8f0;
-  --secondary-foreground: #64748b;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --border: #e2e8f0;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
+  --background: #121212;
+  --foreground: #ffffff;
+  --card: #1c1c1c;
+  --card-foreground: #ffffff;
+  --primary: #7fdbff;
+  --primary-foreground: #121212;
+  --secondary: #2d2d2d;
+  --secondary-foreground: #a0a0a0;
+  --muted: #2d2d2d;
+  --muted-foreground: #a0a0a0;
+  --border: #404040;
+  --accent: #ffd700;
+  --accent-foreground: #121212;
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
 }
 
 @theme inline {
@@ -79,4 +82,30 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+}
+
+/* Dark theme specific styles */
+.dark-gradient {
+  background: linear-gradient(135deg, #121212 0%, #1c1c1c 100%);
+}
+
+.neon-glow {
+  box-shadow: 0 0 20px rgba(127, 219, 255, 0.3);
+}
+
+.accent-glow {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 25px rgba(127, 219, 255, 0.5);
+  transition: box-shadow 0.3s ease;
+}
+
+.accent-hover:hover {
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+  transition: box-shadow 0.3s ease;
 }

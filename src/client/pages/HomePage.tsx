@@ -1,147 +1,81 @@
+import { Pages } from '@/shared/types/router';
 import { useRouter } from '@client/contexts/RouterContext';
-import { Play, Trophy, HelpCircle, User, Settings, LucideIcon } from 'lucide-react';
-import { useLoading } from '@client/components/Loader';
+import { Play, Trophy, HelpCircle, Home, BarChart } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
-  const { startLoading } = useLoading();
 
-  const handleNavigation = async (page: string) => {
-    await startLoading(800);
-    router.goto(page as any);
+  const handleNavigation = (page: string) => {
+    router.goto(page as Pages);
   };
 
   return (
-    <div className="w-full min-h-screen bg-background">
-      {/* Modern Header */}
-      <header className="w-full border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">M</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">Minddit4u</h1>
-                <p className="text-xs text-muted-foreground">Attention Training</p>
-              </div>
-            </div>
+    <div className="w-full min-h-screen dark-gradient relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-20 w-32 h-32 bg-accent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-primary rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent rounded-full blur-3xl"></div>
+      </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
-                <User className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Guest User</span>
+      {/* Main Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
+        <div className="max-w-2xl mx-auto text-center text-transparent bg-clip-text bg-gradient-to-r from-accent to-primary">
+          {/* Title */}
+          <h1 className="text-5xl font-bold text-accent mb-4 neon-glow">Welcome to</h1>
+          <h1 className="text-5xl font-bold text-accent mb-4 neon-glow">Daily Homophone Hunt</h1>
+          <p className="text-xl text-muted-foreground mb-12">
+            Find the wrong words and replace them with correct homophones!
+          </p>
+
+          {/* Action Buttons */}
+          <div className="space-y-6">
+            {/* Start Game Button */}
+            <button
+              onClick={() => handleNavigation('game')}
+              className="group w-full max-w-md mx-auto p-6 bg-accent text-accent-foreground rounded-2xl border-2 border-accent hover:bg-accent/90 transition-all duration-300 accent-glow accent-hover"
+            >
+              <div className="flex items-center justify-center gap-4">
+                <Play className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <span className="text-xl font-semibold">Start Game</span>
               </div>
-              <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-                <Settings className="w-4 h-4 text-muted-foreground" />
+            </button>
+
+            <button
+              onClick={() => handleNavigation('stats')}
+              className="group w-full max-w-md mx-auto p-6 bg-accent text-accent-foreground rounded-2xl border-2 border-accent hover:bg-accent/90 transition-all duration-300 accent-glow accent-hover"
+            >
+              <div className="flex items-center justify-center gap-4">
+                <BarChart className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <span className="text-xl font-semibold">See Your Stats</span>
+              </div>
+            </button>
+
+            {/* Secondary Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+              <button
+                onClick={() => handleNavigation('leaderboard')}
+                className="group p-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl hover:bg-card/80 transition-all duration-300 glow-hover"
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <Trophy className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-foreground">Leaderboard</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleNavigation('how-to-play')}
+                className="group p-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl hover:bg-card/80 transition-all duration-300 glow-hover"
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <HelpCircle className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-foreground">How to Play</span>
+                </div>
               </button>
             </div>
           </div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        <div className="max-w-2xl mx-auto">
-          {/* Welcome Section */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-semibold text-foreground mb-3">Welcome to Minddit4u</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Enhance your focus and attention span with our scientifically designed training
-              exercises
-            </p>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <StatCard label="Sessions" value="0" />
-              <StatCard label="Best Score" value="0" />
-              <StatCard label="Streak" value="0" />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-4">
-            <ModernButton
-              text="Start Training"
-              onClick={() => handleNavigation('game')}
-              Icon={Play}
-              variant="primary"
-              description="Begin your attention training journey"
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <ModernButton
-                text="Leaderboard"
-                onClick={() => handleNavigation('leaderboard')}
-                Icon={Trophy}
-                variant="secondary"
-                description="See top performers"
-              />
-              <ModernButton
-                text="How to Play"
-                onClick={() => handleNavigation('how-to-play')}
-                Icon={HelpCircle}
-                variant="secondary"
-                description="Learn the rules"
-              />
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-card border border-border rounded-xl p-4">
-      <div className="text-2xl font-semibold text-foreground mb-1">{value}</div>
-      <div className="text-sm text-muted-foreground">{label}</div>
-    </div>
-  );
-}
-
-function ModernButton({
-  text,
-  onClick,
-  Icon,
-  variant = 'secondary',
-  description,
-}: {
-  text: string;
-  onClick?: () => void;
-  Icon: LucideIcon;
-  variant?: 'primary' | 'secondary';
-  description?: string;
-}) {
-  const baseClasses =
-    'group relative w-full p-6 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
-
-  const variantClasses =
-    variant === 'primary'
-      ? 'bg-primary text-primary-foreground border-primary hover:bg-primary/90 focus:ring-primary/50'
-      : 'bg-card text-card-foreground border-border hover:bg-muted focus:ring-primary/50';
-
-  return (
-    <button className={`${baseClasses} ${variantClasses}`} onClick={onClick}>
-      <div className="flex items-center gap-4">
-        <div
-          className={`p-3 rounded-lg ${variant === 'primary' ? 'bg-primary-foreground/20' : 'bg-muted'}`}
-        >
-          <Icon
-            className={`w-5 h-5 ${variant === 'primary' ? 'text-primary-foreground' : 'text-muted-foreground'}`}
-          />
-        </div>
-        <div className="text-left flex-1">
-          <div className="font-semibold text-base mb-1">{text}</div>
-          {description && (
-            <div
-              className={`text-sm ${variant === 'primary' ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}
-            >
-              {description}
-            </div>
-          )}
-        </div>
       </div>
-    </button>
+    </div>
   );
 }

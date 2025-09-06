@@ -1,266 +1,210 @@
 import { useState } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
-import { ArrowLeft, Trophy, Medal } from 'lucide-react';
-import { useLoading } from '@client/components/Loader';
+import { Home, Trophy, Medal, Award, Crown, BarChart3 } from 'lucide-react';
+import { LeaderboardEntry } from '@shared/types/game';
 
-type TimeFilter = 'all-time' | 'today' | 'week';
-type DifficultyFilter = 'beginner' | 'intermediate' | 'advanced';
+// Dummy data for leaderboard
+const todayData: LeaderboardEntry[] = [
+  { rank: 1, username: 'wizard123', points: 150, date: '2024-01-15' },
+  { rank: 2, username: 'homophoneHero', points: 120, date: '2024-01-15' },
+  { rank: 3, username: 'grammarGoblin', points: 110, date: '2024-01-15' },
+  { rank: 4, username: 'wordMaster', points: 95, date: '2024-01-15' },
+  { rank: 5, username: 'spellChecker', points: 85, date: '2024-01-15' },
+  { rank: 6, username: 'lexiconLover', points: 80, date: '2024-01-15' },
+  { rank: 7, username: 'syntaxSavant', points: 75, date: '2024-01-15' },
+  { rank: 8, username: 'vocabVirtuoso', points: 70, date: '2024-01-15' },
+];
 
-interface LeaderboardEntry {
-  rank: number;
-  username: string;
-  score: number;
-  level: string;
-  avatar: string;
-  badge: string;
-}
+const allTimeData: LeaderboardEntry[] = [
+  { rank: 1, username: 'wizard123', points: 2500 },
+  { rank: 2, username: 'homophoneHero', points: 2300 },
+  { rank: 3, username: 'grammarGoblin', points: 2100 },
+  { rank: 4, username: 'wordMaster', points: 1950 },
+  { rank: 5, username: 'spellChecker', points: 1800 },
+  { rank: 6, username: 'lexiconLover', points: 1650 },
+  { rank: 7, username: 'syntaxSavant', points: 1500 },
+  { rank: 8, username: 'vocabVirtuoso', points: 1350 },
+  { rank: 9, username: 'languageLegend', points: 1200 },
+  { rank: 10, username: 'textTitan', points: 1050 },
+];
 
 export default function LeaderboardPage() {
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all-time');
-  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>('beginner');
   const router = useRouter();
-  const { startLoading } = useLoading();
+  const [activeTab, setActiveTab] = useState<'today' | 'allTime'>('today');
 
-  // Dummy data
-  const leaderboardData: LeaderboardEntry[] = [
-    {
-      rank: 1,
-      username: 'FocusMaster',
-      score: 12500,
-      level: 'Advanced',
-      avatar: '🧠',
-      badge: 'gold',
-    },
-    {
-      rank: 2,
-      username: 'AttentionPro',
-      score: 11200,
-      level: 'Advanced',
-      avatar: '🎯',
-      badge: 'silver',
-    },
-    {
-      rank: 3,
-      username: 'MindTrainer',
-      score: 9800,
-      level: 'Intermediate',
-      avatar: '⚡',
-      badge: 'bronze',
-    },
-    {
-      rank: 4,
-      username: 'ConcentrationKing',
-      score: 8450,
-      level: 'Intermediate',
-      avatar: '👑',
-      badge: 'none',
-    },
-    {
-      rank: 5,
-      username: 'FocusNewbie',
-      score: 7600,
-      level: 'Beginner',
-      avatar: '🌟',
-      badge: 'none',
-    },
-    {
-      rank: 6,
-      username: 'AttentionSeeker',
-      score: 6800,
-      level: 'Intermediate',
-      avatar: '🔍',
-      badge: 'none',
-    },
-    {
-      rank: 7,
-      username: 'MindBender',
-      score: 6200,
-      level: 'Advanced',
-      avatar: '🌀',
-      badge: 'none',
-    },
-    {
-      rank: 8,
-      username: 'FocusFinder',
-      score: 5900,
-      level: 'Beginner',
-      avatar: '🔎',
-      badge: 'none',
-    },
-    {
-      rank: 9,
-      username: 'AttentionGuru',
-      score: 5400,
-      level: 'Intermediate',
-      avatar: '🧘',
-      badge: 'none',
-    },
-    {
-      rank: 10,
-      username: 'MindReader',
-      score: 5100,
-      level: 'Beginner',
-      avatar: '📖',
-      badge: 'none',
-    },
-  ];
+  const currentData = activeTab === 'today' ? todayData : allTimeData;
 
-  const handleFilterChange = async () => {
-    await startLoading(500);
+  const getRankIcon = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return <Crown className="w-5 h-5 text-accent" />;
+      case 2:
+        return <Medal className="w-5 h-5 text-gray-400" />;
+      case 3:
+        return <Award className="w-5 h-5 text-amber-600" />;
+      default:
+        return <span className="text-muted-foreground font-bold">#{rank}</span>;
+    }
+  };
+
+  const getRankColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return 'bg-accent/10 border-accent/30 text-accent';
+      case 2:
+        return 'bg-gray-400/10 border-gray-400/30 text-gray-400';
+      case 3:
+        return 'bg-amber-600/10 border-amber-600/30 text-amber-600';
+      default:
+        return 'bg-card/60 border-border text-foreground';
+    }
   };
 
   return (
-    <div className="w-full min-h-screen bg-background">
-      {/* Modern Header */}
-      <header className="w-full border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.goto('home')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm font-medium">Back</span>
-            </button>
-            <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-primary" />
-              Leaderboard
-            </h1>
-            <div className="w-16"></div>
-          </div>
-        </div>
-      </header>
+    <div className="w-full min-h-screen dark-gradient relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-20 w-32 h-32 bg-accent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-primary rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent rounded-full blur-3xl"></div>
+      </div>
 
-      {/* Filters */}
-      <div className="w-full border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-foreground mb-2">Time Period</label>
-              <select
-                className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                value={timeFilter}
-                onChange={(e) => {
-                  setTimeFilter(e.target.value as TimeFilter);
-                  void handleFilterChange();
-                }}
-              >
-                <option value="all-time">All Time</option>
-                <option value="week">This Week</option>
-                <option value="today">Today</option>
-              </select>
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-foreground mb-2">Difficulty</label>
-              <select
-                className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                value={difficultyFilter}
-                onChange={(e) => {
-                  setDifficultyFilter(e.target.value as DifficultyFilter);
-                  void handleFilterChange();
-                }}
-              >
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      {/* Navigation Buttons */}
+      <div className="absolute top-6 right-6 z-10 flex gap-3">
+        <button
+          onClick={() => router.goto('stats')}
+          className="p-3 bg-card/80 backdrop-blur-sm border border-border rounded-xl hover:bg-card transition-all duration-300 glow-hover"
+        >
+          <BarChart3 className="w-5 h-5 text-foreground" />
+        </button>
+        <button
+          onClick={() => router.goto('home')}
+          className="p-3 bg-card/80 backdrop-blur-sm border border-border rounded-xl hover:bg-card transition-all duration-300 glow-hover"
+        >
+          <Home className="w-5 h-5 text-foreground" />
+        </button>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <div className="relative z-10 px-6 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Stats Overview */}
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            <div className="bg-card border border-border rounded-xl p-6 text-center">
-              <div className="text-2xl font-semibold text-foreground mb-1">1,247</div>
-              <div className="text-sm text-muted-foreground">Total Players</div>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Trophy className="w-8 h-8 text-accent" />
+              <h1 className="text-4xl font-bold text-accent neon-glow">Leaderboard</h1>
             </div>
-            <div className="bg-card border border-border rounded-xl p-6 text-center">
-              <div className="text-2xl font-semibold text-foreground mb-1">12,500</div>
-              <div className="text-sm text-muted-foreground">Highest Score</div>
-            </div>
-            <div className="bg-card border border-border rounded-xl p-6 text-center">
-              <div className="text-2xl font-semibold text-foreground mb-1">847</div>
-              <div className="text-sm text-muted-foreground">Active Today</div>
+            <p className="text-lg text-muted-foreground">
+              See how you stack up against other players
+            </p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-card/40 backdrop-blur-sm border border-border rounded-xl p-1">
+              <button
+                onClick={() => setActiveTab('today')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  activeTab === 'today'
+                    ? 'bg-accent text-accent-foreground accent-glow'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Today
+              </button>
+              <button
+                onClick={() => setActiveTab('allTime')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  activeTab === 'allTime'
+                    ? 'bg-accent text-accent-foreground accent-glow'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                All Time
+              </button>
             </div>
           </div>
 
-          {/* Leaderboard */}
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-border">
-              <h2 className="text-lg font-semibold text-foreground">Top Performers</h2>
-              <p className="text-sm text-muted-foreground">
-                Ranked by highest attention training scores
-              </p>
+          {/* Leaderboard Table */}
+          <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-lg border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-card/60 border-b border-border">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
+                      Rank
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
+                      Username
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
+                      Points
+                    </th>
+                    {activeTab === 'today' && (
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
+                        Date
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {currentData.map((entry) => (
+                    <tr
+                      key={entry.rank}
+                      className={`hover:bg-card/40 transition-colors duration-200 ${
+                        entry.rank <= 3 ? 'bg-gradient-to-r from-transparent to-accent/5' : ''
+                      }`}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">{getRankIcon(entry.rank)}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                            <span className="text-primary font-bold text-sm">
+                              {entry.username.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="font-medium text-foreground">{entry.username}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-bold text-accent text-lg">
+                          {entry.points.toLocaleString()}
+                        </span>
+                      </td>
+                      {activeTab === 'today' && entry.date && (
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {new Date(entry.date).toLocaleDateString()}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          </div>
 
-            <div className="divide-y divide-border">
-              {leaderboardData.map((player, index) => (
-                <LeaderboardRow key={player.rank} player={player} index={index} />
-              ))}
+          {/* Your Score Section */}
+          <div className="mt-8 bg-card/40 backdrop-blur-sm border border-border rounded-2xl p-6">
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-foreground mb-2">Your Performance</h3>
+              <div className="grid grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-accent mb-1">0</div>
+                  <div className="text-sm text-muted-foreground">Current Score</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary mb-1">0</div>
+                  <div className="text-sm text-muted-foreground">Best Score</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-success mb-1">0</div>
+                  <div className="text-sm text-muted-foreground">Games Played</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-function LeaderboardRow({ player, index }: { player: LeaderboardEntry; index: number }) {
-  const isTopThree = index < 3;
-
-  const badgeIcons = {
-    gold: <Medal className="w-4 h-4 text-yellow-500" />,
-    silver: <Medal className="w-4 h-4 text-gray-400" />,
-    bronze: <Medal className="w-4 h-4 text-amber-600" />,
-    none: null,
-  };
-
-  return (
-    <div
-      className={`flex items-center p-6 hover:bg-muted/50 transition-colors ${
-        isTopThree ? 'bg-primary/5' : ''
-      }`}
-    >
-      <div className="flex items-center gap-4 flex-1">
-        <div
-          className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold ${
-            index === 0
-              ? 'bg-yellow-100 text-yellow-600'
-              : index === 1
-                ? 'bg-gray-100 text-gray-600'
-                : index === 2
-                  ? 'bg-amber-100 text-amber-600'
-                  : 'bg-muted text-muted-foreground'
-          }`}
-        >
-          {player.rank}
-        </div>
-
-        <div className="w-12 h-12 flex items-center justify-center bg-muted rounded-full text-xl">
-          {player.avatar}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-foreground truncate">{player.username}</h3>
-            {badgeIcons[player.badge as keyof typeof badgeIcons]}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{player.level}</span>
-            <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
-            <span className="text-sm text-muted-foreground">Level {player.level}</span>
-          </div>
-        </div>
-
-        <div className="text-right">
-          <div className="text-lg font-semibold text-foreground">
-            {player.score.toLocaleString()}
-          </div>
-          <div className="text-sm text-muted-foreground">points</div>
         </div>
       </div>
     </div>

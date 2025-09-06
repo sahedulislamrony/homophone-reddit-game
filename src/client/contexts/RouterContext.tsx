@@ -9,7 +9,7 @@ interface RouterProviderProps {
   initialPage?: Page;
 }
 
-export function RouterProvider({ children, initialPage = 'home' }: RouterProviderProps) {
+export function RouterProvider({ children, initialPage = 'main-menu' }: RouterProviderProps) {
   const [currentPage, setCurrentPage] = useState<Page>(initialPage);
 
   const goto = (page: Page) => {
