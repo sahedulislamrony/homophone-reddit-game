@@ -1,25 +1,68 @@
 @import 'tailwindcss';
 
 @layer base {
-  /* Apply custom font globally */
+  /* Apply modern font globally */
   body {
-    font-family: 'Press Start 2P', system-ui;
+    font-family:
+      'Poppins',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
   }
 
   button {
     cursor: pointer;
   }
+
+  /* Ensure proper webview sizing */
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Desktop-focused responsive design */
+  @media (min-width: 1024px) {
+    body {
+      font-size: 14px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    body {
+      font-size: 15px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    body {
+      font-size: 16px;
+    }
+  }
 }
 
 :root {
-  --background: #141313;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --primary: #ff4500;
-  --primary-foreground: #f8fafc;
-  --secondary: #3f3f46;
-  --secondary-foreground: #fafafa;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #f8fafc;
+  --card-foreground: #0f172a;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #64748b;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
 }
 
 @theme inline {
@@ -31,4 +74,9 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 }

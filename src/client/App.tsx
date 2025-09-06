@@ -1,14 +1,20 @@
 import { RouterProvider } from '@client/contexts/RouterContext';
 import { AppRouter } from '@client/router';
+import { Loader } from '@client/components/Loader';
+import { useLoading } from '@client/components/Loader';
 
 export function App() {
+  const { isLoading } = useLoading();
+
   return (
     <RouterProvider>
-      <div className="h-[100dvh] min-h-[100dvh] w-full overflow-y-scroll bg-background flex items-center justify-center">
-        <div className="mx-auto flex max-w-2xl flex-col p-6 h-full min-h-0  ">
-          <AppRouter />
+      <Loader isLoading={isLoading}>
+        <div className="min-h-screen w-full bg-background">
+          <div className="w-full max-w-6xl mx-auto">
+            <AppRouter />
+          </div>
         </div>
-      </div>
+      </Loader>
     </RouterProvider>
   );
 }

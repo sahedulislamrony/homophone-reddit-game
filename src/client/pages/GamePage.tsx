@@ -1,55 +1,154 @@
 import { useRouter } from '../contexts/RouterContext';
+import { ArrowLeft, Clock } from 'lucide-react';
+import { useLoading } from '@client/components/Loader';
 
 export default function GamePage() {
   const router = useRouter();
+  const { startLoading } = useLoading();
+
+  const handleDifficultySelect = async (difficulty: string) => {
+    await startLoading(1000);
+    console.log(`${difficulty} selected`);
+    // Here you would typically start the game
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-4">SELECT DIFFICULTY</h1>
-        <p className="text-xl text-gray-300">Choose your challenge level</p>
-      </div>
-
-      {/* Difficulty Options */}
-      <div className="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div
-          onClick={() => console.log('Easy selected')}
-          className="cursor-pointer p-6 bg-gradient-to-b from-green-600 to-green-800 border-4 border-gray-900 rounded-lg text-center hover:from-green-700 hover:to-green-900 transition-all transform hover:scale-105 shadow-2xl"
-        >
-          <div className="w-20 h-20 mx-auto bg-gradient-to-b from-lime-400 to-lime-600 border-4 border-gray-900 rounded-lg mb-4"></div>
-          <h2 className="text-2xl font-bold mb-2">EASY</h2>
-          <p className="text-gray-300">For beginners</p>
+    <div className="w-full min-h-screen bg-background">
+      {/* Modern Header */}
+      <header className="w-full border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.goto('home')}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Back</span>
+            </button>
+            <h1 className="text-xl font-semibold text-foreground">Training Mode</h1>
+            <div className="w-16"></div>
+          </div>
         </div>
+      </header>
 
-        <div
-          onClick={() => console.log('Medium selected')}
-          className="cursor-pointer p-6 bg-gradient-to-b from-yellow-600 to-yellow-800 border-4 border-gray-900 rounded-lg text-center hover:from-yellow-700 hover:to-yellow-900 transition-all transform hover:scale-105 shadow-2xl"
-        >
-          <div className="w-20 h-20 mx-auto bg-gradient-to-b from-gold-400 to-gold-600 border-4 border-gray-900 rounded-lg mb-4"></div>
-          <h2 className="text-2xl font-bold mb-2">MEDIUM</h2>
-          <p className="text-gray-300">For experienced players</p>
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-6 py-12">
+        <div className="max-w-2xl mx-auto">
+          {/* Description */}
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
+              Select Your Training Level
+            </h2>
+            <p className="text-muted-foreground">
+              Choose the difficulty that matches your current attention training level
+            </p>
+          </div>
+
+          {/* Difficulty Options */}
+          <div className="space-y-6">
+            <DifficultyOption
+              level="Beginner"
+              description="Perfect for starting your attention training journey"
+              duration="5 minutes"
+              features={['Simple exercises', 'Gentle pace', 'Basic patterns']}
+              color="green"
+              onClick={() => handleDifficultySelect('beginner')}
+            />
+
+            <DifficultyOption
+              level="Intermediate"
+              description="For those with some experience in focus training"
+              duration="10 minutes"
+              features={['Complex patterns', 'Moderate speed', 'Multi-tasking']}
+              color="blue"
+              onClick={() => handleDifficultySelect('intermediate')}
+            />
+
+            <DifficultyOption
+              level="Advanced"
+              description="Challenge yourself with expert-level attention exercises"
+              duration="15 minutes"
+              features={['Rapid sequences', 'High complexity', 'Endurance focus']}
+              color="purple"
+              onClick={() => handleDifficultySelect('advanced')}
+            />
+          </div>
+
+          {/* Quick Stats */}
+          <div className="mt-12 p-6 bg-muted rounded-xl">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Training Overview</h3>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-semibold text-foreground">0</div>
+                <div className="text-sm text-muted-foreground">Sessions</div>
+              </div>
+              <div>
+                <div className="text-2xl font-semibold text-foreground">0</div>
+                <div className="text-sm text-muted-foreground">Best Score</div>
+              </div>
+              <div>
+                <div className="text-2xl font-semibold text-foreground">0</div>
+                <div className="text-sm text-muted-foreground">Streak</div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div
-          onClick={() => console.log('Hard selected')}
-          className="cursor-pointer p-6 bg-gradient-to-b from-red-600 to-red-800 border-4 border-gray-900 rounded-lg text-center hover:from-red-700 hover:to-red-900 transition-all transform hover:scale-105 shadow-2xl"
-        >
-          <div className="w-20 h-20 mx-auto bg-gradient-to-b from-red-400 to-red-600 border-4 border-gray-900 rounded-lg mb-4"></div>
-          <h2 className="text-2xl font-bold mb-2">HARD</h2>
-          <p className="text-gray-300">For experts only</p>
-        </div>
-      </div>
-
-      {/* Back Button */}
-      <div className="text-center mt-12">
-        <button
-          onClick={() => router.goto('home')}
-          className="px-8 py-3 bg-gradient-to-b from-gray-600 to-gray-800 border-4 border-gray-900 rounded-lg text-xl font-bold hover:from-gray-700 hover:to-gray-900 transition-all"
-        >
-          BACK TO HOME
-        </button>
-      </div>
+      </main>
     </div>
+  );
+}
+
+function DifficultyOption({
+  level,
+  description,
+  duration,
+  features,
+  color,
+  onClick,
+}: {
+  level: string;
+  description: string;
+  duration: string;
+  features: string[];
+  color: 'green' | 'blue' | 'purple';
+  onClick: () => void;
+}) {
+  const colorClasses = {
+    green: 'border-green-200 bg-green-50 hover:bg-green-100',
+    blue: 'border-blue-200 bg-blue-50 hover:bg-blue-100',
+    purple: 'border-purple-200 bg-purple-50 hover:bg-purple-100',
+  };
+
+  const iconClasses = {
+    green: 'text-green-600',
+    blue: 'text-blue-600',
+    purple: 'text-purple-600',
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full p-6 rounded-xl border-2 ${colorClasses[color]} transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-left`}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="text-xl font-semibold text-foreground mb-2">{level}</h3>
+          <p className="text-muted-foreground">{description}</p>
+        </div>
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <Clock className="w-4 h-4" />
+          <span>{duration}</span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {features.map((feature, index) => (
+          <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className={`w-1.5 h-1.5 rounded-full ${iconClasses[color]}`}></div>
+            <span>{feature}</span>
+          </div>
+        ))}
+      </div>
+    </button>
   );
 }
