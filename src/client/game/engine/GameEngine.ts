@@ -1,11 +1,11 @@
 import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 
 export interface GameEngineConfig {
-  pointsPerCorrect: number;
-  pointsPerHint: number;
-  maxHints: number;
-  timeBonus: boolean;
-  streakMultiplier: boolean;
+  pointsPerCorrect: number; // Base points for first correct answer
+  pointsPerHint: number; // Points deducted for using hints (negative value)
+  maxHints: number; // Maximum hints allowed per game
+  timeBonus: boolean; // Enable time-based bonuses
+  streakMultiplier: boolean; // Enable progressive streak multipliers (1x, 2x, 3x, etc.)
 }
 
 export class GameEngine {
@@ -32,11 +32,11 @@ export class GameEngine {
 
     // Default configuration
     this.config = {
-      pointsPerCorrect: 10,
-      pointsPerHint: -2,
-      maxHints: 3,
-      timeBonus: true,
-      streakMultiplier: true,
+      pointsPerCorrect: 10, // Base points: 10 for first correct answer
+      pointsPerHint: -2, // -2 points per hint used
+      maxHints: 3, // Maximum 3 hints per game
+      timeBonus: true, // Enable time bonuses
+      streakMultiplier: true, // Enable progressive multipliers (1x, 2x, 3x, 4x...)
       ...config,
     };
   }
@@ -103,11 +103,13 @@ export class GameEngine {
     // Word is correct and not previously submitted
     let points = 0;
 
-    // Calculate points with streak multiplier
-    points = this.config.pointsPerCorrect;
-    if (this.config.streakMultiplier && this.currentStreak > 0) {
-      points = Math.floor(points * (1 + this.currentStreak * 0.1));
-    }
+    // Calculate base points with progressive multiplier
+    // First correct: min points (1x)
+    // Second consecutive: min points * 2
+    // Third consecutive: min points * 3
+    // And so on...
+    const multiplier = this.currentStreak + 1; // +1 because we increment streak after this
+    points = this.config.pointsPerCorrect * multiplier;
 
     // Add time bonus if enabled
     if (this.config.timeBonus) {
@@ -130,7 +132,7 @@ export class GameEngine {
     // Provide feedback
     const feedback: GameFeedback = {
       type: 'correct',
-      message: `Correct! You found "${correctWord}". You earned ${points} points.${this.currentStreak > 1 ? ` (${this.currentStreak}x streak!)` : ''}`,
+      message: `Correct! You found "${correctWord}". You earned ${points} points (${multiplier}x multiplier!)`,
       points,
     };
 
@@ -334,5 +336,20 @@ export class GameEngine {
   // Check if a specific word has been found
   isWordFound(word: string): boolean {
     return this.gameState.userAnswers.some((answer) => answer.toLowerCase() === word.toLowerCase());
+  }
+
+  // Get current streak multiplier for next correct answer
+  getCurrentMultiplier(): number {
+    return this.currentStreak + 1;
+  }
+
+  // Get streak information for display
+  getStreakInfo() {
+    return {
+      currentStreak: this.currentStreak,
+      nextMultiplier: this.getCurrentMultiplier(),
+      basePoints: this.config.pointsPerCorrect,
+      nextPoints: this.config.pointsPerCorrect * this.getCurrentMultiplier(),
+    };
   }
 }

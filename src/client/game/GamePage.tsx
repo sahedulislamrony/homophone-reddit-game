@@ -131,6 +131,7 @@ export default function GamePage() {
               onHint={handleHint}
               canUseHint={gameEngine.canUseHint()}
               feedback={feedback}
+              streakInfo={gameEngine.getStreakInfo()}
             />
 
             {feedback && <FeedbackMessage feedback={feedback} />}

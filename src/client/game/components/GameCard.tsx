@@ -13,6 +13,12 @@ type GameCardProps = {
   onHint: () => boolean;
   canUseHint: boolean;
   feedback: GameFeedback | null;
+  streakInfo?: {
+    currentStreak: number;
+    nextMultiplier: number;
+    basePoints: number;
+    nextPoints: number;
+  };
 };
 
 export default function GameCard({
@@ -25,6 +31,7 @@ export default function GameCard({
   onKeyPress,
   onHint,
   canUseHint,
+  streakInfo,
 }: GameCardProps) {
   // Highlight incorrect words in the content
   const renderContent = () => {
@@ -53,7 +60,21 @@ export default function GameCard({
       {/* Score and Hint */}
       <div className="flex justify-between items-center mb-6">
         <div className="text-white">
-          Score: <span className="text-yellow-400 font-bold">{gameState.score}</span>
+          <div className="flex items-center gap-4">
+            <div>
+              Score: <span className="text-yellow-400 font-bold">{gameState.score}</span>
+            </div>
+            {streakInfo && streakInfo.currentStreak > 0 && (
+              <div className="text-sm">
+                Streak: <span className="text-green-400 font-bold">{streakInfo.currentStreak}</span>
+              </div>
+            )}
+          </div>
+          {streakInfo && (
+            <div className="text-xs text-gray-400 mt-1">
+              Next correct: {streakInfo.nextPoints} points ({streakInfo.nextMultiplier}x)
+            </div>
+          )}
         </div>
         <button
           onClick={onHint}
