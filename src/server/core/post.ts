@@ -9,11 +9,12 @@ export const createPost = async () => {
   return await reddit.submitCustomPost({
     splash: {
       appIconUri: 'logo.png',
-      appDisplayName: 'Need Your Focus',
-      backgroundUri: 'welcome.png',
-      buttonLabel: 'Start Playing',
+      appDisplayName: 'The Daily Homophone',
+      backgroundUri: 'root_bg.png',
+      description: 'Hunt down Impostor words and claim your linguistic Victory',
+      buttonLabel: 'Play Now',
     },
     subredditName: subredditName,
-    title: 'Need Your Focus',
+    title: 'The Daily Homophone',
   });
 };

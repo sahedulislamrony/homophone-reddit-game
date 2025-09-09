@@ -23,8 +23,8 @@ export default function HomePage() {
           </h1>
           <div className="flex flex-col items-center gap-0 mb-5 mt-5 max-w-md mx-auto">
             <p className="text-lg text-gray-300 mb-0 text-center  ">
-              Hunt down <span className="font-[800] text-rose-700">Impostor</span> words and claim
-              your linguistic <span className="font-[800] text-yellow-600">Victory</span>
+              Hunt down <span className="font-[800] text-red-400">Impostor</span> words and claim
+              your linguistic <span className="font-[800] text-yellow-400">Victory</span>
             </p>
             <NotebookPen className="size-6 text-yellow-400 mt-3" />
           </div>
@@ -42,7 +42,7 @@ export default function HomePage() {
 
             <button
               onClick={() => handleNavigation('stats')}
-              className="group w-full max-w-sm mx-auto py-3 px-6 bg-gray-900/80 backdrop-blur-md text-white rounded-full border border-gray-700 hover:bg-gray-800/80 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"
+              className="group w-full max-w-sm mx-auto py-3 px-6 bg-black/80 backdrop-blur-md text-white rounded-full border border-gray-700 hover:bg-black/70 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"
             >
               <BarChart className="w-4 h-4 group-hover:scale-110 transition-transform" />
               <span className="font-medium">Your Stats</span>
@@ -52,7 +52,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm mx-auto">
               <button
                 onClick={() => handleNavigation('leaderboard')}
-                className="group py-2.5 px-4 bg-gray-900/60 backdrop-blur-sm border border-gray-700 rounded-full hover:bg-gray-800/60 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                className="group py-2.5 px-4 bg-black/80 backdrop-blur-sm border border-gray-700 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
               >
                 <Trophy className="w-4 h-4 text-yellow-400 group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium text-gray-200">Leaderboard</span>
@@ -60,7 +60,7 @@ export default function HomePage() {
 
               <button
                 onClick={() => handleNavigation('how-to-play')}
-                className="group py-2.5 px-4 bg-gray-900/60 backdrop-blur-sm border border-gray-700 rounded-full hover:bg-gray-800/60 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                className="group py-2.5 px-4 bg-black/80 backdrop-blur-sm border border-gray-700 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
               >
                 <HelpCircle className="w-4 h-4 text-yellow-400 group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-medium text-gray-200">How to Play</span>

@@ -176,174 +176,180 @@ export default function StatsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-black">
-      {/* Main Content */}
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
+    <div
+      className="w-full min-h-screen bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: "url('/root_bg.png')" }}
+    >
+      <div className="w-full min-h-screen bg-black/70  ">
+        {/* Main Content */}
+        <div className="p-6">
+          <div className="max-w-6xl mx-auto">
+            <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
 
-          {/* Header */}
-          <div className="text-center mb-10">
-            <p className="text-gray-400">
-              Track your progress and achievements in The Daily Homophone
-            </p>
-          </div>
-
-          {/* Main Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3  gap-6 mb-10">
-            {statCards.map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <div
-                  key={index}
-                  className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-6 hover:bg-gray-800/80 transition-all duration-300"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-xl ${getColorClasses(stat.color)}`}>
-                      <IconComponent className="w-5 h-5" />
-                    </div>
-                    {stat.trend && (
-                      <div
-                        className={`flex items-center gap-1 text-sm ${
-                          stat.trend.isPositive ? 'text-green-400' : 'text-red-400'
-                        }`}
-                      >
-                        <TrendingUp
-                          className={`w-4 h-4 ${stat.trend.isPositive ? 'rotate-0' : 'rotate-180'}`}
-                        />
-                        <span>+{stat.trend.value}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400 mb-1">{stat.title}</h3>
-                    <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-                    {stat.subtitle && <p className="text-sm text-gray-400">{stat.subtitle}</p>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Detailed Stats Section */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-10">
-            {/* Performance Overview */}
-            <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-yellow-400" />
-                Performance Overview
-              </h2>
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Games Played</span>
-                  <span className="text-white font-semibold">{userStats.gamesPlayed}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Best Score</span>
-                  <span className="text-yellow-400 font-semibold">{userStats.bestScore}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Average Score</span>
-                  <span className="text-white font-semibold">{userStats.averageScore}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Hints Used</span>
-                  <span className="text-yellow-400 font-semibold">{userStats.hintsUsed}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Member Since</span>
-                  <span className="text-white font-semibold">
-                    {new Date(userStats.joinDate).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Last Played</span>
-                  <span className="text-white font-semibold">
-                    {new Date(userStats.lastPlayed).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
+            {/* Header */}
+            <div className="text-center mb-10">
+              <p className="text-gray-400">
+                Track your progress and achievements in The Daily Homophone
+              </p>
             </div>
 
-            {/* Achievements */}
-            <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <Trophy className="w-6 h-6 text-yellow-400" />
-                Achievements
-              </h2>
-              <div className="space-y-4">
-                {userStats.achievements.map((achievement) => {
-                  const IconComponent = getAchievementIcon(achievement);
-                  return (
-                    <div
-                      key={achievement.id}
-                      className={`p-4 rounded-xl border transition-all duration-300 ${
-                        achievement.unlocked
-                          ? 'bg-yellow-400/10 border-yellow-400/30'
-                          : 'bg-black/60 border-gray-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
+            {/* Main Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3  gap-6 mb-10">
+              {statCards.map((stat, index) => {
+                const IconComponent = stat.icon;
+                return (
+                  <div
+                    key={index}
+                    className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-6 hover:bg-gray-800/80 transition-all duration-300"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`p-3 rounded-xl ${getColorClasses(stat.color)}`}>
+                        <IconComponent className="w-5 h-5" />
+                      </div>
+                      {stat.trend && (
                         <div
-                          className={`p-2 rounded-lg ${
-                            achievement.unlocked ? 'bg-yellow-400/20' : 'bg-black/60'
+                          className={`flex items-center gap-1 text-sm ${
+                            stat.trend.isPositive ? 'text-green-400' : 'text-red-400'
                           }`}
                         >
-                          <IconComponent
-                            className={`w-5 h-5 ${
-                              achievement.unlocked ? 'text-yellow-400' : 'text-gray-400'
-                            }`}
+                          <TrendingUp
+                            className={`w-4 h-4 ${stat.trend.isPositive ? 'rotate-0' : 'rotate-180'}`}
                           />
+                          <span>+{stat.trend.value}</span>
                         </div>
-                        <div className="flex-1">
-                          <h3
-                            className={`font-semibold ${
-                              achievement.unlocked ? 'text-white' : 'text-gray-400'
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-400 mb-1">{stat.title}</h3>
+                      <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                      {stat.subtitle && <p className="text-sm text-gray-400">{stat.subtitle}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Detailed Stats Section */}
+            <div className="grid lg:grid-cols-2 gap-8 mb-10">
+              {/* Performance Overview */}
+              <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <BarChart3 className="w-6 h-6 text-yellow-400" />
+                  Performance Overview
+                </h2>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Games Played</span>
+                    <span className="text-white font-semibold">{userStats.gamesPlayed}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Best Score</span>
+                    <span className="text-yellow-400 font-semibold">{userStats.bestScore}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Average Score</span>
+                    <span className="text-white font-semibold">{userStats.averageScore}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Hints Used</span>
+                    <span className="text-yellow-400 font-semibold">{userStats.hintsUsed}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Member Since</span>
+                    <span className="text-white font-semibold">
+                      {new Date(userStats.joinDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Last Played</span>
+                    <span className="text-white font-semibold">
+                      {new Date(userStats.lastPlayed).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Achievements */}
+              <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <Trophy className="w-6 h-6 text-yellow-400" />
+                  Achievements
+                </h2>
+                <div className="space-y-4">
+                  {userStats.achievements.map((achievement) => {
+                    const IconComponent = getAchievementIcon(achievement);
+                    return (
+                      <div
+                        key={achievement.id}
+                        className={`p-4 rounded-xl border transition-all duration-300 ${
+                          achievement.unlocked
+                            ? 'bg-yellow-400/10 border-yellow-400/30'
+                            : 'bg-black/60 border-gray-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`p-2 rounded-lg ${
+                              achievement.unlocked ? 'bg-yellow-400/20' : 'bg-black/60'
                             }`}
                           >
-                            {achievement.name}
-                          </h3>
-                          <p className="text-sm text-gray-400 mb-2">{achievement.description}</p>
-                          {achievement.unlocked ? (
-                            <div className="text-xs text-yellow-400">
-                              Unlocked on {new Date(achievement.unlockedDate!).toLocaleDateString()}
-                            </div>
-                          ) : (
-                            <div className="w-full bg-black/60 rounded-full h-2">
-                              <div
-                                className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
-                                style={{
-                                  width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
-                                }}
-                              ></div>
-                            </div>
-                          )}
+                            <IconComponent
+                              className={`w-5 h-5 ${
+                                achievement.unlocked ? 'text-yellow-400' : 'text-gray-400'
+                              }`}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <h3
+                              className={`font-semibold ${
+                                achievement.unlocked ? 'text-white' : 'text-gray-400'
+                              }`}
+                            >
+                              {achievement.name}
+                            </h3>
+                            <p className="text-sm text-gray-400 mb-2">{achievement.description}</p>
+                            {achievement.unlocked ? (
+                              <div className="text-xs text-yellow-400">
+                                Unlocked on{' '}
+                                {new Date(achievement.unlockedDate!).toLocaleDateString()}
+                              </div>
+                            ) : (
+                              <div className="w-full bg-black/60 rounded-full h-2">
+                                <div
+                                  className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
+                                  style={{
+                                    width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
+                                  }}
+                                ></div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Quick Actions */}
-          <div className="text-center">
-            <div className="flex flex-wrap justify-center gap-4">
-              <button
-                onClick={() => router.goto('game')}
-                className="px-6 py-3 flex items-center justify-center gap-2 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold group"
-              >
-                <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                Play Now
-              </button>
-              <button
-                onClick={() => router.goto('leaderboard')}
-                className="px-6 py-3 flex items-center justify-center gap-2 bg-black/80 text-white border border-gray-700 rounded-xl hover:bg-black/70 transition-all duration-300 font-semibold group"
-              >
-                <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                View Leaderboard
-              </button>
+            {/* Quick Actions */}
+            <div className="text-center">
+              <div className="flex flex-wrap justify-center gap-4">
+                <button
+                  onClick={() => router.goto('game')}
+                  className="px-6 py-3 flex items-center justify-center gap-2 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold group"
+                >
+                  <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  Play Now
+                </button>
+                <button
+                  onClick={() => router.goto('leaderboard')}
+                  className="px-6 py-3 flex items-center justify-center gap-2 bg-black/80 text-white border border-gray-700 rounded-xl hover:bg-black/70 transition-all duration-300 font-semibold group"
+                >
+                  <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  View Leaderboard
+                </button>
+              </div>
             </div>
           </div>
         </div>
