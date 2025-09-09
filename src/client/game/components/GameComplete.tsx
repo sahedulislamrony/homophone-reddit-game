@@ -56,7 +56,7 @@ export default function GameComplete({
           {isChallenge && onBackToChallenges && (
             <button
               onClick={onBackToChallenges}
-              className="w-full px-8 py-4 bg-blue-500 text-white rounded-xl hover:bg-blue-400 transition-all duration-300 font-semibold"
+              className="w-full px-8 py-4 bg-sky-500 text-white rounded-xl hover:bg-sky-400 transition-all duration-300 font-semibold"
             >
               Back to Challenges
             </button>
