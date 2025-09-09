@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { GameEngine } from './engine/GameEngine';
 import { GameDataManager } from './data/GameDataManager';
+import { DailyChallengeManager } from './data/DailyChallengeManager';
 import { getRandomGame } from './data/sampleGames';
 import { getBackgroundStyle } from './assets/GameAssets';
 import { GameCard, FeedbackMessage, GameComplete } from './components';
@@ -15,11 +16,40 @@ export default function GamePage() {
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<GameFeedback | null>(null);
   const [gameObject, setGameObject] = useState<GameObject | null>(null);
+  const [challengeId, setChallengeId] = useState<string | null>(null);
 
   // Initialize game
   useEffect(() => {
     const dataManager = GameDataManager.getInstance();
-    const game = getRandomGame();
+    const challengeManager = DailyChallengeManager.getInstance();
+
+    // Check if this is a challenge game
+    const params = router.getParams();
+    const challengeIdParam = params.challengeId;
+
+    console.log('GamePage: Router params:', params);
+    console.log('GamePage: Challenge ID:', challengeIdParam);
+
+    let game: GameObject;
+    if (challengeIdParam) {
+      // Load challenge-specific game
+      const challenge = challengeManager
+        .getTodaysChallenges()
+        .levels.find((level) => level.id === challengeIdParam);
+      if (challenge) {
+        console.log('GamePage: Found challenge:', challenge.themeName);
+        game = challengeManager.challengeToGameObject(challenge);
+        setChallengeId(challengeIdParam);
+      } else {
+        console.log('GamePage: Challenge not found, using random game');
+        game = getRandomGame();
+      }
+    } else {
+      console.log('GamePage: No challenge ID, using random game');
+      // Load random game
+      game = getRandomGame();
+    }
+
     const initialState = dataManager.createInitialGameState();
 
     dataManager.setCurrentGame(game);
@@ -47,14 +77,29 @@ export default function GamePage() {
     );
 
     setGameEngine(engine);
-  }, []);
+  }, [router]);
 
   // Handle game state changes
   useEffect(() => {
     if (gameState?.isCompleted) {
       setUserInput('');
+
+      // If this is a challenge game, complete the challenge
+      if (challengeId && gameState) {
+        const challengeManager = DailyChallengeManager.getInstance();
+        const success = challengeManager.completeChallenge(challengeId, gameState.score);
+
+        if (success) {
+          // Show completion feedback
+          setFeedback({
+            type: 'correct',
+            message: `Challenge completed! You earned ${gameState.score} points and some gems!`,
+            points: gameState.score,
+          });
+        }
+      }
     }
-  }, [gameState?.isCompleted]);
+  }, [gameState?.isCompleted, challengeId, gameState]);
 
   if (!gameEngine || !gameState || !gameObject) {
     return (
@@ -66,7 +111,21 @@ export default function GamePage() {
 
   // Show game complete screen
   if (gameState.isCompleted) {
-    return <GameComplete finalScore={gameState.score} onBackToHome={() => router.goto('home')} />;
+    const challengeManager = DailyChallengeManager.getInstance();
+    const gemsEarned = challengeId
+      ? challengeManager.getTodaysChallenges().levels.find((level) => level.id === challengeId)
+          ?.gemReward || 0
+      : 0;
+
+    return (
+      <GameComplete
+        finalScore={gameState.score}
+        onBackToHome={() => router.goto('home')}
+        {...(challengeId && { onBackToChallenges: () => router.goto('daily-challenges') })}
+        isChallenge={!!challengeId}
+        gemsEarned={gemsEarned}
+      />
+    );
   }
 
   const currentWord = gameEngine.getCurrentWord();
@@ -98,7 +157,7 @@ export default function GamePage() {
   const handleBackToHome = () => {
     const dataManager = GameDataManager.getInstance();
     dataManager.resetGameData();
-    router.goto('home');
+    router.goto('daily-challenges');
   };
 
   return (

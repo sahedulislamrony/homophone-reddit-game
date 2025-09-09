@@ -33,7 +33,7 @@ export default function HomePage() {
           <div className="space-y-4">
             {/* Start Game Button */}
             <button
-              onClick={() => handleNavigation('game')}
+              onClick={() => handleNavigation('daily-challenges')}
               className="group w-full max-w-sm mx-auto py-3 px-6 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"
             >
               <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />

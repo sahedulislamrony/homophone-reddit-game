@@ -11,12 +11,24 @@ interface RouterProviderProps {
 
 export function RouterProvider({ children, initialPage = 'home' }: RouterProviderProps) {
   const [currentPage, setCurrentPage] = useState<Pages>(initialPage);
+  const [params, setParams] = useState<Record<string, string>>({});
 
-  const goto = (page: Pages) => {
+  const goto = (page: Pages, newParams?: Record<string, string>) => {
     setCurrentPage(page);
+    if (newParams) {
+      setParams(newParams);
+    } else {
+      setParams({});
+    }
   };
 
-  return <RouterContext.Provider value={{ currentPage, goto }}>{children}</RouterContext.Provider>;
+  const getParams = () => params;
+
+  return (
+    <RouterContext.Provider value={{ currentPage, goto, getParams }}>
+      {children}
+    </RouterContext.Provider>
+  );
 }
 
 export function useRouter(): RouterContextType {
