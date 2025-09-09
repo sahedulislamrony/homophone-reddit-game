@@ -8,7 +8,7 @@ interface NavigationBarProps {
 
 export default function NavigationBar({ title, onBack, onStats = () => {} }: NavigationBarProps) {
   return (
-    <nav className="flex items-center justify-between mb-8">
+    <nav className="flex items-center justify-between mb-8 w-full max-w-4xl mx-auto">
       <button
         onClick={onBack}
         className="py-2 px-4 bg-black group hover:bg-yellow-400 hover:text-black font-bold backdrop-blur-sm border border-gray-700 rounded-full  transition-all duration-300 flex items-center gap-2"
