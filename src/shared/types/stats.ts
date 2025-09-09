@@ -1,3 +1,5 @@
+import { LucideIcon } from 'lucide-react';
+
 export type UserStats = {
   streak: number;
   homophonesSolved: number;
@@ -29,7 +31,7 @@ export type StatCard = {
   title: string;
   value: string | number;
   subtitle?: string;
-  icon: string;
+  icon: LucideIcon;
   color: 'primary' | 'accent' | 'success' | 'warning' | 'error';
   trend?: {
     value: number;

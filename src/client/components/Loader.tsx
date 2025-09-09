@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { useCallback, useState } from 'react';
 
 interface LoaderProps {
   isLoading: boolean;
@@ -24,9 +25,9 @@ export const Loader: React.FC<LoaderProps> = ({ isLoading, children }) => {
 
 // Hook for simulating loading with sleep
 export const useLoading = () => {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const startLoading = React.useCallback(async (duration: number = 1000) => {
+  const startLoading = useCallback(async (duration: number = 1000) => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, duration));
     setIsLoading(false);

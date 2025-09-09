@@ -1,18 +1,18 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState } from 'react';
-import { Page, RouterContextType } from '@shared/types/router';
+import { Pages, RouterContextType } from '@shared/types/router';
 
 const RouterContext = createContext<RouterContextType | undefined>(undefined);
 
 interface RouterProviderProps {
   children: React.ReactNode;
-  initialPage?: Page;
+  initialPage?: Pages;
 }
 
-export function RouterProvider({ children, initialPage = 'main-menu' }: RouterProviderProps) {
-  const [currentPage, setCurrentPage] = useState<Page>(initialPage);
+export function RouterProvider({ children, initialPage = 'home' }: RouterProviderProps) {
+  const [currentPage, setCurrentPage] = useState<Pages>(initialPage);
 
-  const goto = (page: Page) => {
+  const goto = (page: Pages) => {
     setCurrentPage(page);
   };
 

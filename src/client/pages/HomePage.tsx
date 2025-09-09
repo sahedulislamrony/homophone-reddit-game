@@ -1,6 +1,6 @@
 import { Pages } from '@/shared/types/router';
 import { useRouter } from '@client/contexts/RouterContext';
-import { Play, Trophy, HelpCircle, Home, BarChart } from 'lucide-react';
+import { Play, Trophy, HelpCircle, BarChart, NotebookPen } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
@@ -10,67 +10,60 @@ export default function HomePage() {
   };
 
   return (
-    <div className="w-full min-h-screen dark-gradient relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-accent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-primary rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent rounded-full blur-3xl"></div>
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
-        <div className="max-w-2xl mx-auto text-center text-transparent bg-clip-text bg-gradient-to-r from-accent to-primary">
+    <div
+      className="w-full min-h-screen bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: "url('/root_bg.png')" }}
+    >
+      {/* Dark overlay for better text readability */}
+      <div className="w-full min-h-screen bg-black/70 flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full mx-auto text-center">
           {/* Title */}
-          <h1 className="text-5xl font-bold text-accent mb-4 neon-glow">Welcome to</h1>
-          <h1 className="text-5xl font-bold text-accent mb-4 neon-glow">Daily Homophone Hunt</h1>
-          <p className="text-xl text-muted-foreground mb-12">
-            Find the wrong words and replace them with correct homophones!
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent mb-4">
+            The Daily Homophone
+          </h1>
+          <div className="flex flex-col items-center gap-0 mb-5 mt-5 max-w-md mx-auto">
+            <p className="text-lg text-gray-300 mb-0 text-center  ">
+              Hunt down <span className="font-[800] text-rose-700">Impostor</span> words and claim
+              your linguistic <span className="font-[800] text-yellow-600">Victory</span>
+            </p>
+            <NotebookPen className="size-6 text-yellow-400 mt-3" />
+          </div>
 
           {/* Action Buttons */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Start Game Button */}
             <button
               onClick={() => handleNavigation('game')}
-              className="group w-full max-w-md mx-auto p-6 bg-accent text-accent-foreground rounded-2xl border-2 border-accent hover:bg-accent/90 transition-all duration-300 accent-glow accent-hover"
+              className="group w-full max-w-sm mx-auto py-3 px-6 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"
             >
-              <div className="flex items-center justify-center gap-4">
-                <Play className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                <span className="text-xl font-semibold">Start Game</span>
-              </div>
+              <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span className="font-medium">Start Daily Challenge</span>
             </button>
 
             <button
               onClick={() => handleNavigation('stats')}
-              className="group w-full max-w-md mx-auto p-6 bg-accent text-accent-foreground rounded-2xl border-2 border-accent hover:bg-accent/90 transition-all duration-300 accent-glow accent-hover"
+              className="group w-full max-w-sm mx-auto py-3 px-6 bg-gray-900/80 backdrop-blur-md text-white rounded-full border border-gray-700 hover:bg-gray-800/80 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"
             >
-              <div className="flex items-center justify-center gap-4">
-                <BarChart className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                <span className="text-xl font-semibold">See Your Stats</span>
-              </div>
+              <BarChart className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span className="font-medium">Your Stats</span>
             </button>
 
             {/* Secondary Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm mx-auto">
               <button
                 onClick={() => handleNavigation('leaderboard')}
-                className="group p-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl hover:bg-card/80 transition-all duration-300 glow-hover"
+                className="group py-2.5 px-4 bg-gray-900/60 backdrop-blur-sm border border-gray-700 rounded-full hover:bg-gray-800/60 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
               >
-                <div className="flex items-center justify-center gap-3">
-                  <Trophy className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                  <span className="font-medium text-foreground">Leaderboard</span>
-                </div>
+                <Trophy className="w-4 h-4 text-yellow-400 group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-medium text-gray-200">Leaderboard</span>
               </button>
 
               <button
                 onClick={() => handleNavigation('how-to-play')}
-                className="group p-4 bg-card/60 backdrop-blur-sm border border-border rounded-xl hover:bg-card/80 transition-all duration-300 glow-hover"
+                className="group py-2.5 px-4 bg-gray-900/60 backdrop-blur-sm border border-gray-700 rounded-full hover:bg-gray-800/60 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
               >
-                <div className="flex items-center justify-center gap-3">
-                  <HelpCircle className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                  <span className="font-medium text-foreground">How to Play</span>
-                </div>
+                <HelpCircle className="w-4 h-4 text-yellow-400 group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-medium text-gray-200">How to Play</span>
               </button>
             </div>
           </div>

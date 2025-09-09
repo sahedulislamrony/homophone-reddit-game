@@ -1,16 +1,31 @@
-import { Home, Info } from 'lucide-react';
+import { ArrowLeft, Gem } from 'lucide-react';
 
-export default function NavigationBar() {
+interface NavigationBarProps {
+  title: string;
+  onBack: () => void;
+  onStats?: () => void;
+}
+
+export default function NavigationBar({ title, onBack, onStats = () => {} }: NavigationBarProps) {
   return (
-    <nav className="flex justify-between items-center p-4 bg-background border-b border-secondary/20">
-      <button className="w-10 h-10 rounded-lg bg-card border border-secondary flex items-center justify-center text-foreground hover:bg-secondary/50 transition-colors">
-        <Home size={20} />
+    <nav className="flex items-center justify-between mb-8">
+      <button
+        onClick={onBack}
+        className="py-2 px-4 bg-black group hover:bg-yellow-400 hover:text-black font-bold backdrop-blur-sm border border-gray-700 rounded-full  transition-all duration-300 flex items-center gap-2"
+      >
+        <ArrowLeft className="w-5 h-5 text-gray-200 group-hover:text-black" />
+        <span className="text-gray-200 group-hover:text-black">Back</span>
       </button>
 
-      <h1 className="text-foreground text-lg font-medium">My Game</h1>
+      <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
+        {title}
+      </h1>
 
-      <button className="w-10 h-10 rounded-lg bg-card border border-secondary flex items-center justify-center text-foreground hover:bg-secondary/50 transition-colors">
-        <Info size={20} />
+      <button
+        onClick={onStats}
+        className="py-2 px-4 group bg-black hover:bg-yellow-400 font-bold backdrop-blur-sm border border-gray-700 rounded-full  transition-all duration-300 flex items-center gap-2"
+      >
+        <Gem className="w-5 h-5 text-yellow-400 group-hover:text-black" />
       </button>
     </nav>
   );

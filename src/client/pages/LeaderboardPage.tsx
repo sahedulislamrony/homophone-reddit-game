@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
-import { Home, Trophy, Medal, Award, Crown, BarChart3 } from 'lucide-react';
+import { Trophy, Medal, Award, Crown } from 'lucide-react';
 import { LeaderboardEntry } from '@shared/types/game';
+import NavigationBar from '@client/components/basic/Navigation';
 
 // Dummy data for leaderboard
 const todayData: LeaderboardEntry[] = [
@@ -13,6 +14,8 @@ const todayData: LeaderboardEntry[] = [
   { rank: 6, username: 'lexiconLover', points: 80, date: '2024-01-15' },
   { rank: 7, username: 'syntaxSavant', points: 75, date: '2024-01-15' },
   { rank: 8, username: 'vocabVirtuoso', points: 70, date: '2024-01-15' },
+  { rank: 9, username: 'vocabVirtuoso', points: 70, date: '2024-01-15' },
+  { rank: 10, username: 'vocabVirtuoso', points: 70, date: '2024-01-15' },
 ];
 
 const allTimeData: LeaderboardEntry[] = [
@@ -37,87 +40,70 @@ export default function LeaderboardPage() {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="w-5 h-5 text-accent" />;
+        return <Crown className="w-5 h-5 text-yellow-400" />;
       case 2:
-        return <Medal className="w-5 h-5 text-gray-400" />;
+        return <Medal className="w-5 h-5 text-gray-300" />;
       case 3:
-        return <Award className="w-5 h-5 text-amber-600" />;
+        return <Award className="w-5 h-5 text-amber-500" />;
       default:
-        return <span className="text-muted-foreground font-bold">#{rank}</span>;
+        return <span className="text-gray-400 font-bold">#{rank}</span>;
     }
   };
 
   const getRankColor = (rank: number) => {
     switch (rank) {
       case 1:
-        return 'bg-accent/10 border-accent/30 text-accent';
+        return 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400';
       case 2:
-        return 'bg-gray-400/10 border-gray-400/30 text-gray-400';
+        return 'bg-gray-300/10 border-gray-300/20 text-gray-300';
       case 3:
-        return 'bg-amber-600/10 border-amber-600/30 text-amber-600';
+        return 'bg-amber-500/10 border-amber-500/20 text-amber-500';
       default:
-        return 'bg-card/60 border-border text-foreground';
+        return 'bg-gray-800/60 border-gray-700 text-gray-300';
     }
   };
 
   return (
-    <div className="w-full min-h-screen dark-gradient relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-accent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-primary rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent rounded-full blur-3xl"></div>
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="absolute top-6 right-6 z-10 flex gap-3">
-        <button
-          onClick={() => router.goto('stats')}
-          className="p-3 bg-card/80 backdrop-blur-sm border border-border rounded-xl hover:bg-card transition-all duration-300 glow-hover"
-        >
-          <BarChart3 className="w-5 h-5 text-foreground" />
-        </button>
-        <button
-          onClick={() => router.goto('home')}
-          className="p-3 bg-card/80 backdrop-blur-sm border border-border rounded-xl hover:bg-card transition-all duration-300 glow-hover"
-        >
-          <Home className="w-5 h-5 text-foreground" />
-        </button>
-      </div>
+    <div className="w-full min-h-screen bg-black">
+      {/* Navigation Header */}
 
       {/* Main Content */}
-      <div className="relative z-10 px-6 py-8">
+      <div className="p-6">
         <div className="max-w-4xl mx-auto">
+          <NavigationBar title="Leaderboard" onBack={() => router.goto('home')} />
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Trophy className="w-8 h-8 text-accent" />
-              <h1 className="text-4xl font-bold text-accent neon-glow">Leaderboard</h1>
+              <Trophy className="w-8 h-8 text-yellow-400" />
+              <h2 className="text-3xl font-bold text-white">Global Rankings</h2>
             </div>
-            <p className="text-lg text-muted-foreground">
-              See how you stack up against other players
-            </p>
           </div>
 
           {/* Tabs */}
           <div className="flex justify-center mb-8">
-            <div className="bg-card/40 backdrop-blur-sm border border-border rounded-xl p-1">
+            <div className="relative bg-black/80 backdrop-blur-sm border border-gray-700 rounded-full p-1">
+              {/* Moving yellow background */}
+              <div
+                className={`absolute top-1.5 bottom-1.5 rounded-full bg-yellow-500 transition-all duration-300 ease-in-out ${
+                  activeTab === 'today'
+                    ? 'left-1.5 w-[calc(50%-6px)]'
+                    : 'left-[calc(50%+3px)] w-[calc(50%-6px)]'
+                }`}
+              />
+
               <button
                 onClick={() => setActiveTab('today')}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                  activeTab === 'today'
-                    ? 'bg-accent text-accent-foreground accent-glow'
-                    : 'text-muted-foreground hover:text-foreground'
+                className={`relative px-6 py-2 rounded-full font-semibold transition-colors duration-300 z-10 ${
+                  activeTab === 'today' ? 'text-black' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 Today
               </button>
+
               <button
                 onClick={() => setActiveTab('allTime')}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                  activeTab === 'allTime'
-                    ? 'bg-accent text-accent-foreground accent-glow'
-                    : 'text-muted-foreground hover:text-foreground'
+                className={`relative px-6 py-2 rounded-full font-semibold transition-colors duration-300 z-10 ${
+                  activeTab === 'allTime' ? 'text-black' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 All Time
@@ -126,58 +112,54 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Leaderboard Table */}
-          <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-lg border border-border overflow-hidden">
+          <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 overflow-hidden mb-8">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-card/60 border-b border-border">
+                <thead className="bg-black/60 border-b border-gray-700">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">
                       Rank
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
-                      Username
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">
+                      Player
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">
                       Points
                     </th>
-                    {activeTab === 'today' && (
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">
-                        Date
-                      </th>
-                    )}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-black">
                   {currentData.map((entry) => (
                     <tr
                       key={entry.rank}
-                      className={`hover:bg-card/40 transition-colors duration-200 ${
-                        entry.rank <= 3 ? 'bg-gradient-to-r from-transparent to-accent/5' : ''
+                      className={`hover:bg-black/40 transition-colors duration-200 ${
+                        entry.rank <= 3 ? 'bg-gradient-to-r from-transparent to-yellow-400/5' : ''
                       }`}
                     >
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">{getRankIcon(entry.rank)}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                            <span className="text-primary font-bold text-sm">
-                              {entry.username.charAt(0).toUpperCase()}
-                            </span>
+                        <div className="flex items-center gap-3 ">
+                          <div
+                            className={`size-10  rounded-full border flex items-center justify-center ${getRankColor(entry.rank)}`}
+                          >
+                            {getRankIcon(entry.rank)}
                           </div>
-                          <span className="font-medium text-foreground">{entry.username}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-bold text-accent text-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-yellow-400/20 rounded-full flex items-center justify-center">
+                            <span className="text-yellow-400 font-bold text-sm">
+                              {entry.username.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="font-medium text-white">{entry.username}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-bold text-yellow-400 text-lg">
                           {entry.points.toLocaleString()}
                         </span>
                       </td>
-                      {activeTab === 'today' && entry.date && (
-                        <td className="px-6 py-4 text-muted-foreground">
-                          {new Date(entry.date).toLocaleDateString()}
-                        </td>
-                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -186,21 +168,26 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Your Score Section */}
-          <div className="mt-8 bg-card/40 backdrop-blur-sm border border-border rounded-2xl p-6">
+          <div className="bg-black/80 backdrop-blur-sm border rounded-2xl p-6 border-gray-700">
             <div className="text-center">
-              <h3 className="text-xl font-semibold text-foreground mb-2">Your Performance</h3>
-              <div className="grid grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-accent mb-1">0</div>
-                  <div className="text-sm text-muted-foreground">Current Score</div>
+              <h3 className="text-xl font-semibold text-white mb-6">Your Performance</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Today's Rank */}
+                <div className="text-center p-4 bg-black/60 rounded-xl border">
+                  <div className="text-2xl font-bold text-yellow-400 mb-1">0</div>
+                  <div className="text-sm text-gray-400">Today's Rank</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary mb-1">0</div>
-                  <div className="text-sm text-muted-foreground">Best Score</div>
+
+                {/* All Time Rank */}
+                <div className="text-center p-4 bg-black/60 rounded-xl border">
+                  <div className="text-2xl font-bold text-yellow-400 mb-1">0</div>
+                  <div className="text-sm text-gray-400">All Time Rank</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-success mb-1">0</div>
-                  <div className="text-sm text-muted-foreground">Games Played</div>
+
+                {/* Best Score */}
+                <div className="text-center p-4 bg-black/60 rounded-xl border">
+                  <div className="text-2xl font-bold text-yellow-400 mb-1">0</div>
+                  <div className="text-sm text-gray-400">Games Played</div>
                 </div>
               </div>
             </div>

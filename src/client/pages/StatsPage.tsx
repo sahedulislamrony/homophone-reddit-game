@@ -1,21 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRouter } from '@client/contexts/RouterContext';
 import {
-  Home,
   TrendingUp,
   Trophy,
-  Coins,
   Target,
-  Calendar,
   Award,
   Zap,
   Star,
-  Medal,
   Crown,
-  Clock,
   BarChart3,
-  Percent,
+  ArrowLeft,
+  Play,
+  Flame,
+  TargetIcon,
+  Coins,
+  Swords,
+  Calendar,
+  Clock,
+  UserCheck,
+  CheckCircle,
+  Lock,
 } from 'lucide-react';
 import { UserStats, Achievement, StatCard } from '@shared/types/stats';
+import NavigationBar from '@client/components/basic/Navigation';
 
 // Mock user stats data
 const userStats: UserStats = {
@@ -36,7 +43,7 @@ const userStats: UserStats = {
       id: 'first_game',
       name: 'First Steps',
       description: 'Complete your first game',
-      icon: '🎯',
+      icon: 'Target',
       unlocked: true,
       unlockedDate: '2024-01-01',
       progress: 100,
@@ -46,7 +53,7 @@ const userStats: UserStats = {
       id: 'streak_7',
       name: 'Week Warrior',
       description: 'Maintain a 7-day streak',
-      icon: '🔥',
+      icon: 'Flame',
       unlocked: true,
       unlockedDate: '2024-01-15',
       progress: 100,
@@ -56,7 +63,7 @@ const userStats: UserStats = {
       id: 'hundred_solved',
       name: 'Century Solver',
       description: 'Solve 100 homophones',
-      icon: '💯',
+      icon: 'Trophy',
       unlocked: true,
       unlockedDate: '2024-01-10',
       progress: 100,
@@ -66,7 +73,7 @@ const userStats: UserStats = {
       id: 'perfect_game',
       name: 'Perfectionist',
       description: 'Complete a game without hints',
-      icon: '⭐',
+      icon: 'Star',
       unlocked: false,
       progress: 0,
       maxProgress: 1,
@@ -75,7 +82,7 @@ const userStats: UserStats = {
       id: 'top_ten',
       name: 'Elite Player',
       description: 'Reach top 10 in daily rankings',
-      icon: '👑',
+      icon: 'Crown',
       unlocked: false,
       progress: 3,
       maxProgress: 10,
@@ -91,7 +98,7 @@ export default function StatsPage() {
       title: 'Current Streak',
       value: userStats.streak,
       subtitle: 'days',
-      icon: '🔥',
+      icon: Flame,
       color: 'warning',
       trend: { value: 2, isPositive: true },
     },
@@ -99,7 +106,7 @@ export default function StatsPage() {
       title: 'Homophones Solved',
       value: userStats.homophonesSolved,
       subtitle: 'total',
-      icon: '🎯',
+      icon: TargetIcon,
       color: 'success',
       trend: { value: 12, isPositive: true },
     },
@@ -107,7 +114,7 @@ export default function StatsPage() {
       title: 'Total Coins',
       value: userStats.totalCoins.toLocaleString(),
       subtitle: 'earned',
-      icon: '🪙',
+      icon: Coins,
       color: 'accent',
       trend: { value: 150, isPositive: true },
     },
@@ -115,7 +122,7 @@ export default function StatsPage() {
       title: "Today's Rank",
       value: `#${userStats.todaysRank}`,
       subtitle: 'out of 1,234 players',
-      icon: '🏆',
+      icon: Trophy,
       color: 'primary',
       trend: { value: 2, isPositive: true },
     },
@@ -123,7 +130,7 @@ export default function StatsPage() {
       title: 'All-Time Rank',
       value: `#${userStats.allTimeRank}`,
       subtitle: 'out of 15,678 players',
-      icon: '👑',
+      icon: Crown,
       color: 'accent',
       trend: { value: 5, isPositive: true },
     },
@@ -131,7 +138,7 @@ export default function StatsPage() {
       title: 'Accuracy',
       value: `${userStats.accuracy}%`,
       subtitle: 'correct answers',
-      icon: '🎯',
+      icon: CheckCircle,
       color: 'success',
       trend: { value: 2.5, isPositive: true },
     },
@@ -140,133 +147,118 @@ export default function StatsPage() {
   const getColorClasses = (color: StatCard['color']) => {
     switch (color) {
       case 'primary':
-        return 'bg-primary/10 border-primary/30 text-primary';
+        return 'bg-yellow-400/20 border-yellow-400/30 text-yellow-400';
       case 'accent':
-        return 'bg-accent/10 border-accent/30 text-accent';
+        return 'bg-yellow-400/20 border-yellow-400/30 text-yellow-400';
       case 'success':
-        return 'bg-success/10 border-success/30 text-success';
+        return 'bg-green-400/20 border-green-400/30 text-green-400';
       case 'warning':
-        return 'bg-warning/10 border-warning/30 text-warning';
+        return 'bg-yellow-400/20 border-yellow-400/30 text-yellow-400';
       case 'error':
-        return 'bg-error/10 border-error/30 text-error';
+        return 'bg-red-400/20 border-red-400/30 text-red-400';
       default:
-        return 'bg-primary/10 border-primary/30 text-primary';
+        return 'bg-yellow-400/20 border-yellow-400/30 text-yellow-400';
     }
   };
 
   const getAchievementIcon = (achievement: Achievement) => {
     const iconMap: { [key: string]: any } = {
-      '🎯': Target,
-      '🔥': Zap,
-      '💯': BarChart3,
-      '⭐': Star,
-      '👑': Crown,
+      'Target': Target,
+      'Flame': Flame,
+      'Trophy': Trophy,
+      'Star': Star,
+      'Crown': Crown,
+      'Award': Award,
+      'Zap': Zap,
+      'BarChart3': BarChart3,
     };
     return iconMap[achievement.icon] || Award;
   };
 
   return (
-    <div className="w-full min-h-screen dark-gradient relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-accent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-primary rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent rounded-full blur-3xl"></div>
-      </div>
-
-      {/* Close/Home Button */}
-      <div className="absolute top-6 right-6 z-10">
-        <button
-          onClick={() => router.goto('home')}
-          className="p-3 bg-card/80 backdrop-blur-sm border border-border rounded-xl hover:bg-card transition-all duration-300 glow-hover"
-        >
-          <Home className="w-5 h-5 text-foreground" />
-        </button>
-      </div>
-
+    <div className="w-full min-h-screen bg-black">
       {/* Main Content */}
-      <div className="relative z-10 px-6 py-8">
+      <div className="p-6">
         <div className="max-w-6xl mx-auto">
+          <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
+
           {/* Header */}
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <BarChart3 className="w-8 h-8 text-accent" />
-              <h1 className="text-4xl font-bold text-accent neon-glow">Your Statistics</h1>
-            </div>
-            <p className="text-lg text-muted-foreground">
-              Track your progress and achievements in the Daily Homophone Hunt
+          <div className="text-center mb-10">
+            <p className="text-gray-400">
+              Track your progress and achievements in The Daily Homophone
             </p>
           </div>
 
           {/* Main Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {statCards.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-gray-900/85 backdrop-blur-sm rounded-2xl shadow-lg border border-border p-6 hover:bg-gray-900/90 transition-all duration-300"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${getColorClasses(stat.color)}`}>
-                    <span className="text-2xl">{stat.icon}</span>
-                  </div>
-                  {stat.trend && (
-                    <div
-                      className={`flex items-center gap-1 text-sm ${
-                        stat.trend.isPositive ? 'text-success' : 'text-error'
-                      }`}
-                    >
-                      <TrendingUp
-                        className={`w-4 h-4 ${stat.trend.isPositive ? 'rotate-0' : 'rotate-180'}`}
-                      />
-                      <span>+{stat.trend.value}</span>
+          <div className="grid grid-cols-2 md:grid-cols-3  gap-6 mb-10">
+            {statCards.map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <div
+                  key={index}
+                  className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-6 hover:bg-gray-800/80 transition-all duration-300"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 rounded-xl ${getColorClasses(stat.color)}`}>
+                      <IconComponent className="w-5 h-5" />
                     </div>
-                  )}
+                    {stat.trend && (
+                      <div
+                        className={`flex items-center gap-1 text-sm ${
+                          stat.trend.isPositive ? 'text-green-400' : 'text-red-400'
+                        }`}
+                      >
+                        <TrendingUp
+                          className={`w-4 h-4 ${stat.trend.isPositive ? 'rotate-0' : 'rotate-180'}`}
+                        />
+                        <span>+{stat.trend.value}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-400 mb-1">{stat.title}</h3>
+                    <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                    {stat.subtitle && <p className="text-sm text-gray-400">{stat.subtitle}</p>}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">{stat.title}</h3>
-                  <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
-                  {stat.subtitle && (
-                    <p className="text-sm text-muted-foreground">{stat.subtitle}</p>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Detailed Stats Section */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+          <div className="grid lg:grid-cols-2 gap-8 mb-10">
             {/* Performance Overview */}
-            <div className="bg-gray-900/85 backdrop-blur-sm rounded-2xl shadow-lg border border-border p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-primary" />
+            <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <BarChart3 className="w-6 h-6 text-yellow-400" />
                 Performance Overview
               </h2>
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Games Played</span>
-                  <span className="text-foreground font-semibold">{userStats.gamesPlayed}</span>
+                  <span className="text-gray-400">Games Played</span>
+                  <span className="text-white font-semibold">{userStats.gamesPlayed}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Best Score</span>
-                  <span className="text-accent font-semibold">{userStats.bestScore}</span>
+                  <span className="text-gray-400">Best Score</span>
+                  <span className="text-yellow-400 font-semibold">{userStats.bestScore}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Average Score</span>
-                  <span className="text-foreground font-semibold">{userStats.averageScore}</span>
+                  <span className="text-gray-400">Average Score</span>
+                  <span className="text-white font-semibold">{userStats.averageScore}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Hints Used</span>
-                  <span className="text-warning font-semibold">{userStats.hintsUsed}</span>
+                  <span className="text-gray-400">Hints Used</span>
+                  <span className="text-yellow-400 font-semibold">{userStats.hintsUsed}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Member Since</span>
-                  <span className="text-foreground font-semibold">
+                  <span className="text-gray-400">Member Since</span>
+                  <span className="text-white font-semibold">
                     {new Date(userStats.joinDate).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Last Played</span>
-                  <span className="text-foreground font-semibold">
+                  <span className="text-gray-400">Last Played</span>
+                  <span className="text-white font-semibold">
                     {new Date(userStats.lastPlayed).toLocaleDateString()}
                   </span>
                 </div>
@@ -274,9 +266,9 @@ export default function StatsPage() {
             </div>
 
             {/* Achievements */}
-            <div className="bg-gray-900/85 backdrop-blur-sm rounded-2xl shadow-lg border border-border p-8">
-              <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
-                <Trophy className="w-6 h-6 text-accent" />
+            <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <Trophy className="w-6 h-6 text-yellow-400" />
                 Achievements
               </h2>
               <div className="space-y-4">
@@ -287,41 +279,39 @@ export default function StatsPage() {
                       key={achievement.id}
                       className={`p-4 rounded-xl border transition-all duration-300 ${
                         achievement.unlocked
-                          ? 'bg-accent/10 border-accent/30'
-                          : 'bg-muted/20 border-border/50'
+                          ? 'bg-yellow-400/10 border-yellow-400/30'
+                          : 'bg-black/60 border-gray-700'
                       }`}
                     >
                       <div className="flex items-center gap-4">
                         <div
                           className={`p-2 rounded-lg ${
-                            achievement.unlocked ? 'bg-accent/20' : 'bg-muted/40'
+                            achievement.unlocked ? 'bg-yellow-400/20' : 'bg-black/60'
                           }`}
                         >
                           <IconComponent
                             className={`w-5 h-5 ${
-                              achievement.unlocked ? 'text-accent' : 'text-muted-foreground'
+                              achievement.unlocked ? 'text-yellow-400' : 'text-gray-400'
                             }`}
                           />
                         </div>
                         <div className="flex-1">
                           <h3
                             className={`font-semibold ${
-                              achievement.unlocked ? 'text-foreground' : 'text-muted-foreground'
+                              achievement.unlocked ? 'text-white' : 'text-gray-400'
                             }`}
                           >
                             {achievement.name}
                           </h3>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {achievement.description}
-                          </p>
+                          <p className="text-sm text-gray-400 mb-2">{achievement.description}</p>
                           {achievement.unlocked ? (
-                            <div className="text-xs text-accent">
+                            <div className="text-xs text-yellow-400">
                               Unlocked on {new Date(achievement.unlockedDate!).toLocaleDateString()}
                             </div>
                           ) : (
-                            <div className="w-full bg-muted/30 rounded-full h-2">
+                            <div className="w-full bg-black/60 rounded-full h-2">
                               <div
-                                className="bg-accent h-2 rounded-full transition-all duration-300"
+                                className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
                                 style={{
                                   width: `${(achievement.progress / achievement.maxProgress) * 100}%`,
                                 }}
@@ -342,14 +332,16 @@ export default function StatsPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => router.goto('game')}
-                className="px-6 py-3 bg-accent text-accent-foreground rounded-xl hover:bg-accent/90 transition-all duration-300 accent-hover font-semibold"
+                className="px-6 py-3 flex items-center justify-center gap-2 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold group"
               >
+                <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 Play Now
               </button>
               <button
                 onClick={() => router.goto('leaderboard')}
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-300 glow-hover font-semibold"
+                className="px-6 py-3 flex items-center justify-center gap-2 bg-black/80 text-white border border-gray-700 rounded-xl hover:bg-black/70 transition-all duration-300 font-semibold group"
               >
+                <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 View Leaderboard
               </button>
             </div>
