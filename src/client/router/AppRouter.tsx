@@ -5,6 +5,7 @@ import HowToPlayPage from '@client/pages/HowToPlayPage';
 import StatsPage from '@client/pages/StatsPage';
 import GamePage from '@client/pages/GamePage';
 import DailyChallengePage from '@client/pages/DailyChallengePage';
+import GameResultPage from '@client/pages/GameResultPage';
 
 export function AppRouter() {
   const { currentPage } = useRouter();
@@ -16,6 +17,8 @@ export function AppRouter() {
       return <DailyChallengePage />;
     case 'game':
       return <GamePage />;
+    case 'game-result':
+      return <GameResultPage />;
     case 'leaderboard':
       return <LeaderboardPage />;
     case 'how-to-play':

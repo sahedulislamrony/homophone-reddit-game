@@ -37,6 +37,11 @@ export default function DailyChallengePage() {
     router.goto('game', { challengeId: challenge.id });
   };
 
+  const handleViewResult = (challengeId: string) => {
+    console.log('DailyChallengePage: Navigating to result for challenge:', challengeId);
+    router.goto('game-result', { challengeId });
+  };
+
   const handleBackToHome = () => {
     router.goto('home');
   };
@@ -65,7 +70,7 @@ export default function DailyChallengePage() {
   });
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="w-full min-h-screen bg-black">
       {/* Header */}
       <div className="relative z-10 p-6">
         <NavigationBar title="Daily Challenges" onBack={handleBackToHome} />
@@ -95,13 +100,14 @@ export default function DailyChallengePage() {
       {/* Challenges Grid */}
       <div className="relative z-10 px-6 pb-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-4 px-4">
             {dailyChallenge.levels.map((challenge, index) => (
               <ChallengeCard
                 key={challenge.id}
                 challenge={challenge}
                 index={index + 1}
                 onClick={() => handleChallengeClick(challenge)}
+                onViewResult={handleViewResult}
               />
             ))}
           </div>

@@ -4,6 +4,7 @@ type GameCompleteProps = {
   finalScore: number;
   onBackToHome: () => void;
   onBackToChallenges?: () => void;
+  onViewResult?: () => void;
   isChallenge?: boolean;
   gemsEarned?: number;
 };
@@ -12,6 +13,7 @@ export default function GameComplete({
   finalScore,
   onBackToHome,
   onBackToChallenges,
+  onViewResult,
   isChallenge = false,
   gemsEarned = 0,
 }: GameCompleteProps) {
@@ -43,6 +45,14 @@ export default function GameComplete({
         </div>
 
         <div className="space-y-3">
+          {isChallenge && onViewResult && (
+            <button
+              onClick={onViewResult}
+              className="w-full px-8 py-4 bg-green-500 text-white rounded-xl hover:bg-green-400 transition-all duration-300 font-semibold"
+            >
+              View Result
+            </button>
+          )}
           {isChallenge && onBackToChallenges && (
             <button
               onClick={onBackToChallenges}

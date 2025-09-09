@@ -121,7 +121,10 @@ export default function GamePage() {
       <GameComplete
         finalScore={gameState.score}
         onBackToHome={() => router.goto('home')}
-        {...(challengeId && { onBackToChallenges: () => router.goto('daily-challenges') })}
+        {...(challengeId && {
+          onBackToChallenges: () => router.goto('daily-challenges'),
+          onViewResult: () => router.goto('game-result', { challengeId }),
+        })}
         isChallenge={!!challengeId}
         gemsEarned={gemsEarned}
       />
@@ -170,8 +173,6 @@ export default function GamePage() {
 
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex flex-col p-6">
-        {/* <GameHeader themeName={gameObject.themeName} onBack={handleBackToHome} />
-         */}
         <NavigationBar title={gameObject.themeName} onBack={handleBackToHome} />
         <div className="flex-1 flex flex-col items-center justify-center">
           <h2 className="text-2xl font-bold text-white mb-6">

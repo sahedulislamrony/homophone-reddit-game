@@ -1,14 +1,19 @@
-import React from 'react';
-import { ChallengeLevel } from '@shared/types/challenge';
-import { Lock, CheckCircle, Star, Gem } from 'lucide-react';
+import { ChallengeLevel } from '@/shared/types/challenge';
+import { Lock, CheckCircle, Gem, Star, Sparkles } from 'lucide-react';
 
 type ChallengeCardProps = {
   challenge: ChallengeLevel;
   index: number;
   onClick: () => void;
+  onViewResult?: (challengeId: string) => void;
 };
 
-export default function ChallengeCard({ challenge, index, onClick }: ChallengeCardProps) {
+export default function ChallengeCard({
+  challenge,
+  index,
+  onClick,
+  onViewResult,
+}: ChallengeCardProps) {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
@@ -22,16 +27,16 @@ export default function ChallengeCard({ challenge, index, onClick }: ChallengeCa
     }
   };
 
-  const getDifficultyIcon = (difficulty: string) => {
+  const getDifficultyStars = (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
-        return '⭐';
+        return 1;
       case 'medium':
-        return '⭐⭐';
+        return 2;
       case 'hard':
-        return '⭐⭐⭐';
+        return 3;
       default:
-        return '⭐';
+        return 1;
     }
   };
 
@@ -39,7 +44,7 @@ export default function ChallengeCard({ challenge, index, onClick }: ChallengeCa
 
   return (
     <div
-      className={`relative bg-black/60 backdrop-blur-sm rounded-2xl border-2 transition-all duration-300 ${
+      className={`relative w-full h-48 bg-black/60 backdrop-blur-sm rounded-xl border transition-all duration-300 ${
         challenge.isLocked
           ? 'border-gray-600 cursor-not-allowed opacity-60'
           : challenge.isCompleted
@@ -50,7 +55,7 @@ export default function ChallengeCard({ challenge, index, onClick }: ChallengeCa
     >
       {/* Background Image */}
       <div
-        className="absolute inset-0 rounded-2xl bg-cover bg-center bg-no-repeat opacity-30"
+        className="absolute inset-0 rounded-xl bg-cover bg-center bg-no-repeat opacity-30"
         style={{
           backgroundImage: challenge.themeBgImage.includes('placeholder')
             ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
@@ -60,31 +65,30 @@ export default function ChallengeCard({ challenge, index, onClick }: ChallengeCa
 
       {/* Lock Overlay */}
       {challenge.isLocked && (
-        <div className="absolute inset-0 bg-black/70 rounded-2xl flex items-center justify-center z-10">
+        <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center z-10">
           <div className="text-center">
-            <Lock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-400 text-sm">Complete previous challenge</p>
+            <Lock className="w-6 h-6 text-gray-400 mx-auto mb-1" />
+            <p className="text-gray-400 text-xs">Complete previous</p>
           </div>
         </div>
       )}
 
       {/* Completion Overlay */}
       {challenge.isCompleted && (
-        <div className="absolute inset-0 bg-green-500/20 rounded-2xl flex items-center justify-center z-10">
+        <div className="absolute inset-0 bg-green-500/20 rounded-xl flex items-center justify-center z-10">
           <div className="text-center">
-            <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <p className="text-green-400 text-sm font-semibold">Completed!</p>
-            {challenge.score && <p className="text-green-300 text-xs">Score: {challenge.score}</p>}
+            <CheckCircle className="w-6 h-6 text-green-400 mx-auto mb-1" />
+            <p className="text-green-400 text-xs font-semibold">Completed</p>
           </div>
         </div>
       )}
 
       {/* Content */}
-      <div className="relative z-20 p-4">
+      <div className="relative z-20 p-4 h-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="text-white font-bold text-lg">#{index}</span>
+            <span className="text-white font-bold text-sm">#{index}</span>
             <div
               className={`px-2 py-1 rounded-full text-xs font-semibold ${getDifficultyColor(challenge.difficulty)}`}
             >
@@ -92,38 +96,41 @@ export default function ChallengeCard({ challenge, index, onClick }: ChallengeCa
             </div>
           </div>
           <div className="flex items-center gap-1 text-yellow-400">
-            <Gem className="w-4 h-4" />
-            <span className="text-sm font-semibold">{challenge.gemReward}</span>
+            <Gem className="w-3 h-3" />
+            <span className="text-xs font-semibold">{challenge.gemReward}</span>
           </div>
         </div>
 
         {/* Theme Name */}
-        <h3 className="text-white font-bold text-lg mb-2 line-clamp-2">{challenge.themeName}</h3>
+        <h3 className="text-white font-bold text-sm mb-2 line-clamp-2 flex-1">
+          {challenge.themeName}
+        </h3>
 
         {/* Difficulty Stars */}
         <div className="flex items-center gap-1 mb-3">
-          <span className="text-yellow-400 text-sm">{getDifficultyIcon(challenge.difficulty)}</span>
+          <Sparkles className="w-3 h-3 text-yellow-400" />
           <span className="text-gray-400 text-xs ml-1">
-            {challenge.correctWords.length} words to find
+            {challenge.correctWords.length} words to solve
           </span>
         </div>
 
         {/* Action Button */}
-        {!challenge.isLocked && !challenge.isCompleted && (
-          <div className="mt-4">
-            <button className="w-full bg-blue-500 hover:bg-blue-400 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
-              Start Challenge
+        <div className="mt-auto">
+          {!challenge.isLocked && !challenge.isCompleted && (
+            <button className="w-full bg-blue-500 hover:bg-blue-400 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 text-xs">
+              Start
             </button>
-          </div>
-        )}
+          )}
 
-        {challenge.isCompleted && (
-          <div className="mt-4">
-            <button className="w-full bg-green-500 hover:bg-green-400 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300">
+          {challenge.isCompleted && (
+            <button
+              onClick={() => onViewResult?.(challenge.id)}
+              className="w-full bg-green-500 hover:bg-green-400 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 text-xs"
+            >
               View Results
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
