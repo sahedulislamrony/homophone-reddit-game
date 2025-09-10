@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "attentiony",
+  "name": "dailyhomophone",
   "version": "0.0.0",
   "license": "BSD-3-Clause",
   "type": "module",
@@ -28,6 +28,7 @@
     "clsx": "2.1.1",
     "devvit": "0.12.0",
     "express": "5.1.0",
+    "lucide-react": "^0.543.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwind-merge": "3.3.0",

@@ -14,7 +14,7 @@
     "webbit",
     "webroot",
     "zstack",
-    "Minddit4u"
+    "dailyhomophone"
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
