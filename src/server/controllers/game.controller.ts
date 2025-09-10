@@ -1,56 +1,198 @@
 import { Request, Response } from 'express';
-import { InitResponse, IncrementResponse, DecrementResponse } from '@shared/types/api';
-import { redis, reddit, context } from '@devvit/web/server';
+import { UserService } from '../services/UserService';
+import { GameService } from '../services/GameService';
+import { RedisService } from '../services/RedisService';
+
+// Initialize services
+const redisService = new RedisService();
+const userService = new UserService(redisService);
+const gameService = new GameService(redisService, userService);
 
 /**
- * Initialize game data
+ * Submit game result
  */
-export const init = async (
-  _req: Request,
-  res: Response<InitResponse | { status: string; message: string }>
-): Promise<void> => {
-  const { postId } = context;
+export const submitGameResult = async (req: Request, res: Response): Promise<void> => {
+  const {
+    username,
+    challengeId,
+    score,
+    hintsUsed,
+    freeHintsUsed,
+    gemsSpent,
+    timeSpent,
+    difficulty,
+    themeName,
+  } = req.body;
 
-  const [count, username] = await Promise.all([redis.get('count'), reddit.getCurrentUsername()]);
+  // Validate required fields
+  if (!username || !challengeId || typeof score !== 'number') {
+    res.status(400).json({ error: 'Missing required fields' });
+    return;
+  }
+
+  // Check if user can play this game
+  const canPlay = await gameService.canPlayGame(username, challengeId);
+  if (!canPlay.canPlay) {
+    res.status(400).json({
+      error: canPlay.reason || 'Cannot play this game',
+      gemsAvailable: canPlay.gemsAvailable,
+    });
+    return;
+  }
+
+  // Save game result
+  const gameResult = await gameService.saveGameResult(username, challengeId, {
+    score,
+    hintsUsed: hintsUsed || 0,
+    freeHintsUsed: freeHintsUsed || 0,
+    gemsSpent: gemsSpent || 0,
+    timeSpent: timeSpent || 0,
+    difficulty: difficulty || 'easy',
+    themeName: themeName || 'Unknown',
+  });
 
   res.json({
-    type: 'init',
-    postId: postId!,
-    count: count ? parseInt(count) : 0,
-    username: username ?? 'anonymous',
+    success: true,
+    data: gameResult,
   });
 };
 
 /**
- * Increment game counter
+ * Get game result
  */
-export const increment = async (
-  _req: Request,
-  res: Response<IncrementResponse | { status: string; message: string }>
-): Promise<void> => {
-  const { postId } = context;
+export const getGameResult = async (req: Request, res: Response): Promise<void> => {
+  const { gameId } = req.params;
+  if (!gameId) {
+    res.status(400).json({ error: 'Game ID is required' });
+    return;
+  }
 
-  const count = await redis.incrBy('count', 1);
+  const gameResult = await gameService.getGameResult(gameId);
+  if (!gameResult) {
+    res.status(404).json({ error: 'Game not found' });
+    return;
+  }
+
   res.json({
-    count,
-    postId: postId!,
-    type: 'increment',
+    success: true,
+    data: gameResult,
   });
 };
 
 /**
- * Decrement game counter
+ * Check if user can play challenge
  */
-export const decrement = async (
-  _req: Request,
-  res: Response<DecrementResponse | { status: string; message: string }>
-): Promise<void> => {
-  const { postId } = context;
+export const canPlayChallenge = async (req: Request, res: Response): Promise<void> => {
+  const { username, challengeId } = req.params;
+  if (!username || !challengeId) {
+    res.status(400).json({ error: 'Username and challenge ID are required' });
+    return;
+  }
 
-  const count = await redis.incrBy('count', -1);
+  const canPlay = await gameService.canPlayGame(username, challengeId);
+
   res.json({
-    count,
-    postId: postId!,
-    type: 'decrement',
+    success: true,
+    data: canPlay,
+  });
+};
+
+/**
+ * Get user's game history
+ */
+export const getUserGameHistory = async (req: Request, res: Response): Promise<void> => {
+  const { username } = req.params;
+  if (!username) {
+    res.status(400).json({ error: 'Username is required' });
+    return;
+  }
+
+  const { date, challengeId } = req.query;
+
+  let games;
+  if (date) {
+    games = await gameService.getUserGamesByDate(username, date as string);
+  } else if (challengeId) {
+    games = await gameService.getUserGamesByChallenge(username, challengeId as string);
+  } else {
+    games = await gameService.getUserGames(username);
+  }
+
+  res.json({
+    success: true,
+    data: games,
+  });
+};
+
+/**
+ * Get today's games for user
+ */
+export const getTodayGames = async (req: Request, res: Response): Promise<void> => {
+  const { username } = req.params;
+  if (!username) {
+    res.status(400).json({ error: 'Username is required' });
+    return;
+  }
+
+  const games = await gameService.getTodayGames(username);
+
+  res.json({
+    success: true,
+    data: games,
+  });
+};
+
+/**
+ * Get game statistics
+ */
+export const getGameStats = async (req: Request, res: Response): Promise<void> => {
+  const { username } = req.params;
+  if (!username) {
+    res.status(400).json({ error: 'Username is required' });
+    return;
+  }
+
+  const stats = await gameService.getGameStats(username);
+
+  res.json({
+    success: true,
+    data: stats,
+  });
+};
+
+/**
+ * Get performance data
+ */
+export const getPerformanceData = async (req: Request, res: Response): Promise<void> => {
+  const { username } = req.params;
+  if (!username) {
+    res.status(400).json({ error: 'Username is required' });
+    return;
+  }
+
+  const days = parseInt(req.query.days as string) || 30;
+  const performance = await gameService.getPerformanceData(username, days);
+
+  res.json({
+    success: true,
+    data: performance,
+  });
+};
+
+/**
+ * Get challenge history
+ */
+export const getChallengeHistory = async (req: Request, res: Response): Promise<void> => {
+  const { username, challengeId } = req.params;
+  if (!username || !challengeId) {
+    res.status(400).json({ error: 'Username and challenge ID are required' });
+    return;
+  }
+
+  const games = await gameService.getChallengeHistory(username, challengeId);
+
+  res.json({
+    success: true,
+    data: games,
   });
 };

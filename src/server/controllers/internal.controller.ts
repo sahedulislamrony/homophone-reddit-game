@@ -5,10 +5,7 @@ import { createPost } from '../core/post';
 /**
  * Handle app installation
  */
-export const onAppInstall = async (
-  _req: Request,
-  res: Response<{ status: string; message: string }>
-): Promise<void> => {
+export const onAppInstall = async (_req: Request, res: Response): Promise<void> => {
   const post = await createPost();
 
   res.json({
@@ -20,10 +17,7 @@ export const onAppInstall = async (
 /**
  * Handle post creation from menu
  */
-export const menuPostCreate = async (
-  _req: Request,
-  res: Response<{ navigateTo?: string; status?: string; message?: string }>
-): Promise<void> => {
+export const menuPostCreate = async (_req: Request, res: Response): Promise<void> => {
   const post = await createPost();
 
   res.json({

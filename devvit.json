@@ -11,7 +11,8 @@
   },
   "server": {
     "dir": "dist/server",
-    "entry": "index.cjs"
+    "entry": "index.cjs",
+    "redis": true
   },
   "media": {},
   "menu": {

@@ -8,6 +8,7 @@ import { getBackgroundStyle } from './assets/GameAssets';
 import { GameCard, FeedbackMessage, GameComplete } from './components';
 import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
+import { dataSync } from '@client/services/DataSyncService';
 
 export default function GamePage() {
   const router = useRouter();
@@ -20,87 +21,171 @@ export default function GamePage() {
 
   // Initialize game
   useEffect(() => {
-    const dataManager = GameDataManager.getInstance();
-    const challengeManager = DailyChallengeManager.getInstance();
+    const initializeGame = async () => {
+      try {
+        const dataManager = GameDataManager.getInstance();
+        const challengeManager = DailyChallengeManager.getInstance();
 
-    // Check if this is a challenge game
-    const params = router.getParams();
-    const challengeIdParam = params.challengeId;
+        // Check if this is a challenge game
+        const params = router.getParams();
+        const challengeIdParam = params.challengeId;
 
-    console.log('GamePage: Router params:', params);
-    console.log('GamePage: Challenge ID:', challengeIdParam);
+        console.log('GamePage: Router params:', params);
+        console.log('GamePage: Challenge ID:', challengeIdParam);
 
-    let game: GameObject;
-    if (challengeIdParam) {
-      // Load challenge-specific game
-      const challenge = challengeManager
-        .getTodaysChallenges()
-        .levels.find((level) => level.id === challengeIdParam);
-      if (challenge) {
-        console.log('GamePage: Found challenge:', challenge.themeName);
-        game = challengeManager.challengeToGameObject(challenge);
-        setChallengeId(challengeIdParam);
-      } else {
-        console.log('GamePage: Challenge not found, using random game');
-        game = getRandomGame();
+        let game: GameObject;
+        if (challengeIdParam) {
+          // Load challenge-specific game
+          const challenge = challengeManager
+            .getTodaysChallenges()
+            .levels.find((level) => level.id === challengeIdParam);
+          if (challenge) {
+            console.log('GamePage: Found challenge:', challenge.themeName);
+            game = challengeManager.challengeToGameObject(challenge);
+            setChallengeId(challengeIdParam);
+          } else {
+            console.log('GamePage: Challenge not found, using random game');
+            game = getRandomGame();
+          }
+        } else {
+          console.log('GamePage: No challenge ID, using random game');
+          // Load random game
+          game = getRandomGame();
+        }
+
+        // Load user data from server
+        const username = 'player'; // In a real app, this would come from authentication
+        const { userData, gems } = await dataSync.loadInitialData(username);
+
+        // Create initial game state with server data
+        const initialState: GameState = {
+          currentWordIndex: 0,
+          userAnswers: [],
+          score: 0,
+          hintsUsed: 0,
+          gems: gems,
+          freeHintsUsed: 0,
+          isCompleted: false,
+        };
+
+        dataManager.setCurrentGame(game);
+        dataManager.setGameState(initialState);
+        setGameObject(game);
+        setGameState(initialState);
+
+        const engine = new GameEngine(
+          game,
+          initialState,
+          (newState) => {
+            setGameState(newState);
+            dataManager.setGameState(newState);
+          },
+          (newFeedback) => {
+            setFeedback(newFeedback);
+          },
+          {
+            pointsPerCorrect: 10,
+            pointsPerHint: -2,
+            maxFreeHints: 3,
+            gemsPerHint: 1,
+            timeBonus: true,
+            streakMultiplier: true,
+          }
+        );
+
+        setGameEngine(engine);
+      } catch (error) {
+        console.error('Failed to initialize game:', error);
+        // Fallback to local data
+        const dataManager = GameDataManager.getInstance();
+        const game = getRandomGame();
+        const initialState = dataManager.createInitialGameState();
+
+        dataManager.setCurrentGame(game);
+        dataManager.setGameState(initialState);
+        setGameObject(game);
+        setGameState(initialState);
+
+        const engine = new GameEngine(
+          game,
+          initialState,
+          (newState) => {
+            setGameState(newState);
+            dataManager.setGameState(newState);
+          },
+          (newFeedback) => {
+            setFeedback(newFeedback);
+          },
+          {
+            pointsPerCorrect: 10,
+            pointsPerHint: -2,
+            maxFreeHints: 3,
+            gemsPerHint: 1,
+            timeBonus: true,
+            streakMultiplier: true,
+          }
+        );
+
+        setGameEngine(engine);
       }
-    } else {
-      console.log('GamePage: No challenge ID, using random game');
-      // Load random game
-      game = getRandomGame();
-    }
+    };
 
-    const initialState = dataManager.createInitialGameState();
-
-    dataManager.setCurrentGame(game);
-    dataManager.setGameState(initialState);
-    setGameObject(game);
-    setGameState(initialState);
-
-    const engine = new GameEngine(
-      game,
-      initialState,
-      (newState) => {
-        setGameState(newState);
-        dataManager.setGameState(newState);
-      },
-      (newFeedback) => {
-        setFeedback(newFeedback);
-      },
-      {
-        pointsPerCorrect: 10,
-        pointsPerHint: -2,
-        maxFreeHints: 3,
-        gemsPerHint: 1,
-        timeBonus: true,
-        streakMultiplier: true,
-      }
-    );
-
-    setGameEngine(engine);
+    initializeGame();
   }, [router]);
 
   // Handle game state changes
   useEffect(() => {
-    if (gameState?.isCompleted) {
+    if (gameState?.isCompleted && gameEngine && gameObject) {
       setUserInput('');
 
-      // If this is a challenge game, complete the challenge
-      if (challengeId && gameState) {
-        const challengeManager = DailyChallengeManager.getInstance();
-        const success = challengeManager.completeChallenge(challengeId, gameState.score);
+      const submitGameResult = async () => {
+        try {
+          const username = 'player'; // In a real app, this would come from authentication
+          const gameStats = gameEngine.getGameStats();
 
-        if (success) {
+          // Submit game result to server
+          const result = await dataSync.submitGameResult({
+            username,
+            challengeId: challengeId || 'random',
+            score: gameState.score,
+            hintsUsed: gameState.hintsUsed,
+            freeHintsUsed: gameState.freeHintsUsed,
+            gemsSpent: gameState.hintsUsed > 3 ? Math.floor((gameState.hintsUsed - 3) / 3) : 0,
+            timeSpent: Math.floor(gameStats.timeElapsed / 1000),
+            difficulty: 'easy', // This could be determined by the challenge
+            themeName: gameObject.themeName,
+          });
+
+          // Update local gems
+          const newGems = dataSync.getCurrentGems();
+          setGameState((prev) => (prev ? { ...prev, gems: newGems } : null));
+
           // Show completion feedback
           setFeedback({
             type: 'correct',
-            message: `Challenge completed! You earned ${gameState.score} points and some gems!`,
+            message: `Game completed! You earned ${gameState.score} points and ${result.gemsEarned} gems!`,
+            points: gameState.score,
+          });
+
+          // If this is a challenge game, complete the challenge locally too
+          if (challengeId) {
+            const challengeManager = DailyChallengeManager.getInstance();
+            challengeManager.completeChallenge(challengeId, gameState.score);
+          }
+        } catch (error) {
+          console.error('Failed to submit game result:', error);
+          // Show fallback feedback
+          setFeedback({
+            type: 'correct',
+            message: `Game completed! You earned ${gameState.score} points!`,
             points: gameState.score,
           });
         }
-      }
+      };
+
+      submitGameResult();
     }
-  }, [gameState?.isCompleted, challengeId, gameState]);
+  }, [gameState?.isCompleted, challengeId, gameState, gameEngine, gameObject]);
 
   if (!gameEngine || !gameState || !gameObject) {
     return (

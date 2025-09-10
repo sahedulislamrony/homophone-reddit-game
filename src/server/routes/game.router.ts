@@ -1,17 +1,40 @@
 import { Router } from 'express';
-import { init, increment, decrement } from '../controllers/game.controller';
-import { validatePostId } from '../middleware/validation.middleware';
 import { asyncHandler } from '../middleware/asyncHandler.middleware';
+import {
+  submitGameResult,
+  getGameResult,
+  canPlayChallenge,
+  getUserGameHistory,
+  getTodayGames,
+  getGameStats,
+  getPerformanceData,
+  getChallengeHistory,
+} from '../controllers/game.controller';
 
 const router = Router();
 
-// GET /api/init
-router.get('/init', validatePostId, asyncHandler(init));
+// Submit game result
+router.post('/submit', asyncHandler(submitGameResult));
 
-// POST /api/increment
-router.post('/increment', validatePostId, asyncHandler(increment));
+// Get game result
+router.get('/:gameId', asyncHandler(getGameResult));
 
-// POST /api/decrement
-router.post('/decrement', validatePostId, asyncHandler(decrement));
+// Check if user can play challenge
+router.get('/can-play/:username/:challengeId', asyncHandler(canPlayChallenge));
+
+// Get user's game history
+router.get('/history/:username', asyncHandler(getUserGameHistory));
+
+// Get today's games for user
+router.get('/today/:username', asyncHandler(getTodayGames));
+
+// Get game statistics
+router.get('/stats/:username', asyncHandler(getGameStats));
+
+// Get performance data
+router.get('/performance/:username', asyncHandler(getPerformanceData));
+
+// Get challenge history
+router.get('/challenge/:username/:challengeId', asyncHandler(getChallengeHistory));
 
 export default router;
