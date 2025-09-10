@@ -11,8 +11,7 @@
   },
   "server": {
     "dir": "dist/server",
-    "entry": "index.cjs",
-    "redis": true
+    "entry": "index.cjs"
   },
   "media": {},
   "menu": {
@@ -31,5 +30,8 @@
   },
   "dev": {
     "subreddit": "rony0110_dev"
+  },
+  "permissions": {
+    "redis": true
   }
 }

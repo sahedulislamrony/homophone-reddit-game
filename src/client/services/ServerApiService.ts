@@ -335,23 +335,6 @@ export class ServerApiService {
     const result = await response.json();
     return result.data;
   }
-
-  async getUserRank(
-    username: string,
-    isDaily: boolean = false
-  ): Promise<{
-    rank: number | null;
-    isDaily: boolean;
-  }> {
-    const response = await fetch(`${this.baseUrl}/leaderboard/rank/${username}?daily=${isDaily}`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to get user rank: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    return result.data;
-  }
 }
 
 // Create singleton instance
