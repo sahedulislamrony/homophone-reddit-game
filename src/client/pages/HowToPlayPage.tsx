@@ -1,12 +1,12 @@
 import NavigationBar from '@client/components/basic/Navigation';
 import { useRouter } from '@client/contexts/RouterContext';
-import { Home, Play, Lightbulb, Target, Award, Clock, BarChart3, ArrowLeft } from 'lucide-react';
+import { Play, Lightbulb, Target, Award, Clock } from 'lucide-react';
 
 export default function HowToPlayPage() {
   const router = useRouter();
 
   const handleStartGame = () => {
-    router.goto('game');
+    router.goto('daily-challenges');
   };
 
   return (
