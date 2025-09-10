@@ -45,6 +45,7 @@ export class DailyChallengeManager {
           content: challenge.content,
           correctWords: challenge.correctWords,
           themeBgImage: challenge.themeBgImage,
+          hints: challenge.hints || [], // Add hints with fallback to empty array
           difficulty: challenge.difficulty,
           gemReward: challenge.gemReward,
           isLocked,
@@ -114,6 +115,7 @@ export class DailyChallengeManager {
         content: this.generateContentForTheme(theme),
         correctWords: this.generateCorrectWordsForTheme(theme),
         themeBgImage: this.getThemeImage(theme),
+        hints: this.generateHintsForTheme(theme), // Generate hints for the theme
         difficulty,
         gemReward: this.getGemReward(difficulty),
         isLocked,
@@ -242,6 +244,7 @@ export class DailyChallengeManager {
       content: challenge.content,
       correctWords: challenge.correctWords,
       themeBgImage: challenge.themeBgImage,
+      hints: challenge.hints || [], // Add hints array, fallback to empty array
     };
   }
 
@@ -381,6 +384,99 @@ export class DailyChallengeManager {
       'Wild West': ['rode', 'through', 'knew', 'great'],
     };
     return wordTemplates[theme] || ['example', 'words', 'to', 'find'];
+  }
+
+  private generateHintsForTheme(theme: string): string[] {
+    const hintTemplates: { [key: string]: string[] } = {
+      'Harry Potter': [
+        "The main character's name is misspelled",
+        'A word meaning "excellent" or "wonderful"',
+        'A word meaning "understood" or "was aware"',
+        'A word meaning "traveled on horseback"',
+        'A word meaning "from one side to the other"',
+        'Look for words that sound like common English words',
+        'The first word starts with "H"',
+        'One word rhymes with "late"',
+      ],
+      'Space Adventure': [
+        'A space traveler is misspelled',
+        'A word meaning "from one side to the other"',
+        'A word meaning "excellent" or "wonderful"',
+        'A word meaning "understood" or "was aware"',
+        'Look for words that are missing letters',
+        'One word should end with "naut"',
+        'The telescope word is wrong',
+        'One word rhymes with "blue"',
+      ],
+      'Ocean Exploration': [
+        'A word meaning "traveled on horseback"',
+        'A word meaning "from one side to the other"',
+        'A word meaning "understood" or "was aware"',
+        'A word meaning "excellent" or "wonderful"',
+        'Look for words that sound like common English words',
+        'One word rhymes with "code"',
+        'The current word is wrong',
+        'One word should start with "th"',
+      ],
+      'Medieval Times': [
+        'A word meaning "traveled on horseback"',
+        'A word meaning "from one side to the other"',
+        'A word meaning "understood" or "was aware"',
+        'A word meaning "excellent" or "wonderful"',
+        'Look for words that are misspelled',
+        'One word rhymes with "code"',
+        'The forest word is wrong',
+        'One word should start with "th"',
+      ],
+      'Fantasy Quest': [
+        'A word meaning "excellent" or "wonderful"',
+        'A word meaning "understood" or "was aware"',
+        'A word meaning "to destroy or damage"',
+        'A word meaning "from one side to the other"',
+        'Look for words that are misspelled',
+        'One word rhymes with "lake"',
+        'The spell word is wrong',
+        'One word should start with "br"',
+      ],
+      'Sci-Fi Journey': [
+        'A word meaning "traveled on horseback"',
+        'A word meaning "from one side to the other"',
+        'A word meaning "understood" or "was aware"',
+        'A word meaning "excellent" or "wonderful"',
+        'Look for words that sound like common English words',
+        'One word rhymes with "code"',
+        'The ship word is wrong',
+        'One word should start with "th"',
+      ],
+      'Mystery Manor': [
+        'A word meaning "traveled on horseback"',
+        'A word meaning "from one side to the other"',
+        'A word meaning "understood" or "was aware"',
+        'A word meaning "excellent" or "wonderful"',
+        'Look for words that are misspelled',
+        'One word rhymes with "code"',
+        'The clues word is wrong',
+        'One word should start with "th"',
+      ],
+      'Wild West': [
+        'A word meaning "traveled on horseback"',
+        'A word meaning "from one side to the other"',
+        'A word meaning "understood" or "was aware"',
+        'A word meaning "excellent" or "wonderful"',
+        'Look for words that are misspelled',
+        'One word rhymes with "code"',
+        'The desert word is wrong',
+        'One word should start with "th"',
+      ],
+    };
+    return (
+      hintTemplates[theme] || [
+        'Look for misspelled words',
+        'Check for homophones',
+        'Words that sound similar',
+        'Common spelling mistakes',
+      ]
+    );
   }
 
   private getCompletionDate(_challengeId: string): string {

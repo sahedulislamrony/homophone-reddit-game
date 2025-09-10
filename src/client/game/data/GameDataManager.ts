@@ -42,6 +42,8 @@ export class GameDataManager {
       userAnswers: [],
       score: 0,
       hintsUsed: 0,
+      gems: 10, // Start with 10 gems
+      freeHintsUsed: 0,
       isCompleted: false,
     };
   }

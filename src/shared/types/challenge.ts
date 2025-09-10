@@ -4,6 +4,7 @@ export type ChallengeLevel = {
   content: string;
   correctWords: string[];
   themeBgImage: string;
+  hints: string[]; // 4-10 hints per challenge
   difficulty: 'easy' | 'medium' | 'hard';
   gemReward: number;
   isLocked: boolean;

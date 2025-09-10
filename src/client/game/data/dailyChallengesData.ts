@@ -7,6 +7,7 @@ export interface DailyChallengeData {
     content: string;
     correctWords: string[];
     themeBgImage: string;
+    hints?: string[]; // 4-10 hints per challenge (optional for backward compatibility)
     difficulty: 'easy' | 'medium' | 'hard';
     gemReward: number;
   }[];
@@ -25,6 +26,16 @@ export const dailyChallengesData: DailyChallengeData[] = [
           'Hary was a grate wizard who new many spells. He road a broom threw the castle halls.',
         correctWords: ['Harry', 'great', 'knew', 'rode', 'through'],
         themeBgImage: '/images/harrypotter_bg.jpg',
+        hints: [
+          "The main character's name is misspelled",
+          'A word meaning "excellent" or "wonderful"',
+          'A word meaning "understood" or "was aware"',
+          'A word meaning "traveled on horseback"',
+          'A word meaning "from one side to the other"',
+          'Look for words that sound like common English words',
+          'The first word starts with "H"',
+          'One word rhymes with "late"',
+        ],
         difficulty: 'easy',
         gemReward: 5,
       },
@@ -35,6 +46,16 @@ export const dailyChallengesData: DailyChallengeData[] = [
           'The astronot looked threw the telescope and saw a grate meteor shower. He new it was going to be an amazing sight.',
         correctWords: ['astronaut', 'through', 'great', 'knew'],
         themeBgImage: '/images/space_bg.jpg',
+        hints: [
+          'A space traveler is misspelled',
+          'A word meaning "from one side to the other"',
+          'A word meaning "excellent" or "wonderful"',
+          'A word meaning "understood" or "was aware"',
+          'Look for words that are missing letters',
+          'One word should end with "naut"',
+          'The telescope word is wrong',
+          'One word rhymes with "blue"',
+        ],
         difficulty: 'medium',
         gemReward: 10,
       },
@@ -45,6 +66,16 @@ export const dailyChallengesData: DailyChallengeData[] = [
           'The diver road the current threw the coral reef. She new that the grate barrier reef was home to many fish.',
         correctWords: ['rode', 'through', 'knew', 'great'],
         themeBgImage: '/images/ocean_bg.jpg',
+        hints: [
+          'A word meaning "traveled on horseback"',
+          'A word meaning "from one side to the other"',
+          'A word meaning "understood" or "was aware"',
+          'A word meaning "excellent" or "wonderful"',
+          'Look for words that sound like common English words',
+          'One word rhymes with "code"',
+          'The current word is wrong',
+          'One word should start with "th"',
+        ],
         difficulty: 'hard',
         gemReward: 20,
       },

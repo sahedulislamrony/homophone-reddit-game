@@ -70,7 +70,8 @@ export default function GamePage() {
       {
         pointsPerCorrect: 10,
         pointsPerHint: -2,
-        maxHints: 3,
+        maxFreeHints: 3,
+        gemsPerHint: 1,
         timeBonus: true,
         streakMultiplier: true,
       }

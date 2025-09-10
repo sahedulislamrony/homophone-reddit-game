@@ -42,22 +42,24 @@ export default function GameCard({
             <div>
               Score: <span className="text-yellow-400 font-bold">{gameState.score}</span>
             </div>
+            <div className="text-sm">
+              Gems: <span className="text-blue-400 font-bold">{gameState.gems}</span>
+            </div>
             {streakInfo && streakInfo.currentStreak > 0 && (
               <div className="text-sm">
                 Streak: <span className="text-green-400 font-bold">{streakInfo.currentStreak}</span>
               </div>
             )}
           </div>
-          {streakInfo && (
-            <div className="text-xs text-gray-400 mt-1">
-              Next correct: {streakInfo.nextPoints} points ({streakInfo.nextMultiplier}x)
-            </div>
-          )}
+          {/* <div className="text-xs text-gray-400 mt-1">
+            Free hints: {3 - gameState.freeHintsUsed} remaining
+          </div> */}
         </div>
         <button
           onClick={onHint}
           disabled={!canUseHint}
           className="p-2 bg-black/80 border border-yellow-400 rounded-full hover:bg-black/70 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          title={canUseHint ? 'Use a hint' : 'No hints available'}
         >
           <Lightbulb className="size-5 text-yellow-400" />
         </button>
