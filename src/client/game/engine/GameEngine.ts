@@ -2,8 +2,9 @@ import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 
 export interface GameEngineConfig {
   pointsPerCorrect: number; // Base points for first correct answer
-  pointsPerHint: number; // Points deducted for using hints (negative value)
-  maxHints: number; // Maximum hints allowed per game
+  pointsPerHint: number; // Points deducted for using hints after free hints (negative value)
+  maxFreeHints: number; // Maximum free hints allowed per game (3)
+  gemsPerHint: number; // Gems required for additional hints (1 gem = 3 hints)
   timeBonus: boolean; // Enable time-based bonuses
   streakMultiplier: boolean; // Enable progressive streak multipliers (1x, 2x, 3x, etc.)
 }
@@ -33,8 +34,9 @@ export class GameEngine {
     // Default configuration
     this.config = {
       pointsPerCorrect: 10, // Base points: 10 for first correct answer
-      pointsPerHint: -2, // -2 points per hint used
-      maxHints: 3, // Maximum 3 hints per game
+      pointsPerHint: -2, // -2 points per hint used after free hints
+      maxFreeHints: 3, // Maximum 3 free hints per game
+      gemsPerHint: 1, // 1 gem = 3 additional hints
       timeBonus: true, // Enable time bonuses
       streakMultiplier: true, // Enable progressive multipliers (1x, 2x, 3x, 4x...)
       ...config,
@@ -152,64 +154,78 @@ export class GameEngine {
       return false;
     }
 
-    // Check if max hints reached
-    if (this.gameState.hintsUsed >= this.config.maxHints) {
+    // Check if we have any hints available
+    if (this.gameObject.hints.length === 0) {
       this.onFeedback({
         type: 'hint',
-        message: `You've used all ${this.config.maxHints} hints!`,
+        message: 'No hints available for this game.',
       });
       return false;
     }
 
-    // Get remaining words that haven't been found
-    const remainingWords = this.gameObject.correctWords.filter(
-      (word) =>
-        !this.gameState.userAnswers.some((answer) => answer.toLowerCase() === word.toLowerCase())
-    );
-
-    if (remainingWords.length === 0) {
+    // Check if we've used all available hints
+    if (this.gameState.hintsUsed >= this.gameObject.hints.length) {
       this.onFeedback({
         type: 'hint',
-        message: 'All words have been found!',
+        message: "You've used all available hints for this game!",
       });
       return false;
     }
 
-    // Deduct points for using hint
-    const hintPenalty = Math.abs(this.config.pointsPerHint);
-    this.gameState = {
+    // Determine if this is a free hint or requires gems
+    const isFreeHint = this.gameState.freeHintsUsed < this.config.maxFreeHints;
+    const hintsFromGems = Math.floor((this.gameState.hintsUsed - this.gameState.freeHintsUsed) / 3);
+    const remainingGems = this.gameState.gems - hintsFromGems;
+
+    if (!isFreeHint) {
+      // Check if we have enough gems for additional hints
+      if (remainingGems < this.config.gemsPerHint) {
+        this.onFeedback({
+          type: 'hint',
+          message: `You need ${this.config.gemsPerHint} gem(s) to get more hints. You have ${remainingGems} gems available.`,
+        });
+        return false;
+      }
+    }
+
+    // Get the next hint from the game's hint array
+    const hintIndex = this.gameState.hintsUsed;
+    const hintMessage = this.gameObject.hints[hintIndex];
+
+    if (!hintMessage) {
+      this.onFeedback({
+        type: 'hint',
+        message: 'No more hints available.',
+      });
+      return false;
+    }
+
+    // Update game state
+    const newState = {
       ...this.gameState,
       hintsUsed: this.gameState.hintsUsed + 1,
-      score: Math.max(0, this.gameState.score - hintPenalty),
     };
+
+    if (isFreeHint) {
+      // Free hint - no cost
+      newState.freeHintsUsed = this.gameState.freeHintsUsed + 1;
+    } else {
+      // Gem-based hint - deduct gems and points
+      newState.gems = Math.max(0, this.gameState.gems - this.config.gemsPerHint);
+      newState.score = Math.max(0, this.gameState.score + this.config.pointsPerHint);
+    }
+
+    this.gameState = newState;
 
     // Reset streak when using hint
     this.currentStreak = 0;
 
-    // Generate hint for a random remaining word
-    const randomWord = remainingWords[Math.floor(Math.random() * remainingWords.length)];
-    if (!randomWord) return false;
-
-    const hintType = this.gameState.hintsUsed;
-    let hintMessage = '';
-
-    switch (hintType) {
-      case 1:
-        hintMessage = `Hint 1: One of the remaining words starts with "${randomWord[0]}" and has ${randomWord.length} letters.`;
-        break;
-      case 2:
-        hintMessage = `Hint 2: One of the remaining words ends with "${randomWord.slice(-1)}" and rhymes with "${this.getRhymingWord(randomWord)}".`;
-        break;
-      case 3:
-        hintMessage = `Hint 3: One of the remaining words is "${randomWord}".`;
-        break;
-      default:
-        hintMessage = `Hint: One of the remaining words starts with "${randomWord[0]}" and has ${randomWord.length} letters.`;
-    }
-
+    // Create feedback message
     const feedback: GameFeedback = {
       type: 'hint',
-      message: hintMessage,
+      message: isFreeHint
+        ? `Free Hint ${this.gameState.freeHintsUsed}: ${hintMessage}`
+        : `Gem Hint: ${hintMessage} (Cost: ${this.config.gemsPerHint} gem${this.config.gemsPerHint > 1 ? 's' : ''})`,
     };
 
     this.onStateChange(this.gameState);
@@ -224,6 +240,8 @@ export class GameEngine {
       userAnswers: [],
       score: 0,
       hintsUsed: 0,
+      gems: this.gameState.gems, // Preserve gems across games
+      freeHintsUsed: 0,
       isCompleted: false,
     };
     this.currentStreak = 0;
@@ -278,12 +296,73 @@ export class GameEngine {
 
   // Check if hint is available
   canUseHint(): boolean {
-    return this.gameState.hintsUsed < this.config.maxHints;
+    // Check if all words found
+    if (this.gameState.userAnswers.length >= this.gameObject.correctWords.length) {
+      return false;
+    }
+
+    // Check if we've used all available hints
+    if (this.gameState.hintsUsed >= this.gameObject.hints.length) {
+      return false;
+    }
+
+    // Check if we have free hints or gems for additional hints
+    const isFreeHint = this.gameState.freeHintsUsed < this.config.maxFreeHints;
+    if (isFreeHint) {
+      return true;
+    }
+
+    // Check if we have gems for additional hints
+    const hintsFromGems = Math.floor((this.gameState.hintsUsed - this.gameState.freeHintsUsed) / 3);
+    const remainingGems = this.gameState.gems - hintsFromGems;
+    return remainingGems >= this.config.gemsPerHint;
   }
 
-  // Get remaining hints
+  // Get remaining free hints
+  getRemainingFreeHints(): number {
+    return Math.max(0, this.config.maxFreeHints - this.gameState.freeHintsUsed);
+  }
+
+  // Get remaining total hints (free + gem-based)
   getRemainingHints(): number {
-    return Math.max(0, this.config.maxHints - this.gameState.hintsUsed);
+    const freeHints = this.getRemainingFreeHints();
+    const hintsFromGems = Math.floor((this.gameState.hintsUsed - this.gameState.freeHintsUsed) / 3);
+    const remainingGems = this.gameState.gems - hintsFromGems;
+    const gemHints = Math.floor(remainingGems / this.config.gemsPerHint) * 3;
+
+    return freeHints + gemHints;
+  }
+
+  // Get gems available for hints
+  getAvailableGems(): number {
+    const hintsFromGems = Math.floor((this.gameState.hintsUsed - this.gameState.freeHintsUsed) / 3);
+    return this.gameState.gems - hintsFromGems;
+  }
+
+  // Add gems to user's account
+  addGems(amount: number): void {
+    this.gameState = {
+      ...this.gameState,
+      gems: this.gameState.gems + amount,
+    };
+    this.onStateChange(this.gameState);
+  }
+
+  // Get hint information for display
+  getHintInfo() {
+    const freeHints = this.getRemainingFreeHints();
+    const availableGems = this.getAvailableGems();
+    const gemHints = Math.floor(availableGems / this.config.gemsPerHint) * 3;
+
+    return {
+      freeHints,
+      availableGems,
+      gemHints,
+      totalHints: freeHints + gemHints,
+      canUseFreeHint: freeHints > 0,
+      canUseGemHint: availableGems >= this.config.gemsPerHint,
+      gemsPerHint: this.config.gemsPerHint,
+    };
   }
 
   // Get current word with partial reveal (for advanced hints)
@@ -294,20 +373,6 @@ export class GameEngine {
     const revealed = currentWord.slice(0, revealCount);
     const hidden = '*'.repeat(currentWord.length - revealCount);
     return revealed + hidden;
-  }
-
-  // Private helper method for rhyming words
-  private getRhymingWord(word: string): string {
-    const rhymes: { [key: string]: string } = {
-      'great': 'late',
-      'knew': 'blue',
-      'rode': 'code',
-      'through': 'blue',
-      'Harry': 'marry',
-      'astronaut': 'about',
-    };
-
-    return rhymes[word] || 'something';
   }
 
   // Update configuration

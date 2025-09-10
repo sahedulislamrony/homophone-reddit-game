@@ -3,6 +3,7 @@ export type GameObject = {
   content: string;
   correctWords: string[];
   themeBgImage: string;
+  hints: string[]; // 4-10 hints per game
 };
 
 export type GameState = {
@@ -10,6 +11,8 @@ export type GameState = {
   userAnswers: string[];
   score: number;
   hintsUsed: number;
+  gems: number; // User's gem currency
+  freeHintsUsed: number; // Track free hints used (max 3)
   isCompleted: boolean;
 };
 
