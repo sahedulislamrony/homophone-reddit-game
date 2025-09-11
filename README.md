@@ -2,8 +2,6 @@
 
 A Reddit-based word game where players hunt down impostor words and replace them with correct homophones. Built with Devvit, React, and TypeScript.
 
-![Game Preview](assets/logo.png)
-
 ## 🎮 Game Overview
 
 **The Daily Homophone** is an engaging word puzzle game that challenges players to identify and correct homophone errors in themed text passages. Players earn points, build streaks, and compete on leaderboards while improving their language skills.
