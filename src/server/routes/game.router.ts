@@ -4,6 +4,7 @@ import {
   submitGameResult,
   getGameResult,
   getGameResultByChallengeId,
+  spendGems,
   canPlayChallenge,
   getUserGameHistory,
   getTodayGames,
@@ -16,6 +17,9 @@ const router = Router();
 
 // Submit game result
 router.post('/submit', asyncHandler(submitGameResult));
+
+// Spend gems
+router.post('/spend-gems/:username', asyncHandler(spendGems));
 
 // Get game result
 router.get('/:gameId', asyncHandler(getGameResult));

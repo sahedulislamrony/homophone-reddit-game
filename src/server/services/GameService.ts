@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RedisService } from './RedisService';
 import { UserService } from './UserService';
-import { GameResult, UserData } from '@shared/types/server';
+import { GameResult } from '@shared/types/server';
 import { v4 as uuidv4 } from 'uuid';
 
 export class GameService {
@@ -26,8 +27,13 @@ export class GameService {
       themeName: string;
     }
   ): Promise<GameResult> {
+    if (!username || !challengeId) {
+      throw new Error('Username and challengeId are required');
+    }
+
     const gameId = uuidv4();
-    const date = new Date().toISOString().split('T')[0];
+    const date =
+      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
 
     // Calculate gems earned (first time bonuses)
     const gemsEarned = await this.userService.getFirstTimeBonus(username, challengeId, date);
@@ -35,8 +41,8 @@ export class GameService {
     // Create game result
     const gameResult: GameResult = {
       id: gameId,
-      username,
-      challengeId,
+      username: username,
+      challengeId: challengeId,
       date,
       score: gameData.score,
       hintsUsed: gameData.hintsUsed,
@@ -102,6 +108,10 @@ export class GameService {
     return await this.redis.getUserGames(username);
   }
 
+  async spendGems(username: string, amount: number): Promise<boolean> {
+    return await this.redis.spendUserGems(username, amount);
+  }
+
   async getUserGamesByDate(username: string, date: string): Promise<GameResult[]> {
     return await this.redis.getUserGamesByDate(username, date);
   }
@@ -120,6 +130,14 @@ export class GameService {
     reason?: string;
     gemsAvailable: number;
   }> {
+    if (!username || !challengeId) {
+      return {
+        canPlay: false,
+        reason: 'Username and challengeId are required',
+        gemsAvailable: 0,
+      };
+    }
+
     const userData = await this.userService.getUserData(username);
     if (!userData) {
       return {
@@ -129,7 +147,8 @@ export class GameService {
       };
     }
 
-    const date = new Date().toISOString().split('T')[0];
+    const date =
+      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
     const hasPlayedToday = await this.redis.getUserGamesByDate(username, date);
     const hasPlayedThisChallenge = hasPlayedToday.some((game) => game.challengeId === challengeId);
 
@@ -209,7 +228,11 @@ export class GameService {
   }
 
   async getTodayGames(username: string): Promise<GameResult[]> {
-    const date = new Date().toISOString().split('T')[0];
+    if (!username) {
+      return [];
+    }
+    const date =
+      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
     return await this.getUserGamesByDate(username, date);
   }
 
@@ -228,6 +251,10 @@ export class GameService {
       gemsSpent: number;
     }[]
   > {
+    if (!username) {
+      return [];
+    }
+
     const allGames = await this.redis.getUserGames(username);
     const performanceData: { [date: string]: any } = {};
 
@@ -235,7 +262,7 @@ export class GameService {
     for (let i = 0; i < days; i++) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = date.toISOString().split('T')[0] || date.toISOString().substring(0, 10);
       performanceData[dateStr] = {
         date: dateStr,
         gamesPlayed: 0,
@@ -249,7 +276,7 @@ export class GameService {
 
     // Process games
     allGames.forEach((game) => {
-      if (performanceData[game.date]) {
+      if (game.date && performanceData[game.date]) {
         performanceData[game.date].gamesPlayed++;
         performanceData[game.date].totalScore += game.score;
         performanceData[game.date].hintsUsed += game.hintsUsed;

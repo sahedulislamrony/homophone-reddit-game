@@ -272,6 +272,33 @@ const getGameResultByChallengeId = async (
   }
 };
 
+const spendGems = async (username: string, amount: number): Promise<boolean> => {
+  try {
+    const response = await fetch(`${baseUrl}/games/spend-gems/${username}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 400) {
+        return false; // Insufficient gems
+      }
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to spend gems');
+  }
+};
+
 export const userApi = {
   getCurrentRedditUser,
   syncUser,
@@ -281,6 +308,7 @@ export const userApi = {
   getTodayGames,
   getGameResult,
   getGameResultByChallengeId,
+  spendGems,
   getDailyLeaderboard,
   getAllTimeLeaderboard,
   getUserRank,

@@ -7,7 +7,7 @@ import { getRandomGame } from './data/sampleGames';
 import { getThemeData } from './data/gameData';
 import { GameDataConverter } from '@client/utils/GameDataConverter';
 import { getBackgroundStyle } from './assets/GameAssets';
-import { GameCard, FeedbackMessage, GameComplete } from './components';
+import { GameCard, FeedbackMessage } from './components';
 import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
 import { dataSync } from '@client/services/DataSyncService';
@@ -189,6 +189,52 @@ export default function GamePage() {
     }
   }, [gameState?.isCompleted, challengeId, gameState, gameEngine, gameObject, username]);
 
+  // Handle game completion - redirect to result page
+  useEffect(() => {
+    if (gameState?.isCompleted && challengeId && username) {
+      const submitAndRedirect = async () => {
+        try {
+          console.log('GamePage: Game completed, submitting result...');
+
+          // Submit the game result
+          await dataSync.submitGameResult({
+            username,
+            challengeId,
+            score: gameState.score,
+            hintsUsed: gameState.hintsUsed || 0,
+            freeHintsUsed: 0,
+            gemsSpent: 0,
+            timeSpent: 0, // GameState doesn't have timeSpent, using 0
+            difficulty: 'easy', // GameObject doesn't have difficulty, using default
+            themeName: gameObject?.themeName || 'Unknown',
+          });
+
+          console.log('GamePage: Game result submitted, redirecting to result page...');
+
+          // Redirect directly to result page
+          router.goto('game-result', {
+            challengeId,
+            username,
+          });
+        } catch (error) {
+          console.error('GamePage: Error submitting game result:', error);
+          // Fallback to challenges page
+          router.goto('daily-challenges');
+        }
+      };
+
+      void submitAndRedirect();
+    }
+  }, [
+    gameState?.isCompleted,
+    challengeId,
+    username,
+    gameState?.score,
+    gameState?.hintsUsed,
+    gameObject?.themeName,
+    router,
+  ]);
+
   if (!gameEngine || !gameState || !gameObject) {
     return (
       <div className="w-full min-h-screen bg-black flex items-center justify-center">
@@ -197,22 +243,15 @@ export default function GamePage() {
     );
   }
 
-  // Show game complete screen
-  if (gameState.isCompleted) {
-    // Get gems earned from the game result (already calculated by server)
-    const gemsEarned = gameObject ? 10 : 0; // Default gems for completed games
-
+  // Show loading while submitting and redirecting
+  if (gameState?.isCompleted) {
     return (
-      <GameComplete
-        finalScore={gameState.score}
-        onBackToHome={() => router.goto('home')}
-        {...(challengeId && {
-          onBackToChallenges: () => router.goto('daily-challenges'),
-          onViewResult: () => router.goto('game-result', { challengeId }),
-        })}
-        isChallenge={!!challengeId}
-        gemsEarned={gemsEarned}
-      />
+      <div className="w-full min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-white text-xl mb-4">Game Completed!</div>
+          <div className="text-gray-400">Submitting results...</div>
+        </div>
+      </div>
     );
   }
 

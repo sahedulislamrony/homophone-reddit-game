@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { serverApi } from './ServerApiService';
 import { UserData, UserStats, GameResult, LeaderboardEntry } from '@shared/types/server';
 import { GameState } from '@shared/types/game';
@@ -15,7 +16,7 @@ export class DataSyncService {
     // Auto-sync every 30 seconds
     setInterval(() => {
       if (this.currentUser) {
-        this.syncUserData(this.currentUser);
+        void this.syncUserData(this.currentUser);
       }
     }, this.syncInterval);
   }
@@ -138,9 +139,10 @@ export class DataSyncService {
   ): Promise<LeaderboardEntry[]> {
     try {
       switch (type) {
-        case 'daily':
+        case 'daily': {
           const daily = await serverApi.getDailyLeaderboard(undefined, limit);
           return daily.entries;
+        }
         case 'weekly':
           return await serverApi.getWeeklyLeaderboard(limit);
         case 'monthly':

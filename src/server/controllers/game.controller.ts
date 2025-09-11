@@ -102,6 +102,30 @@ export const getGameResultByChallengeId = async (req: Request, res: Response): P
 };
 
 /**
+ * Spend gems
+ */
+export const spendGems = async (req: Request, res: Response): Promise<void> => {
+  const { username } = req.params;
+  const { amount } = req.body;
+
+  if (!username || !amount || amount <= 0) {
+    res.status(400).json({ error: 'Username and valid amount are required' });
+    return;
+  }
+
+  const success = await gameService.spendGems(username, amount);
+  if (!success) {
+    res.status(400).json({ error: 'Insufficient gems' });
+    return;
+  }
+
+  res.json({
+    success: true,
+    message: `Successfully spent ${amount} gems`,
+  });
+};
+
+/**
  * Check if user can play challenge
  */
 export const canPlayChallenge = async (req: Request, res: Response): Promise<void> => {

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // Data validation utility for daily challenges
 import { dailyChallengesData } from './dailyChallengesData';
 
@@ -75,22 +76,33 @@ export function validateDailyChallengesData(): ValidationResult {
 
       // Check difficulty
       if (challenge.difficulty && !['easy', 'medium', 'hard'].includes(challenge.difficulty)) {
-        errors.push(`${challengeId}: Invalid difficulty '${challenge.difficulty}'. Expected easy, medium, or hard`);
+        errors.push(
+          `${challengeId}: Invalid difficulty '${challenge.difficulty}'. Expected easy, medium, or hard`
+        );
       }
 
       // Check gem reward
       if (challenge.gemReward !== undefined) {
-        const expectedReward = challenge.difficulty === 'easy' ? 5 : 
-                              challenge.difficulty === 'medium' ? 10 : 
-                              challenge.difficulty === 'hard' ? 20 : 0;
+        const expectedReward =
+          challenge.difficulty === 'easy'
+            ? 5
+            : challenge.difficulty === 'medium'
+              ? 10
+              : challenge.difficulty === 'hard'
+                ? 20
+                : 0;
         if (challenge.gemReward !== expectedReward) {
-          warnings.push(`${challengeId}: Gem reward ${challenge.gemReward} doesn't match difficulty ${challenge.difficulty} (expected ${expectedReward})`);
+          warnings.push(
+            `${challengeId}: Gem reward ${challenge.gemReward} doesn't match difficulty ${challenge.difficulty} (expected ${expectedReward})`
+          );
         }
       }
 
       // Check content length
       if (challenge.content && challenge.content.length < 20) {
-        warnings.push(`${challengeId}: Content seems too short (${challenge.content.length} characters)`);
+        warnings.push(
+          `${challengeId}: Content seems too short (${challenge.content.length} characters)`
+        );
       }
 
       // Check correct words
@@ -99,7 +111,7 @@ export function validateDailyChallengesData(): ValidationResult {
       }
 
       // Check for duplicate IDs
-      const duplicateIds = day.challenges.filter(c => c.id === challenge.id);
+      const duplicateIds = day.challenges.filter((c) => c.id === challenge.id);
       if (duplicateIds.length > 1) {
         errors.push(`${challengeId}: Duplicate ID '${challenge.id}'`);
       }
@@ -107,9 +119,9 @@ export function validateDailyChallengesData(): ValidationResult {
 
     // Check difficulty distribution
     const difficultyCount = {
-      easy: day.challenges.filter(c => c.difficulty === 'easy').length,
-      medium: day.challenges.filter(c => c.difficulty === 'medium').length,
-      hard: day.challenges.filter(c => c.difficulty === 'hard').length,
+      easy: day.challenges.filter((c) => c.difficulty === 'easy').length,
+      medium: day.challenges.filter((c) => c.difficulty === 'medium').length,
+      hard: day.challenges.filter((c) => c.difficulty === 'hard').length,
     };
 
     if (difficultyCount.easy < 2) {
@@ -121,7 +133,7 @@ export function validateDailyChallengesData(): ValidationResult {
   });
 
   // Check for duplicate dates
-  const dates = dailyChallengesData.map(day => day.date);
+  const dates = dailyChallengesData.map((day) => day.date);
   const duplicateDates = dates.filter((date, index) => dates.indexOf(date) !== index);
   if (duplicateDates.length > 0) {
     errors.push(`Duplicate dates found: ${duplicateDates.join(', ')}`);
@@ -130,26 +142,26 @@ export function validateDailyChallengesData(): ValidationResult {
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
 // Helper function to print validation results
 export function printValidationResults(result: ValidationResult): void {
   console.log('🔍 Daily Challenges Data Validation\n');
-  
+
   if (result.isValid) {
     console.log('✅ All data is valid!');
   } else {
     console.log('❌ Validation failed with errors:');
-    result.errors.forEach(error => console.log(`  • ${error}`));
+    result.errors.forEach((error) => console.log(`  • ${error}`));
   }
-  
+
   if (result.warnings.length > 0) {
     console.log('\n⚠️  Warnings:');
-    result.warnings.forEach(warning => console.log(`  • ${warning}`));
+    result.warnings.forEach((warning) => console.log(`  • ${warning}`));
   }
-  
+
   console.log(`\n📊 Summary: ${result.errors.length} errors, ${result.warnings.length} warnings`);
 }
 

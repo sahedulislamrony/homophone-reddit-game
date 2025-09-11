@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserDataResponse } from '@shared/types/api';
 import { userApi } from '@client/utils/api';

@@ -14,7 +14,8 @@
     "webbit",
     "webroot",
     "zstack",
-    "dailyhomophone"
+    "dailyhomophone",
+    "uuidv4"
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
