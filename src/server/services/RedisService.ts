@@ -345,25 +345,21 @@ export class RedisService {
       const totalCount = await redis.zCard(key);
       if (totalCount === 0) return [];
 
-      // Calculate reverse range for descending order
-      const start = Math.max(0, totalCount - limit);
-      const end = totalCount - 1;
-
-      const entries = await redis.zRange(key, start, end, {
-        by: 'rank',
+      // Get entries in descending order by score
+      const entries = await redis.zRange(key, 0, limit - 1, {
+        by: 'score',
       });
+      // Reverse to get descending order since zRange returns ascending by default
+      entries.reverse();
       const leaderboard: LeaderboardEntry[] = [];
 
-      // Reverse the entries to get descending order
-      const reversedEntries = entries.reverse();
-
-      console.log(`Found ${reversedEntries.length} entries in daily leaderboard for ${date}:`);
-      reversedEntries.forEach((entry, index) => {
+      console.log(`Found ${entries.length} entries in daily leaderboard for ${date}:`);
+      entries.forEach((entry, index) => {
         console.log(`  ${index + 1}. ${entry.member}: ${entry.score} points`);
       });
 
-      for (let i = 0; i < reversedEntries.length; i++) {
-        const entry = reversedEntries[i];
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
         if (!entry) continue;
 
         const username = entry.member;
@@ -434,18 +430,16 @@ export class RedisService {
       const totalCount = await redis.zCard(key);
       if (totalCount === 0) return [];
 
-      // Calculate reverse range for descending order
-      const start = Math.max(0, totalCount - limit);
-      const end = totalCount - 1;
-
-      const entries = await redis.zRange(key, start, end, { by: 'rank' });
+      // Get entries in descending order by score
+      const entries = await redis.zRange(key, 0, limit - 1, {
+        by: 'score',
+      });
+      // Reverse to get descending order since zRange returns ascending by default
+      entries.reverse();
       const leaderboard: LeaderboardEntry[] = [];
 
-      // Reverse the entries to get descending order
-      const reversedEntries = entries.reverse();
-
-      for (let i = 0; i < reversedEntries.length; i++) {
-        const entry = reversedEntries[i];
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
         if (!entry) continue;
 
         const username = entry.member;

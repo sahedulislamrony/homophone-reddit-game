@@ -4,7 +4,6 @@ import { Play, Trophy, HelpCircle, BarChart, NotebookPen } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
-
   const handleNavigation = (page: string) => {
     router.goto(page as Pages);
   };

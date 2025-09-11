@@ -1,6 +1,6 @@
 import NavigationBar from '@client/components/basic/Navigation';
 import { useRouter } from '@client/contexts/RouterContext';
-import { Play, Lightbulb, Target, Award, Clock } from 'lucide-react';
+import { Play, Lightbulb, Target, Award } from 'lucide-react';
 
 export default function HowToPlayPage() {
   const router = useRouter();
@@ -214,8 +214,26 @@ export default function HowToPlayPage() {
             </div>
           </div>
 
+          {/* Server Time Caution */}
+          <div className="bg-yellow-500/40 border border-yellow-500/40 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-6 h-6 bg-yellow-500/20 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-yellow-400 text-sm font-bold">!</span>
+              </div>
+              <div>
+                <h4 className="text-yellow-400 font-semibold text-sm mb-2">Important Notice</h4>
+                <p className="text-yellow-300/90 text-sm leading-relaxed">
+                  All game times, daily challenges, and leaderboards are based on{' '}
+                  <strong>server time</strong>, which may differ from your local time. Daily
+                  challenges reset at midnight server time, and leaderboard rankings are calculated
+                  using server time zones.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Start Game Button */}
-          <div className="text-center mb-10">
+          <div className="text-center mb-5">
             <button
               onClick={handleStartGame}
               className="group w-full max-w-sm mx-auto py-3 px-6 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"

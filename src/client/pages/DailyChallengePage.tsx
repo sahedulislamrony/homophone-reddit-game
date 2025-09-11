@@ -15,6 +15,7 @@ import {
   getEarnedGemsForDate,
 } from '@client/game/data/gameData';
 import { FullScreenLoader } from '@client/components';
+import Notice from '@client/components/Notice';
 
 export default function DailyChallengePage() {
   const router = useRouter();
@@ -186,7 +187,7 @@ export default function DailyChallengePage() {
   });
 
   return (
-    <div className="w-full min-h-screen bg-black">
+    <div className="w-full min-h-screen bg-black pb-10">
       {/* Header */}
       <div className="relative z-10 p-6">
         <NavigationBar title="Daily Challenges" onBack={handleBackToHome} />
@@ -214,7 +215,7 @@ export default function DailyChallengePage() {
       </div>
 
       {/* Challenges Grid */}
-      <div className="relative z-10 px-6 pb-6">
+      <div className="relative z-10 px-6 pb-10">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-4 px-4">
             {dailyChallenge.levels.map((challenge, index) => (
@@ -243,6 +244,9 @@ export default function DailyChallengePage() {
           </div>
         </div>
       )}
+
+      {/* Server Time Notice */}
+      <Notice />
     </div>
   );
 }
