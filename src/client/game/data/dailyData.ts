@@ -2,10 +2,10 @@ import { DailyData } from '@shared/types/game';
 
 export const dailyData: DailyData[] = [
   {
-    date: '2025-09-11',
+    date: '2025-09-12',
     themes: [
       {
-        themeId: 'harry-potter-new-2025-09-11',
+        themeId: 'harry-potter-new-2025-09-12',
         themeName: 'Harry Potter',
         content:
           'Hary was a grate wizard who new many spells. He road a broom threw the castle halls.',
@@ -28,7 +28,7 @@ export const dailyData: DailyData[] = [
         isCompleted: false,
       },
       {
-        themeId: 'space-adventure-new-2025-09-11',
+        themeId: 'space-adventure-new-2025-09-12',
         themeName: 'Space Adventure',
         content:
           'The astronot looked threw the telescope and saw a grate meteor shower. He new it was going to be an amazing sight.',
@@ -51,7 +51,7 @@ export const dailyData: DailyData[] = [
         isCompleted: false,
       },
       {
-        themeId: 'ocean-exploration-2025-09-11',
+        themeId: 'ocean-exploration-2025-09-12',
         themeName: 'Ocean Exploration',
         content:
           'The diver road the current threw the coral reef. She new that the grate barrier reef was home to many fish.',
@@ -74,7 +74,7 @@ export const dailyData: DailyData[] = [
         isCompleted: false,
       },
       {
-        themeId: 'medieval-times-2025-09-11',
+        themeId: 'medieval-times-2025-09-12',
         themeName: 'Medieval Times',
         content:
           'The knight road his horse threw the forest. He new that grate danger awaited him ahead.',

@@ -29,6 +29,41 @@ export const onAppInstall = async (_req: Request, res: Response): Promise<void> 
 };
 
 /**
+ * Get historical daily leaderboards
+ */
+export const getHistoricalLeaderboards = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      res.status(400).json({
+        status: 'error',
+        message: 'startDate and endDate query parameters are required',
+      });
+      return;
+    }
+
+    const redisService = new RedisService();
+    const historicalData = await redisService.getHistoricalDailyLeaderboards(
+      startDate as string,
+      endDate as string
+    );
+
+    res.json({
+      status: 'success',
+      data: historicalData,
+    });
+  } catch (error) {
+    console.error('Error getting historical leaderboards:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to get historical leaderboards',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+/**
  * Handle post creation from menu
  */
 export const menuPostCreate = async (_req: Request, res: Response): Promise<void> => {

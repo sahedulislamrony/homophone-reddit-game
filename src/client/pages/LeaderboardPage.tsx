@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { useUserContext } from '@client/contexts/UserContext';
-import { Trophy, Medal, Award, Crown } from 'lucide-react';
+import { Medal, Award, Crown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LeaderboardEntry } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
 import { userApi } from '@client/utils/api';
@@ -13,11 +13,17 @@ export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<'today' | 'allTime'>('today');
   const [todayData, setTodayData] = useState<LeaderboardEntry[]>([]);
   const [allTimeData, setAllTimeData] = useState<LeaderboardEntry[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    // Initialize with today's date
+    return new Date().toISOString().split('T')[0]!;
+  });
   const [userRank, setUserRank] = useState<{
     dailyRank: number;
     allTimeRank: number;
     weeklyRank: number;
     monthlyRank: number;
+    dailyPoints: number;
+    totalPoints: number;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,9 +34,9 @@ export default function LeaderboardPage() {
         setLoading(true);
         setError(null);
 
-        // Fetch today's leaderboard
-        console.log('Fetching daily leaderboard...');
-        const todayResponse = await userApi.getDailyLeaderboard();
+        // Fetch daily leaderboard for selected date
+        console.log('Fetching daily leaderboard for date:', selectedDate);
+        const todayResponse = await userApi.getDailyLeaderboard(selectedDate);
         console.log('Daily leaderboard response:', todayResponse);
         setTodayData(todayResponse.entries);
 
@@ -53,6 +59,8 @@ export default function LeaderboardPage() {
               allTimeRank: 0,
               weeklyRank: 0,
               monthlyRank: 0,
+              dailyPoints: 0,
+              totalPoints: 0,
             });
           }
         } else {
@@ -62,6 +70,8 @@ export default function LeaderboardPage() {
             allTimeRank: 0,
             weeklyRank: 0,
             monthlyRank: 0,
+            dailyPoints: 0,
+            totalPoints: 0,
           });
         }
       } catch (err) {
@@ -73,9 +83,50 @@ export default function LeaderboardPage() {
     };
 
     void fetchLeaderboardData();
-  }, [username]);
+  }, [username, selectedDate]);
 
   const currentData = activeTab === 'today' ? todayData : allTimeData;
+
+  // Date navigation functions
+  const goToPreviousDay = () => {
+    const currentDate = new Date(selectedDate);
+    currentDate.setDate(currentDate.getDate() - 1);
+    const prevDate = currentDate.toISOString().split('T')[0];
+    if (prevDate) {
+      setSelectedDate(prevDate);
+    }
+  };
+
+  const goToNextDay = () => {
+    const currentDate = new Date(selectedDate);
+    currentDate.setDate(currentDate.getDate() + 1);
+    const nextDate = currentDate.toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+
+    // Don't allow going to future dates
+    if (nextDate && today && nextDate <= today) {
+      setSelectedDate(nextDate);
+    }
+  };
+
+  const goToToday = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (today) {
+      setSelectedDate(today);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const isToday = selectedDate === new Date().toISOString().split('T')[0];
+  const isFirstDay = selectedDate === '2025-09-10'; // Adjust based on your app's start date
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -105,7 +156,7 @@ export default function LeaderboardPage() {
 
   if (loading) {
     return (
-      <FullScreenLoader isLoading={true} variant="leaderboard" message="Loading leaderboard..." />
+      <FullScreenLoader isLoading={true} variant="leaderboard" message="Loading leaderboard" />
     );
   }
 
@@ -143,20 +194,62 @@ export default function LeaderboardPage() {
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
             <NavigationBar title="Leaderboard" onBack={() => router.goto('home')} />
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Trophy className="w-8 h-8 text-yellow-400" />
-                <h2 className="text-3xl font-bold text-white">Global Rankings</h2>
+
+            {/* Date Navigation - Only show for Today tab */}
+            {activeTab === 'today' && (
+              <div className="flex justify-center mb-4">
+                <div className="bg-black/90 backdrop-blur-sm border border-yellow-400/30 rounded-full px-3 py-2 shadow-lg">
+                  <div className="flex items-center gap-3">
+                    {/* Previous Day Button */}
+                    <button
+                      onClick={goToPreviousDay}
+                      disabled={isFirstDay}
+                      className={`p-3 rounded-full transition-all duration-200 ${
+                        isFirstDay
+                          ? 'bg-black/50 text-yellow-400/30 cursor-not-allowed'
+                          : 'bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400/20 hover:scale-105 active:scale-95'
+                      }`}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    {/* Date Display */}
+                    <div className="text-center">
+                      <div className="text-white font-bold text-md">{formatDate(selectedDate)}</div>
+                      {!isToday && (
+                        <button
+                          onClick={goToToday}
+                          className="text-sm text-yellow-400 hover:text-yellow-300 transition-colors font-medium"
+                        >
+                          Go to Today
+                        </button>
+                      )}
+                      {isToday && <div className="text-sm text-yellow-400 font-medium">Today</div>}
+                    </div>
+
+                    {/* Next Day Button */}
+                    <button
+                      onClick={goToNextDay}
+                      disabled={isToday}
+                      className={`p-3 rounded-full transition-all duration-200 ${
+                        isToday
+                          ? 'bg-black/50 text-yellow-400/30 cursor-not-allowed'
+                          : 'bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400/20 hover:scale-105 active:scale-95'
+                      }`}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Tabs */}
             <div className="flex justify-center mb-8">
-              <div className="relative bg-black/80 backdrop-blur-sm border border-gray-700 rounded-full p-1">
+              <div className="relative bg-black/90 backdrop-blur-sm border border-yellow-400/30 rounded-full p-1 shadow-lg">
                 {/* Moving yellow background */}
                 <div
-                  className={`absolute top-1.5 bottom-1.5 rounded-full bg-yellow-500 transition-all duration-300 ease-in-out ${
+                  className={`absolute top-1.5 bottom-1.5 rounded-full bg-yellow-400 transition-all duration-300 ease-in-out ${
                     activeTab === 'today'
                       ? 'left-1.5 w-[calc(50%-6px)]'
                       : 'left-[calc(50%+3px)] w-[calc(50%-6px)]'
@@ -166,16 +259,20 @@ export default function LeaderboardPage() {
                 <button
                   onClick={() => setActiveTab('today')}
                   className={`relative px-6 py-2 rounded-full font-semibold transition-colors duration-300 z-10 ${
-                    activeTab === 'today' ? 'text-black' : 'text-gray-400 hover:text-white'
+                    activeTab === 'today'
+                      ? 'text-black'
+                      : 'text-yellow-400/70 hover:text-yellow-400'
                   }`}
                 >
-                  Today
+                  {isToday ? 'Today' : 'Daily'}
                 </button>
 
                 <button
                   onClick={() => setActiveTab('allTime')}
                   className={`relative px-6 py-2 rounded-full font-semibold transition-colors duration-300 z-10 ${
-                    activeTab === 'allTime' ? 'text-black' : 'text-gray-400 hover:text-white'
+                    activeTab === 'allTime'
+                      ? 'text-black'
+                      : 'text-yellow-400/70 hover:text-yellow-400'
                   }`}
                 >
                   All Time
@@ -184,18 +281,18 @@ export default function LeaderboardPage() {
             </div>
 
             {/* Leaderboard Table */}
-            <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 overflow-hidden mb-8">
+            <div className="bg-black/90 backdrop-blur-sm rounded-2xl shadow-lg border border-yellow-400/20 overflow-hidden mb-8">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-black/60 border-b border-gray-700">
+                  <thead className="bg-black/70 border-b border-yellow-400/20">
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-yellow-400">
                         Rank
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-yellow-400">
                         Player
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-yellow-400">
                         Points
                       </th>
                     </tr>
@@ -204,13 +301,15 @@ export default function LeaderboardPage() {
                     {currentData.length === 0 ? (
                       <tr>
                         <td colSpan={3} className="px-6 py-8 text-center">
-                          <div className="text-gray-400 text-lg">
+                          <div className="text-yellow-400/80 text-lg">
                             {activeTab === 'today'
-                              ? 'No games played today'
+                              ? `No games played on ${formatDate(selectedDate)}`
                               : 'No games played yet'}
                           </div>
-                          <div className="text-gray-500 text-sm mt-2">
-                            Complete some challenges to appear on the leaderboard!
+                          <div className="text-yellow-400/60 text-sm mt-2">
+                            {activeTab === 'today'
+                              ? 'Try selecting a different date or complete some challenges!'
+                              : 'Complete some challenges to appear on the leaderboard!'}
                           </div>
                         </td>
                       </tr>
@@ -256,33 +355,41 @@ export default function LeaderboardPage() {
               </div>
             </div>
 
-            {/* Your Score Section */}
-            <div className="bg-black/80 backdrop-blur-sm border rounded-2xl p-6 border-gray-700">
+            {/* Your Performance Section */}
+            <div className="bg-black/80 backdrop-blur-sm border border-yellow-400/30 rounded-2xl p-4">
               <div className="text-center">
-                <h3 className="text-xl font-semibold text-white mb-6">Your Performance</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Today's Rank */}
-                  <div className="text-center p-4 bg-black/60 rounded-xl border">
-                    <div className="text-2xl font-bold text-yellow-400 mb-1">
-                      {userRank?.dailyRank || 0}
+                <h3 className="text-lg font-semibold text-white mb-4">Your Performance</h3>
+                <div className="space-y-3">
+                  {/* Today's Performance */}
+                  <div className="flex justify-between items-center bg-black/60 rounded-xl p-3 border border-yellow-400/20">
+                    <div className="text-yellow-400 font-medium">Today</div>
+                    <div className="text-white">
+                      {userRank?.dailyRank && userRank.dailyRank > 0 ? (
+                        <>#{userRank.dailyRank}</>
+                      ) : (
+                        <span className="text-gray-400">Unranked</span>
+                      )}
+                      <span className="mx-2 text-gray-400">•</span>
+                      <span className="text-yellow-400 font-bold">
+                        {userRank?.dailyPoints || 0} points
+                      </span>
                     </div>
-                    <div className="text-sm text-gray-400">Today's Rank</div>
                   </div>
 
-                  {/* All Time Rank */}
-                  <div className="text-center p-4 bg-black/60 rounded-xl border">
-                    <div className="text-2xl font-bold text-yellow-400 mb-1">
-                      {userRank?.allTimeRank || 0}
+                  {/* All Time Performance */}
+                  <div className="flex justify-between items-center bg-black/60 rounded-xl p-3 border border-yellow-400/20">
+                    <div className="text-yellow-400 font-medium">All Time</div>
+                    <div className="text-white">
+                      {userRank?.allTimeRank && userRank.allTimeRank > 0 ? (
+                        <>#{userRank.allTimeRank}</>
+                      ) : (
+                        <span className="text-gray-400">Unranked</span>
+                      )}
+                      <span className="mx-2 text-gray-400">•</span>
+                      <span className="text-yellow-400 font-bold">
+                        {userRank?.totalPoints || 0} points
+                      </span>
                     </div>
-                    <div className="text-sm text-gray-400">All Time Rank</div>
-                  </div>
-
-                  {/* Weekly Rank */}
-                  <div className="text-center p-4 bg-black/60 rounded-xl border">
-                    <div className="text-2xl font-bold text-yellow-400 mb-1">
-                      {userRank?.weeklyRank || 0}
-                    </div>
-                    <div className="text-sm text-gray-400">Weekly Rank</div>
                   </div>
                 </div>
               </div>

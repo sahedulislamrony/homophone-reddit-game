@@ -129,29 +129,31 @@ export class RedisService {
       }
     }
 
-    // Update daily points
-    await redis.set(
-      REDIS_KEYS.DAILY_POINTS(gameResult.username, gameResult.date),
-      gameResult.score.toString()
-    );
+    // Update daily points (accumulate if user has played before today)
+    const dailyPointsKey = REDIS_KEYS.DAILY_POINTS(gameResult.username, gameResult.date);
+    const existingDailyPoints = await redis.get(dailyPointsKey);
+    const currentDailyPoints = existingDailyPoints ? parseInt(existingDailyPoints) : 0;
+    const newDailyPoints = currentDailyPoints + gameResult.score;
+    await redis.set(dailyPointsKey, newDailyPoints.toString());
 
-    // Update daily leaderboard
+    // Update daily leaderboard with accumulated daily points
     const dailyKey = REDIS_KEYS.DAILY_LEADERBOARD(gameResult.date);
-    console.log(`Updating daily leaderboard: ${dailyKey}`);
+    console.log(`Updating daily leaderboard: ${dailyKey} with ${newDailyPoints} points`);
     const dailyKeyExists = await redis.exists(dailyKey);
     if (dailyKeyExists === 0) {
       // Create new sorted set
       await redis.zAdd(dailyKey, {
         member: gameResult.username,
-        score: gameResult.score,
+        score: newDailyPoints,
       });
     } else {
       // Check if it's a sorted set
       const dailyKeyType = await redis.type(dailyKey);
       if (dailyKeyType === 'zset') {
+        // Use zAdd to replace the score (not add to it)
         await redis.zAdd(dailyKey, {
           member: gameResult.username,
-          score: gameResult.score,
+          score: newDailyPoints,
         });
       } else {
         console.log(
@@ -160,7 +162,7 @@ export class RedisService {
         await redis.del(dailyKey);
         await redis.zAdd(dailyKey, {
           member: gameResult.username,
-          score: gameResult.score,
+          score: newDailyPoints,
         });
       }
     }
@@ -306,10 +308,18 @@ export class RedisService {
     const date = new Date().toISOString().split('T')[0] || '';
 
     if (isDaily) {
-      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(date), { member: username, score: points });
+      // For daily leaderboard, get the current daily points and update with that
+      const dailyPointsKey = REDIS_KEYS.DAILY_POINTS(username, date);
+      const currentDailyPoints = await redis.get(dailyPointsKey);
+      const dailyPoints = currentDailyPoints ? parseInt(currentDailyPoints) : 0;
+
+      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(date), {
+        member: username,
+        score: dailyPoints,
+      });
     }
 
-    // Always update all-time leaderboard
+    // Always update all-time leaderboard (this should accumulate)
     await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, { member: username, score: points });
   }
 
@@ -322,7 +332,7 @@ export class RedisService {
       const keyExists = await redis.exists(key);
       console.log(`Key exists: ${keyExists}`);
       if (keyExists === 0) {
-        console.log('No daily leaderboard data found');
+        console.log(`No daily leaderboard data found for date: ${date}`);
         return [];
       }
 
@@ -346,6 +356,11 @@ export class RedisService {
 
       // Reverse the entries to get descending order
       const reversedEntries = entries.reverse();
+
+      console.log(`Found ${reversedEntries.length} entries in daily leaderboard for ${date}:`);
+      reversedEntries.forEach((entry, index) => {
+        console.log(`  ${index + 1}. ${entry.member}: ${entry.score} points`);
+      });
 
       for (let i = 0; i < reversedEntries.length; i++) {
         const entry = reversedEntries[i];
@@ -537,6 +552,35 @@ export class RedisService {
     }
   }
 
+  // Get historical daily leaderboard data
+  async getHistoricalDailyLeaderboards(
+    startDate: string,
+    endDate: string
+  ): Promise<{ [date: string]: LeaderboardEntry[] }> {
+    try {
+      const results: { [date: string]: LeaderboardEntry[] } = {};
+
+      // Generate date range
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        if (dateStr) {
+          const leaderboard = await this.getDailyLeaderboard(dateStr, 100);
+          if (leaderboard.length > 0) {
+            results[dateStr] = leaderboard;
+          }
+        }
+      }
+
+      return results;
+    } catch (error) {
+      console.error('Error getting historical daily leaderboards:', error);
+      return {};
+    }
+  }
+
   // Transaction logging
   async logTransaction(transaction: GameTransaction): Promise<void> {
     try {
@@ -643,6 +687,14 @@ export class RedisService {
     const key = isDaily ? REDIS_KEYS.DAILY_LEADERBOARD(date) : REDIS_KEYS.ALL_TIME_LEADERBOARD;
     const rank = await redis.zRank(key, username);
     return rank !== null && rank !== undefined ? rank + 1 : 0;
+  }
+
+  async getUserPoints(username: string, isDaily: boolean = false): Promise<number> {
+    const date =
+      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+    const key = isDaily ? REDIS_KEYS.DAILY_LEADERBOARD(date) : REDIS_KEYS.ALL_TIME_LEADERBOARD;
+    const score = await redis.zScore(key, username);
+    return score !== null && score !== undefined ? Math.round(score) : 0;
   }
 
   // Initialize app for new installations (no dummy data)

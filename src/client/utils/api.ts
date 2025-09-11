@@ -1,11 +1,5 @@
 import { UserDataResponse, ApiError } from '@shared/types/api';
-import {
-  UserData,
-  UserStats,
-  GameResult,
-  LeaderboardEntry,
-  GameTransaction,
-} from '@shared/types/server';
+import { UserData, UserStats, GameResult, LeaderboardEntry } from '@shared/types/server';
 
 export const createApiError = (message: string, status?: number): ApiError => {
   const error = new Error(message) as ApiError;
@@ -202,6 +196,29 @@ const getAllTimeLeaderboard = async (limit: number = 100): Promise<LeaderboardEn
   }
 };
 
+const getHistoricalLeaderboards = async (
+  startDate: string,
+  endDate: string
+): Promise<{ [date: string]: LeaderboardEntry[] }> => {
+  try {
+    const url = `${baseUrl}/internal/historical-leaderboards?startDate=${startDate}&endDate=${endDate}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch historical leaderboards');
+  }
+};
+
 const getUserRank = async (
   username: string
 ): Promise<{
@@ -209,9 +226,11 @@ const getUserRank = async (
   allTimeRank: number;
   weeklyRank: number;
   monthlyRank: number;
+  dailyPoints: number;
+  totalPoints: number;
 }> => {
   try {
-    const response = await fetch(`${baseUrl}/users/${username}/rank`);
+    const response = await fetch(`${baseUrl}/leaderboard/position/${username}`);
 
     if (!response.ok) {
       throw createApiError(`HTTP error! status: ${response.status}`, response.status);
@@ -311,5 +330,6 @@ export const userApi = {
   spendGems,
   getDailyLeaderboard,
   getAllTimeLeaderboard,
+  getHistoricalLeaderboards,
   getUserRank,
 };

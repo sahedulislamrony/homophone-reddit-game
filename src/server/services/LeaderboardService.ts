@@ -26,6 +26,14 @@ export class LeaderboardService {
     return await this.redis.getAllTimeLeaderboard(limit);
   }
 
+  // Historical daily leaderboards
+  async getHistoricalDailyLeaderboards(
+    startDate: string,
+    endDate: string
+  ): Promise<{ [date: string]: LeaderboardEntry[] }> {
+    return await this.redis.getHistoricalDailyLeaderboards(startDate, endDate);
+  }
+
   // User ranking
   async getUserRank(username: string, isDaily: boolean = false): Promise<number> {
     return await this.redis.getUserRank(username, isDaily);
@@ -182,6 +190,8 @@ export class LeaderboardService {
     allTimeRank: number;
     weeklyRank: number;
     monthlyRank: number;
+    dailyPoints: number;
+    totalPoints: number;
   }> {
     const dailyRank = await this.getUserRank(username, true);
     const allTimeRank = await this.getUserRank(username, false);
@@ -193,11 +203,17 @@ export class LeaderboardService {
     const weeklyRank = weeklyLeaderboard.findIndex((entry) => entry.username === username) + 1;
     const monthlyRank = monthlyLeaderboard.findIndex((entry) => entry.username === username) + 1;
 
+    // Get user points
+    const dailyPoints = await this.redis.getUserPoints(username, true);
+    const totalPoints = await this.redis.getUserPoints(username, false);
+
     return {
       dailyRank: dailyRank > 0 ? dailyRank : 0,
       allTimeRank: allTimeRank > 0 ? allTimeRank : 0,
       weeklyRank: weeklyRank > 0 ? weeklyRank : 0,
       monthlyRank: monthlyRank > 0 ? monthlyRank : 0,
+      dailyPoints: dailyPoints || 0,
+      totalPoints: totalPoints || 0,
     };
   }
 }

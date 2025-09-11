@@ -45,7 +45,7 @@ export default function GameCard({
             <div className="text-sm">
               Gems: <span className="text-blue-400 font-bold">{gameState.gems}</span>
             </div>
-            {streakInfo && streakInfo.currentStreak > 0 && (
+            {streakInfo && (
               <div className="text-sm">
                 Streak: <span className="text-green-400 font-bold">{streakInfo.currentStreak}</span>
               </div>
