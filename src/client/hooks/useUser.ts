@@ -19,7 +19,7 @@ export const useUser = (): UseUserReturn => {
       setLoading(true);
       setError(null);
 
-      const userData = await userApi.getUserData();
+      const userData = await userApi.getCurrentRedditUser();
       setUser(userData);
     } catch (err) {
       let errorMessage = 'Failed to fetch user data';

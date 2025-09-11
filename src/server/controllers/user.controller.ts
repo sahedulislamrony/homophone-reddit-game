@@ -88,7 +88,7 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 /**
- * Get user data
+ * Get user data (creates new user with 10 gems if doesn't exist)
  */
 export const getUserData = async (req: Request, res: Response): Promise<void> => {
   const { username } = req.params;
@@ -97,10 +97,17 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
     return;
   }
 
-  const userData = await userService.getUserData(username);
+  let userData = await userService.getUserData(username);
+
+  // If user doesn't exist, create them with 10 gems
   if (!userData) {
-    res.status(404).json({ error: 'User not found' });
-    return;
+    try {
+      userData = await redisService.createNewUser(username);
+    } catch (error) {
+      console.error('Error creating new user:', error);
+      res.status(500).json({ error: 'Failed to create new user' });
+      return;
+    }
   }
 
   const gems = await userService.getGems(username);
@@ -115,13 +122,25 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
 };
 
 /**
- * Get user stats
+ * Get user stats (creates new user with 10 gems if doesn't exist)
  */
 export const getUserStats = async (req: Request, res: Response): Promise<void> => {
   const { username } = req.params;
   if (!username) {
     res.status(400).json({ error: 'Username is required' });
     return;
+  }
+
+  // Ensure user exists (create with 10 gems if new)
+  const userExists = await redisService.isUserExists(username);
+  if (!userExists) {
+    try {
+      await redisService.createNewUser(username);
+    } catch (error) {
+      console.error('Error creating new user:', error);
+      res.status(500).json({ error: 'Failed to create new user' });
+      return;
+    }
   }
 
   const stats = await gameService.getGameStats(username);

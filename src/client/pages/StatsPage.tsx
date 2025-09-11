@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
+import { useUserContext } from '@client/contexts/UserContext';
 import {
   TrendingUp,
   Trophy,
@@ -23,75 +25,118 @@ import {
 } from 'lucide-react';
 import { UserStats, Achievement, StatCard } from '@shared/types/stats';
 import NavigationBar from '@client/components/basic/Navigation';
-
-// Mock user stats data
-const userStats: UserStats = {
-  streak: 7,
-  homophonesSolved: 156,
-  totalCoins: 2340,
-  todaysRank: 3,
-  allTimeRank: 12,
-  gamesPlayed: 45,
-  bestScore: 180,
-  averageScore: 95,
-  hintsUsed: 23,
-  accuracy: 87.5,
-  joinDate: '2024-01-01',
-  lastPlayed: '2024-01-15',
-  achievements: [
-    {
-      id: 'first_game',
-      name: 'First Steps',
-      description: 'Complete your first game',
-      icon: 'Target',
-      unlocked: true,
-      unlockedDate: '2024-01-01',
-      progress: 100,
-      maxProgress: 1,
-    },
-    {
-      id: 'streak_7',
-      name: 'Week Warrior',
-      description: 'Maintain a 7-day streak',
-      icon: 'Flame',
-      unlocked: true,
-      unlockedDate: '2024-01-15',
-      progress: 100,
-      maxProgress: 7,
-    },
-    {
-      id: 'hundred_solved',
-      name: 'Century Solver',
-      description: 'Solve 100 homophones',
-      icon: 'Trophy',
-      unlocked: true,
-      unlockedDate: '2024-01-10',
-      progress: 100,
-      maxProgress: 100,
-    },
-    {
-      id: 'perfect_game',
-      name: 'Perfectionist',
-      description: 'Complete a game without hints',
-      icon: 'Star',
-      unlocked: false,
-      progress: 0,
-      maxProgress: 1,
-    },
-    {
-      id: 'top_ten',
-      name: 'Elite Player',
-      description: 'Reach top 10 in daily rankings',
-      icon: 'Crown',
-      unlocked: false,
-      progress: 3,
-      maxProgress: 10,
-    },
-  ],
-};
+import { userApi } from '@client/utils/api';
 
 export default function StatsPage() {
   const router = useRouter();
+  const { username } = useUserContext();
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [userRank, setUserRank] = useState<{
+    dailyRank: number;
+    allTimeRank: number;
+    weeklyRank: number;
+    monthlyRank: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (!username || username === 'anonymous') {
+          setError('User not logged in');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch user stats
+        const statsResponse = await userApi.getUserStats(username);
+
+        // Convert server stats to client stats format
+        const clientStats: UserStats = {
+          streak: statsResponse.currentStreak,
+          homophonesSolved: statsResponse.totalGames,
+          totalCoins: statsResponse.totalGemsEarned - statsResponse.totalGemsSpent,
+          todaysRank: 0, // Will be updated from rank data
+          allTimeRank: 0, // Will be updated from rank data
+          gamesPlayed: statsResponse.totalGames,
+          bestScore: 0, // Not available in server stats, using placeholder
+          averageScore: statsResponse.averageScore,
+          hintsUsed: statsResponse.totalHintsUsed,
+          accuracy: 0, // Calculate from available data if needed
+          joinDate: statsResponse.lastPlayedDate, // Using last played as proxy
+          lastPlayed: statsResponse.lastPlayedDate,
+          achievements: [], // Placeholder - achievements would need separate implementation
+        };
+
+        setUserStats(clientStats);
+
+        // Fetch user rank
+        try {
+          const rankResponse = await userApi.getUserRank(username);
+          setUserRank(rankResponse);
+
+          // Update stats with rank data
+          setUserStats((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  todaysRank: rankResponse.dailyRank,
+                  allTimeRank: rankResponse.allTimeRank,
+                }
+              : null
+          );
+        } catch (rankError) {
+          console.warn('Could not fetch user rank:', rankError);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch user stats');
+        console.error('Error fetching user stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchUserStats();
+  }, [username]);
+
+  if (loading) {
+    return (
+      <div
+        className="w-full min-h-screen bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: "url('/root_bg.png')" }}
+      >
+        <div className="w-full min-h-screen bg-black/70 flex items-center justify-center">
+          <div className="text-white text-xl">Loading stats...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !userStats) {
+    return (
+      <div
+        className="w-full min-h-screen bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: "url('/root_bg.png')" }}
+      >
+        <div className="w-full min-h-screen bg-black/70 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-400 text-xl mb-4">Error loading stats</div>
+            <div className="text-gray-300">{error || 'No stats available'}</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const statCards: StatCard[] = [
     {

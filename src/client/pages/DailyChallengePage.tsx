@@ -1,26 +1,120 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
-import { DailyChallengeManager } from '@client/game/data/DailyChallengeManager';
+import { useUserContext } from '@client/contexts/UserContext';
 import { ChallengeLevel, DailyChallenge } from '@shared/types/challenge';
 import NavigationBar from '@client/components/basic/Navigation';
 import ChallengeCard from '@client/game/components/ChallengeCard';
 import { Gem, Calendar, Trophy } from 'lucide-react';
+import { userApi } from '@client/utils/api';
 
 export default function DailyChallengePage() {
   const router = useRouter();
+  const { username } = useUserContext();
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
   const [userProgress, setUserProgress] = useState<{ totalGems: number } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const challengeManager = DailyChallengeManager.getInstance();
-    const challenges = challengeManager.getTodaysChallenges();
-    const progress = challengeManager.getUserProgress();
+    const fetchDailyChallenges = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    setDailyChallenge(challenges);
-    setUserProgress(progress);
-    setLoading(false);
-  }, []);
+        if (!username || username === 'anonymous') {
+          setError('User not logged in');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch today's games from server
+        const todayGames = await userApi.getTodayGames(username);
+
+        // Create daily challenges - these should be NEW challenges, not completed games
+        // For now, create 3 new challenges that haven't been completed
+        const challengeLevels: ChallengeLevel[] = [
+          {
+            id: `daily-challenge-1-${new Date().toISOString().split('T')[0]}`,
+            themeName: 'Harry Potter',
+            content: 'Find the homophones in this magical world!',
+            correctWords: ['witch', 'which', 'wand', 'wound'],
+            themeBgImage: '/images/harrypotter_bg.jpg',
+            hints: ['Think about magical creatures', 'Consider spell components'],
+            difficulty: 'easy',
+            gemReward: 10,
+            isLocked: false,
+            isCompleted: false, // New challenges are not completed
+            completedAt: '',
+            score: 0,
+          },
+          {
+            id: `daily-challenge-2-${new Date().toISOString().split('T')[0]}`,
+            themeName: 'Space Adventure',
+            content: 'Navigate through space with homophones!',
+            correctWords: ['mars', 'mars', 'star', 'stare'],
+            themeBgImage: '/images/space_bg.jpg',
+            hints: ['Look to the stars', 'Consider planetary names'],
+            difficulty: 'medium',
+            gemReward: 15,
+            isLocked: false,
+            isCompleted: false, // New challenges are not completed
+            completedAt: '',
+            score: 0,
+          },
+          {
+            id: `daily-challenge-3-${new Date().toISOString().split('T')[0]}`,
+            themeName: 'Ocean Depths',
+            content: 'Dive deep and find the homophones!',
+            correctWords: ['sea', 'see', 'wave', 'waive'],
+            themeBgImage: '/images/ocean_bg.jpg',
+            hints: ['Think about the ocean', 'Consider water-related words'],
+            difficulty: 'hard',
+            gemReward: 20,
+            isLocked: false,
+            isCompleted: false, // New challenges are not completed
+            completedAt: '',
+            score: 0,
+          },
+        ];
+
+        // Check which challenges have been completed by comparing with server data
+        const completedChallengeIds = new Set(todayGames.map((game) => game.challengeId));
+        const updatedChallengeLevels = challengeLevels.map((challenge) => {
+          const isCompleted = completedChallengeIds.has(challenge.id);
+          const completedGame = todayGames.find((game) => game.challengeId === challenge.id);
+
+          return {
+            ...challenge,
+            isCompleted,
+            completedAt: completedGame?.completedAt || '',
+            score: completedGame?.score || 0,
+          };
+        });
+
+        const dailyChallenge: DailyChallenge = {
+          date: new Date().toISOString().split('T')[0]!,
+          levels: updatedChallengeLevels,
+          totalGems: updatedChallengeLevels.reduce((sum, level) => sum + (level.gemReward || 0), 0),
+          completedLevels: updatedChallengeLevels.filter((level) => level.isCompleted).length,
+          isFullyCompleted: updatedChallengeLevels.every((level) => level.isCompleted),
+        };
+
+        setDailyChallenge(dailyChallenge);
+
+        // Set user progress (simplified)
+        setUserProgress({
+          totalGems: updatedChallengeLevels.reduce((sum, level) => sum + (level.gemReward || 0), 0),
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch daily challenges');
+        console.error('Error fetching daily challenges:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchDailyChallenges();
+  }, [username]);
 
   const handleChallengeClick = (challenge: ChallengeLevel) => {
     if (challenge.isLocked) {
@@ -50,6 +144,23 @@ export default function DailyChallengePage() {
     return (
       <div className="w-full min-h-screen bg-black flex items-center justify-center">
         <div className="text-white text-xl">Loading challenges...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-xl mb-4">Error loading challenges</div>
+          <div className="text-gray-300 mb-4">{error}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

@@ -1,4 +1,11 @@
 import { UserDataResponse, ApiError } from '@shared/types/api';
+import {
+  UserData,
+  UserStats,
+  GameResult,
+  LeaderboardEntry,
+  GameTransaction,
+} from '@shared/types/server';
 
 export const createApiError = (message: string, status?: number): ApiError => {
   const error = new Error(message) as ApiError;
@@ -11,16 +18,59 @@ export const createApiError = (message: string, status?: number): ApiError => {
 
 const baseUrl = '/api';
 
-const getUserData = async (): Promise<UserDataResponse> => {
+// User API methods
+const getCurrentRedditUser = async (): Promise<UserDataResponse> => {
   try {
-    const response = await fetch(`${baseUrl}/user`);
+    const response = await fetch(`${baseUrl}/users/current`);
 
     if (!response.ok) {
       throw createApiError(`HTTP error! status: ${response.status}`, response.status);
     }
 
     const data = await response.json();
-    return data as UserDataResponse;
+    return data.data as UserDataResponse;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch current user data');
+  }
+};
+
+const syncUser = async (username: string): Promise<{ userData: UserData; gems: number }> => {
+  try {
+    const response = await fetch(`${baseUrl}/users/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username }),
+    });
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to sync user');
+  }
+};
+
+const getUserData = async (username: string): Promise<{ userData: UserData; gems: number }> => {
+  try {
+    const response = await fetch(`${baseUrl}/users/${username}`);
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
   } catch (error) {
     if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
       throw error;
@@ -29,6 +79,162 @@ const getUserData = async (): Promise<UserDataResponse> => {
   }
 };
 
+const getUserStats = async (username: string): Promise<UserStats> => {
+  try {
+    const response = await fetch(`${baseUrl}/users/${username}/stats`);
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch user stats');
+  }
+};
+
+// Game API methods
+const submitGameResult = async (gameData: {
+  username: string;
+  challengeId: string;
+  score: number;
+  hintsUsed: number;
+  freeHintsUsed: number;
+  gemsSpent: number;
+  timeSpent: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  themeName: string;
+}): Promise<GameResult> => {
+  try {
+    const response = await fetch(`${baseUrl}/games/submit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(gameData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw createApiError(
+        errorData.error || `HTTP error! status: ${response.status}`,
+        response.status
+      );
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to submit game result');
+  }
+};
+
+const getTodayGames = async (username: string): Promise<GameResult[]> => {
+  try {
+    const response = await fetch(`${baseUrl}/games/today/${username}`);
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError("Failed to fetch today's games");
+  }
+};
+
+// Leaderboard API methods
+const getDailyLeaderboard = async (
+  date?: string,
+  limit: number = 100
+): Promise<{
+  date: string;
+  entries: LeaderboardEntry[];
+  totalPlayers: number;
+  lastUpdated: string;
+}> => {
+  try {
+    let url = `${baseUrl}/leaderboard/daily?limit=${limit}`;
+    if (date) url += `&date=${date}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch daily leaderboard');
+  }
+};
+
+const getAllTimeLeaderboard = async (limit: number = 100): Promise<LeaderboardEntry[]> => {
+  try {
+    const response = await fetch(`${baseUrl}/leaderboard/all-time?limit=${limit}`);
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch all-time leaderboard');
+  }
+};
+
+const getUserRank = async (
+  username: string
+): Promise<{
+  dailyRank: number;
+  allTimeRank: number;
+  weeklyRank: number;
+  monthlyRank: number;
+}> => {
+  try {
+    const response = await fetch(`${baseUrl}/users/${username}/rank`);
+
+    if (!response.ok) {
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch user rank');
+  }
+};
+
 export const userApi = {
+  getCurrentRedditUser,
+  syncUser,
   getUserData,
+  getUserStats,
+  submitGameResult,
+  getTodayGames,
+  getDailyLeaderboard,
+  getAllTimeLeaderboard,
+  getUserRank,
 };

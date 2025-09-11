@@ -1,39 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
+import { useUserContext } from '@client/contexts/UserContext';
 import { Trophy, Medal, Award, Crown } from 'lucide-react';
-import { LeaderboardEntry } from '@shared/types/game';
+import { LeaderboardEntry } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
-
-// Dummy data for leaderboard
-const todayData: LeaderboardEntry[] = [
-  { rank: 1, username: 'wizard123', points: 150, date: '2024-01-15' },
-  { rank: 2, username: 'homophoneHero', points: 120, date: '2024-01-15' },
-  { rank: 3, username: 'grammarGoblin', points: 110, date: '2024-01-15' },
-  { rank: 4, username: 'wordMaster', points: 95, date: '2024-01-15' },
-  { rank: 5, username: 'spellChecker', points: 85, date: '2024-01-15' },
-  { rank: 6, username: 'lexiconLover', points: 80, date: '2024-01-15' },
-  { rank: 7, username: 'syntaxSavant', points: 75, date: '2024-01-15' },
-  { rank: 8, username: 'vocabVirtuoso', points: 70, date: '2024-01-15' },
-  { rank: 9, username: 'vocabVirtuoso', points: 70, date: '2024-01-15' },
-  { rank: 10, username: 'vocabVirtuoso', points: 70, date: '2024-01-15' },
-];
-
-const allTimeData: LeaderboardEntry[] = [
-  { rank: 1, username: 'wizard123', points: 2500 },
-  { rank: 2, username: 'homophoneHero', points: 2300 },
-  { rank: 3, username: 'grammarGoblin', points: 2100 },
-  { rank: 4, username: 'wordMaster', points: 1950 },
-  { rank: 5, username: 'spellChecker', points: 1800 },
-  { rank: 6, username: 'lexiconLover', points: 1650 },
-  { rank: 7, username: 'syntaxSavant', points: 1500 },
-  { rank: 8, username: 'vocabVirtuoso', points: 1350 },
-  { rank: 9, username: 'languageLegend', points: 1200 },
-  { rank: 10, username: 'textTitan', points: 1050 },
-];
+import { userApi } from '@client/utils/api';
 
 export default function LeaderboardPage() {
   const router = useRouter();
+  const { username } = useUserContext();
   const [activeTab, setActiveTab] = useState<'today' | 'allTime'>('today');
+  const [todayData, setTodayData] = useState<LeaderboardEntry[]>([]);
+  const [allTimeData, setAllTimeData] = useState<LeaderboardEntry[]>([]);
+  const [userRank, setUserRank] = useState<{
+    dailyRank: number;
+    allTimeRank: number;
+    weeklyRank: number;
+    monthlyRank: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchLeaderboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch today's leaderboard
+        const todayResponse = await userApi.getDailyLeaderboard();
+        setTodayData(todayResponse.entries);
+
+        // Fetch all-time leaderboard
+        const allTimeResponse = await userApi.getAllTimeLeaderboard();
+        setAllTimeData(allTimeResponse);
+
+        // Fetch user rank if username is available
+        if (username && username !== 'anonymous') {
+          try {
+            const rankResponse = await userApi.getUserRank(username);
+            setUserRank(rankResponse);
+          } catch (rankError) {
+            console.warn('Could not fetch user rank:', rankError);
+            // Set default values if rank fetch fails
+            setUserRank({
+              dailyRank: 0,
+              allTimeRank: 0,
+              weeklyRank: 0,
+              monthlyRank: 0,
+            });
+          }
+        } else {
+          // Set default values if no username
+          setUserRank({
+            dailyRank: 0,
+            allTimeRank: 0,
+            weeklyRank: 0,
+            monthlyRank: 0,
+          });
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch leaderboard data');
+        console.error('Error fetching leaderboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchLeaderboardData();
+  }, [username]);
 
   const currentData = activeTab === 'today' ? todayData : allTimeData;
 
@@ -62,6 +97,41 @@ export default function LeaderboardPage() {
         return 'bg-gray-800/60 border-gray-700 text-gray-300';
     }
   };
+
+  if (loading) {
+    return (
+      <div
+        className="w-full min-h-screen bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: "url('/root_bg.png')" }}
+      >
+        <div className="w-full min-h-screen bg-black/70 flex items-center justify-center">
+          <div className="text-white text-xl">Loading leaderboard...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className="w-full min-h-screen bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: "url('/root_bg.png')" }}
+      >
+        <div className="w-full min-h-screen bg-black/70 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-400 text-xl mb-4">Error loading leaderboard</div>
+            <div className="text-gray-300">{error}</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -178,20 +248,26 @@ export default function LeaderboardPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Today's Rank */}
                   <div className="text-center p-4 bg-black/60 rounded-xl border">
-                    <div className="text-2xl font-bold text-yellow-400 mb-1">0</div>
+                    <div className="text-2xl font-bold text-yellow-400 mb-1">
+                      {userRank?.dailyRank || 0}
+                    </div>
                     <div className="text-sm text-gray-400">Today's Rank</div>
                   </div>
 
                   {/* All Time Rank */}
                   <div className="text-center p-4 bg-black/60 rounded-xl border">
-                    <div className="text-2xl font-bold text-yellow-400 mb-1">0</div>
+                    <div className="text-2xl font-bold text-yellow-400 mb-1">
+                      {userRank?.allTimeRank || 0}
+                    </div>
                     <div className="text-sm text-gray-400">All Time Rank</div>
                   </div>
 
-                  {/* Best Score */}
+                  {/* Weekly Rank */}
                   <div className="text-center p-4 bg-black/60 rounded-xl border">
-                    <div className="text-2xl font-bold text-yellow-400 mb-1">0</div>
-                    <div className="text-sm text-gray-400">Games Played</div>
+                    <div className="text-2xl font-bold text-yellow-400 mb-1">
+                      {userRank?.weeklyRank || 0}
+                    </div>
+                    <div className="text-sm text-gray-400">Weekly Rank</div>
                   </div>
                 </div>
               </div>
