@@ -80,6 +80,28 @@ export const getGameResult = async (req: Request, res: Response): Promise<void> 
 };
 
 /**
+ * Get game result by challenge ID
+ */
+export const getGameResultByChallengeId = async (req: Request, res: Response): Promise<void> => {
+  const { username, challengeId } = req.params;
+  if (!username || !challengeId) {
+    res.status(400).json({ error: 'Username and challenge ID are required' });
+    return;
+  }
+
+  const gameResult = await gameService.getGameResultByChallengeId(username, challengeId);
+  if (!gameResult) {
+    res.status(404).json({ error: 'Game result not found' });
+    return;
+  }
+
+  res.json({
+    success: true,
+    data: gameResult,
+  });
+};
+
+/**
  * Check if user can play challenge
  */
 export const canPlayChallenge = async (req: Request, res: Response): Promise<void> => {

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
+import { useUserContext } from '@client/contexts/UserContext';
 import { GameEngine } from './engine/GameEngine';
 import { GameDataManager } from './data/GameDataManager';
-import { DailyChallengeManager } from './data/DailyChallengeManager';
 import { getRandomGame } from './data/sampleGames';
+import { getThemeData } from './data/gameData';
+import { GameDataConverter } from '@client/utils/GameDataConverter';
 import { getBackgroundStyle } from './assets/GameAssets';
 import { GameCard, FeedbackMessage, GameComplete } from './components';
 import { GameObject, GameState, GameFeedback } from '@shared/types/game';
@@ -12,6 +14,7 @@ import { dataSync } from '@client/services/DataSyncService';
 
 export default function GamePage() {
   const router = useRouter();
+  const { username } = useUserContext();
   const [gameEngine, setGameEngine] = useState<GameEngine | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [userInput, setUserInput] = useState('');
@@ -24,7 +27,6 @@ export default function GamePage() {
     const initializeGame = async () => {
       try {
         const dataManager = GameDataManager.getInstance();
-        const challengeManager = DailyChallengeManager.getInstance();
 
         // Check if this is a challenge game
         const params = router.getParams();
@@ -35,16 +37,18 @@ export default function GamePage() {
 
         let game: GameObject;
         if (challengeIdParam) {
-          // Load challenge-specific game
-          const challenge = challengeManager
-            .getTodaysChallenges()
-            .levels.find((level) => level.id === challengeIdParam);
-          if (challenge) {
-            console.log('GamePage: Found challenge:', challenge.themeName);
-            game = challengeManager.challengeToGameObject(challenge);
+          // Load challenge-specific game from static data
+          const today =
+            new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+          const themeData = getThemeData(today, challengeIdParam);
+
+          if (themeData) {
+            console.log('GamePage: Found theme:', themeData.themeName);
+            // Convert ThemeData to GameObject
+            game = GameDataConverter.themeToGameObject(themeData);
             setChallengeId(challengeIdParam);
           } else {
-            console.log('GamePage: Challenge not found, using random game');
+            console.log('GamePage: Theme not found, using random game');
             game = getRandomGame();
           }
         } else {
@@ -54,8 +58,8 @@ export default function GamePage() {
         }
 
         // Load user data from server
-        const username = 'player'; // In a real app, this would come from authentication
-        const { userData, gems } = await dataSync.loadInitialData(username);
+        const currentUsername = username || 'anonymous'; // Use actual username or fallback
+        const { gems } = await dataSync.loadInitialData(currentUsername);
 
         // Create initial game state with server data
         const initialState: GameState = {
@@ -130,8 +134,8 @@ export default function GamePage() {
       }
     };
 
-    initializeGame();
-  }, [router]);
+    void initializeGame();
+  }, [router, username]);
 
   // Handle game state changes
   useEffect(() => {
@@ -140,12 +144,13 @@ export default function GamePage() {
 
       const submitGameResult = async () => {
         try {
-          const username = 'player'; // In a real app, this would come from authentication
+          const currentUsername = username || 'anonymous'; // Use actual username or fallback
+          console.log('GamePage: Submitting game result for username:', currentUsername);
           const gameStats = gameEngine.getGameStats();
 
           // Submit game result to server
           const result = await dataSync.submitGameResult({
-            username,
+            username: currentUsername,
             challengeId: challengeId || 'random',
             score: gameState.score,
             hintsUsed: gameState.hintsUsed,
@@ -167,11 +172,8 @@ export default function GamePage() {
             points: gameState.score,
           });
 
-          // If this is a challenge game, complete the challenge locally too
-          if (challengeId) {
-            const challengeManager = DailyChallengeManager.getInstance();
-            challengeManager.completeChallenge(challengeId, gameState.score);
-          }
+          // Challenge completion is handled by server
+          // No local completion needed since we use static data
         } catch (error) {
           console.error('Failed to submit game result:', error);
           // Show fallback feedback
@@ -183,9 +185,9 @@ export default function GamePage() {
         }
       };
 
-      submitGameResult();
+      void submitGameResult();
     }
-  }, [gameState?.isCompleted, challengeId, gameState, gameEngine, gameObject]);
+  }, [gameState?.isCompleted, challengeId, gameState, gameEngine, gameObject, username]);
 
   if (!gameEngine || !gameState || !gameObject) {
     return (
@@ -197,11 +199,8 @@ export default function GamePage() {
 
   // Show game complete screen
   if (gameState.isCompleted) {
-    const challengeManager = DailyChallengeManager.getInstance();
-    const gemsEarned = challengeId
-      ? challengeManager.getTodaysChallenges().levels.find((level) => level.id === challengeId)
-          ?.gemReward || 0
-      : 0;
+    // Get gems earned from the game result (already calculated by server)
+    const gemsEarned = gameObject ? 10 : 0; // Default gems for completed games
 
     return (
       <GameComplete

@@ -97,23 +97,133 @@ export class RedisService {
 
   // Game result operations
   async saveGameResult(gameResult: GameResult): Promise<void> {
+    console.log(
+      `Saving game result: ${gameResult.id} for user: ${gameResult.username} with score: ${gameResult.score}`
+    );
     await redis.set(REDIS_KEYS.GAME_RESULT(gameResult.id), JSON.stringify(gameResult));
 
     // Add to user's game list using a hash for better performance
-    await redis.hSet(REDIS_KEYS.USER_GAMES(gameResult.username), {
-      [gameResult.id]: gameResult.completedAt,
-    });
+    const userGamesKey = REDIS_KEYS.USER_GAMES(gameResult.username);
+    const keyExists = await redis.exists(userGamesKey);
+
+    if (keyExists === 0) {
+      // Key doesn't exist, create as hash
+      await redis.hSet(userGamesKey, {
+        [gameResult.id]: gameResult.completedAt,
+      });
+    } else {
+      // Key exists, check its type
+      const keyType = await redis.type(userGamesKey);
+      if (keyType === 'hash') {
+        // It's already a hash, add to it
+        await redis.hSet(userGamesKey, {
+          [gameResult.id]: gameResult.completedAt,
+        });
+      } else {
+        // It's not a hash, delete and recreate as hash
+        console.log(`Converting USER_GAMES key from ${keyType} to hash for ${gameResult.username}`);
+        await redis.del(userGamesKey);
+        await redis.hSet(userGamesKey, {
+          [gameResult.id]: gameResult.completedAt,
+        });
+      }
+    }
 
     // Update daily points
     await redis.set(
       REDIS_KEYS.DAILY_POINTS(gameResult.username, gameResult.date),
       gameResult.score.toString()
     );
+
+    // Update daily leaderboard
+    const dailyKey = REDIS_KEYS.DAILY_LEADERBOARD(gameResult.date);
+    console.log(`Updating daily leaderboard: ${dailyKey}`);
+    const dailyKeyExists = await redis.exists(dailyKey);
+    if (dailyKeyExists === 0) {
+      // Create new sorted set
+      await redis.zAdd(dailyKey, {
+        member: gameResult.username,
+        score: gameResult.score,
+      });
+    } else {
+      // Check if it's a sorted set
+      const dailyKeyType = await redis.type(dailyKey);
+      if (dailyKeyType === 'zset') {
+        await redis.zAdd(dailyKey, {
+          member: gameResult.username,
+          score: gameResult.score,
+        });
+      } else {
+        console.log(
+          `Converting daily leaderboard key from ${dailyKeyType} to zset for ${gameResult.date}`
+        );
+        await redis.del(dailyKey);
+        await redis.zAdd(dailyKey, {
+          member: gameResult.username,
+          score: gameResult.score,
+        });
+      }
+    }
+
+    // Update all-time leaderboard
+    const allTimeKey = REDIS_KEYS.ALL_TIME_LEADERBOARD;
+    console.log(`Updating all-time leaderboard: ${allTimeKey}`);
+    const allTimeKeyExists = await redis.exists(allTimeKey);
+    if (allTimeKeyExists === 0) {
+      // Create new sorted set
+      await redis.zAdd(allTimeKey, {
+        member: gameResult.username,
+        score: gameResult.score,
+      });
+    } else {
+      // Check if it's a sorted set
+      const allTimeKeyType = await redis.type(allTimeKey);
+      if (allTimeKeyType === 'zset') {
+        await redis.zAdd(allTimeKey, {
+          member: gameResult.username,
+          score: gameResult.score,
+        });
+      } else {
+        console.log(`Converting all-time leaderboard key from ${allTimeKeyType} to zset`);
+        await redis.del(allTimeKey);
+        await redis.zAdd(allTimeKey, {
+          member: gameResult.username,
+          score: gameResult.score,
+        });
+      }
+    }
+
+    // Update user's total points and stats
+    await this.updateUserPoints(gameResult.username, gameResult.score, true);
   }
 
   async getGameResult(gameId: string): Promise<GameResult | null> {
+    console.log(`Getting game result for ID: ${gameId}`);
     const data = await redis.get(REDIS_KEYS.GAME_RESULT(gameId));
+    console.log(`Game result data: ${data ? 'found' : 'not found'}`);
     return data ? JSON.parse(data) : null;
+  }
+
+  async getGameResultByChallengeId(
+    username: string,
+    challengeId: string
+  ): Promise<GameResult | null> {
+    console.log(`Getting game result for user: ${username}, challenge: ${challengeId}`);
+
+    try {
+      // Get all user games
+      const userGames = await this.getUserGames(username);
+      console.log(`User games count: ${userGames.length}`);
+
+      // Find the game result with matching challengeId
+      const gameResult = userGames.find((game) => game.challengeId === challengeId);
+      console.log(`Found game result: ${gameResult ? 'yes' : 'no'}`);
+
+      return gameResult || null;
+    } catch (error) {
+      console.error('Error getting game result by challenge ID:', error);
+      return null;
+    }
   }
 
   async getUserGames(username: string): Promise<GameResult[]> {
@@ -195,10 +305,13 @@ export class RedisService {
   async getDailyLeaderboard(date: string, limit: number = 100): Promise<LeaderboardEntry[]> {
     try {
       const key = REDIS_KEYS.DAILY_LEADERBOARD(date);
+      console.log(`Getting daily leaderboard for date: ${date}, key: ${key}`);
 
       // Check if the key exists and is a sorted set
       const keyExists = await redis.exists(key);
+      console.log(`Key exists: ${keyExists}`);
       if (keyExists === 0) {
+        console.log('No daily leaderboard data found');
         return [];
       }
 
@@ -232,8 +345,12 @@ export class RedisService {
 
         if (username) {
           try {
+            console.log(`Getting user data for leaderboard entry: ${username}`);
             const userData = await this.getUserData(username);
             const userGames = await this.getUserGames(username);
+
+            console.log(`User data for ${username}:`, userData);
+            console.log(`User games for ${username}:`, userGames.length);
 
             leaderboard.push({
               rank: i + 1,
@@ -270,10 +387,13 @@ export class RedisService {
   async getAllTimeLeaderboard(limit: number = 100): Promise<LeaderboardEntry[]> {
     try {
       const key = REDIS_KEYS.ALL_TIME_LEADERBOARD;
+      console.log(`Getting all-time leaderboard, key: ${key}`);
 
       // Check if the key exists and is a sorted set
       const keyExists = await redis.exists(key);
+      console.log(`All-time leaderboard key exists: ${keyExists}`);
       if (keyExists === 0) {
+        console.log('No all-time leaderboard data found');
         return [];
       }
 
@@ -512,6 +632,41 @@ export class RedisService {
     try {
       // Just log that the app is ready for new users
       console.log('App initialized successfully - New users will start with 10 gems');
+
+      // Add some test data for leaderboard
+      const today =
+        new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+      console.log('Adding test leaderboard data for date:', today);
+
+      // Add test entries to daily leaderboard
+      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(today), {
+        member: 'testuser1',
+        score: 150,
+      });
+      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(today), {
+        member: 'testuser2',
+        score: 200,
+      });
+      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(today), {
+        member: 'testuser3',
+        score: 100,
+      });
+
+      // Add test entries to all-time leaderboard
+      await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
+        member: 'testuser1',
+        score: 150,
+      });
+      await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
+        member: 'testuser2',
+        score: 200,
+      });
+      await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
+        member: 'testuser3',
+        score: 100,
+      });
+
+      console.log('Test leaderboard data added successfully');
     } catch (error) {
       console.error('Error initializing app:', error);
     }

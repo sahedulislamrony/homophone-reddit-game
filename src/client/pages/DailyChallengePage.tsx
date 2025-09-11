@@ -2,10 +2,18 @@ import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { useUserContext } from '@client/contexts/UserContext';
 import { ChallengeLevel, DailyChallenge } from '@shared/types/challenge';
+import { DailyData } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
 import ChallengeCard from '@client/game/components/ChallengeCard';
 import { Gem, Calendar, Trophy } from 'lucide-react';
 import { userApi } from '@client/utils/api';
+import { GameDataConverter } from '@client/utils/GameDataConverter';
+import {
+  getTodayData,
+  getCompletionStats,
+  getTotalGemsForDate,
+  getEarnedGemsForDate,
+} from '@client/game/data/gameData';
 
 export default function DailyChallengePage() {
   const router = useRouter();
@@ -27,83 +35,59 @@ export default function DailyChallengePage() {
           return;
         }
 
-        // Fetch today's games from server
+        // Get today's structured data from static game data
+        const todayData = getTodayData();
+        if (!todayData) {
+          setError('No challenges available for today');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch today's completed games from server
         const todayGames = await userApi.getTodayGames(username);
 
-        // Create daily challenges - these should be NEW challenges, not completed games
-        // For now, create 3 new challenges that haven't been completed
-        const challengeLevels: ChallengeLevel[] = [
-          {
-            id: `daily-challenge-1-${new Date().toISOString().split('T')[0]}`,
-            themeName: 'Harry Potter',
-            content: 'Find the homophones in this magical world!',
-            correctWords: ['witch', 'which', 'wand', 'wound'],
-            themeBgImage: '/images/harrypotter_bg.jpg',
-            hints: ['Think about magical creatures', 'Consider spell components'],
-            difficulty: 'easy',
-            gemReward: 10,
-            isLocked: false,
-            isCompleted: false, // New challenges are not completed
-            completedAt: '',
-            score: 0,
-          },
-          {
-            id: `daily-challenge-2-${new Date().toISOString().split('T')[0]}`,
-            themeName: 'Space Adventure',
-            content: 'Navigate through space with homophones!',
-            correctWords: ['mars', 'mars', 'star', 'stare'],
-            themeBgImage: '/images/space_bg.jpg',
-            hints: ['Look to the stars', 'Consider planetary names'],
-            difficulty: 'medium',
-            gemReward: 15,
-            isLocked: false,
-            isCompleted: false, // New challenges are not completed
-            completedAt: '',
-            score: 0,
-          },
-          {
-            id: `daily-challenge-3-${new Date().toISOString().split('T')[0]}`,
-            themeName: 'Ocean Depths',
-            content: 'Dive deep and find the homophones!',
-            correctWords: ['sea', 'see', 'wave', 'waive'],
-            themeBgImage: '/images/ocean_bg.jpg',
-            hints: ['Think about the ocean', 'Consider water-related words'],
-            difficulty: 'hard',
-            gemReward: 20,
-            isLocked: false,
-            isCompleted: false, // New challenges are not completed
-            completedAt: '',
-            score: 0,
-          },
-        ];
+        // Create a map of completed games for quick lookup
+        const completedGamesMap = new Map();
+        todayGames.forEach((game) => {
+          completedGamesMap.set(game.challengeId, game);
+        });
 
-        // Check which challenges have been completed by comparing with server data
-        const completedChallengeIds = new Set(todayGames.map((game) => game.challengeId));
-        const updatedChallengeLevels = challengeLevels.map((challenge) => {
-          const isCompleted = completedChallengeIds.has(challenge.id);
-          const completedGame = todayGames.find((game) => game.challengeId === challenge.id);
+        // Update completion status based on server data (without modifying original theme data)
+        const updatedThemes = todayData.themes.map((theme) => {
+          const completedGame = completedGamesMap.get(theme.themeId);
+          const isCompleted = !!completedGame;
 
           return {
-            ...challenge,
+            ...theme, // Keep original theme data intact
             isCompleted,
             completedAt: completedGame?.completedAt || '',
             score: completedGame?.score || 0,
           };
         });
 
+        // Convert ThemeData to ChallengeLevel format for the UI
+        const challengeLevels: ChallengeLevel[] =
+          GameDataConverter.themesToChallenges(updatedThemes);
+
+        // Create updated daily data with completion status
+        const updatedDailyData: DailyData = {
+          date: todayData.date,
+          themes: updatedThemes,
+        };
+
         const dailyChallenge: DailyChallenge = {
-          date: new Date().toISOString().split('T')[0]!,
-          levels: updatedChallengeLevels,
-          totalGems: updatedChallengeLevels.reduce((sum, level) => sum + (level.gemReward || 0), 0),
-          completedLevels: updatedChallengeLevels.filter((level) => level.isCompleted).length,
-          isFullyCompleted: updatedChallengeLevels.every((level) => level.isCompleted),
+          date: updatedDailyData.date,
+          levels: challengeLevels,
+          totalGems: getTotalGemsForDate(updatedDailyData.date),
+          completedLevels: getCompletionStats(updatedDailyData.date).completed,
+          isFullyCompleted: getCompletionStats(updatedDailyData.date).percentage === 100,
         };
 
         setDailyChallenge(dailyChallenge);
 
-        // Set user progress (simplified)
+        // Set user progress
         setUserProgress({
-          totalGems: updatedChallengeLevels.reduce((sum, level) => sum + (level.gemReward || 0), 0),
+          totalGems: getEarnedGemsForDate(updatedDailyData.date),
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch daily challenges');
@@ -131,9 +115,33 @@ export default function DailyChallengePage() {
     router.goto('game', { challengeId: challenge.id });
   };
 
-  const handleViewResult = (challengeId: string) => {
-    console.log('DailyChallengePage: Navigating to result for challenge:', challengeId);
-    router.goto('game-result', { challengeId });
+  const handleViewResult = async (challengeId: string) => {
+    try {
+      console.log('DailyChallengePage: Fetching result for challenge:', challengeId);
+
+      // Fetch the specific game result from server using username and challengeId
+      const gameResult = await userApi.getGameResultByChallengeId(
+        username || 'anonymous',
+        challengeId
+      );
+
+      if (gameResult) {
+        console.log('DailyChallengePage: Found game result:', gameResult);
+        // Navigate to result page with the actual game result data
+        router.goto('game-result', {
+          challengeId,
+          username,
+          gameResult: JSON.stringify(gameResult),
+        });
+      } else {
+        console.warn('DailyChallengePage: No game result found for challenge:', challengeId);
+        // Show error or fallback
+        setError('No result found for this challenge');
+      }
+    } catch (error) {
+      console.error('DailyChallengePage: Error fetching game result:', error);
+      setError('Failed to load challenge result');
+    }
   };
 
   const handleBackToHome = () => {

@@ -28,11 +28,15 @@ export default function LeaderboardPage() {
         setError(null);
 
         // Fetch today's leaderboard
+        console.log('Fetching daily leaderboard...');
         const todayResponse = await userApi.getDailyLeaderboard();
+        console.log('Daily leaderboard response:', todayResponse);
         setTodayData(todayResponse.entries);
 
         // Fetch all-time leaderboard
+        console.log('Fetching all-time leaderboard...');
         const allTimeResponse = await userApi.getAllTimeLeaderboard();
+        console.log('All-time leaderboard response:', allTimeResponse);
         setAllTimeData(allTimeResponse);
 
         // Fetch user rank if username is available
@@ -203,39 +207,56 @@ export default function LeaderboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black">
-                    {currentData.map((entry) => (
-                      <tr
-                        key={entry.rank}
-                        className={`hover:bg-black/40 transition-colors duration-200 ${
-                          entry.rank <= 3 ? 'bg-gradient-to-r from-transparent to-yellow-400/5' : ''
-                        }`}
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3 ">
-                            <div
-                              className={`size-10  rounded-full border flex items-center justify-center ${getRankColor(entry.rank)}`}
-                            >
-                              {getRankIcon(entry.rank)}
-                            </div>
+                    {currentData.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="px-6 py-8 text-center">
+                          <div className="text-gray-400 text-lg">
+                            {activeTab === 'today'
+                              ? 'No games played today'
+                              : 'No games played yet'}
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-yellow-400/20 rounded-full flex items-center justify-center">
-                              <span className="text-yellow-400 font-bold text-sm">
-                                {entry.username.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <span className="font-medium text-white">{entry.username}</span>
+                          <div className="text-gray-500 text-sm mt-2">
+                            Complete some challenges to appear on the leaderboard!
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="font-bold text-yellow-400 text-lg">
-                            {entry.points.toLocaleString()}
-                          </span>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      currentData.map((entry) => (
+                        <tr
+                          key={entry.rank}
+                          className={`hover:bg-black/40 transition-colors duration-200 ${
+                            entry.rank <= 3
+                              ? 'bg-gradient-to-r from-transparent to-yellow-400/5'
+                              : ''
+                          }`}
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3 ">
+                              <div
+                                className={`size-10  rounded-full border flex items-center justify-center ${getRankColor(entry.rank)}`}
+                              >
+                                {getRankIcon(entry.rank)}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-yellow-400/20 rounded-full flex items-center justify-center">
+                                <span className="text-yellow-400 font-bold text-sm">
+                                  {entry.username.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <span className="font-medium text-white">{entry.username}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="font-bold text-yellow-400 text-lg">
+                              {activeTab === 'today' ? entry.dailyPoints : entry.totalPoints}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

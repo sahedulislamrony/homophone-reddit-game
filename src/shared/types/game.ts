@@ -28,3 +28,29 @@ export type GameFeedback = {
   message: string;
   points?: number;
 };
+
+// New structured game data types
+export type ThemeData = {
+  themeId: string;
+  themeName: string;
+  content: string;
+  correctWords: string[];
+  difficulty: 'easy' | 'medium' | 'hard';
+  gemsEarn: number;
+  initialPoints: number;
+  themeBgImage: string;
+  hints: string[];
+  isLocked?: boolean;
+  isCompleted?: boolean;
+  completedAt?: string;
+  score?: number;
+};
+
+export type DailyData = {
+  date: string; // "yyyy-mm-dd" format
+  themes: ThemeData[];
+};
+
+export type GameData = {
+  dailyData: DailyData[];
+};

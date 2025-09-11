@@ -227,6 +227,51 @@ const getUserRank = async (
   }
 };
 
+const getGameResult = async (gameId: string): Promise<GameResult | null> => {
+  try {
+    const response = await fetch(`${baseUrl}/games/${gameId}`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // Game not found
+      }
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch game result');
+  }
+};
+
+const getGameResultByChallengeId = async (
+  username: string,
+  challengeId: string
+): Promise<GameResult | null> => {
+  try {
+    const response = await fetch(`${baseUrl}/games/challenge/${username}/${challengeId}`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // Game result not found
+      }
+      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
+      throw error;
+    }
+    throw createApiError('Failed to fetch game result by challenge ID');
+  }
+};
+
 export const userApi = {
   getCurrentRedditUser,
   syncUser,
@@ -234,6 +279,8 @@ export const userApi = {
   getUserStats,
   submitGameResult,
   getTodayGames,
+  getGameResult,
+  getGameResultByChallengeId,
   getDailyLeaderboard,
   getAllTimeLeaderboard,
   getUserRank,

@@ -3,6 +3,7 @@ import { asyncHandler } from '../middleware/asyncHandler.middleware';
 import {
   submitGameResult,
   getGameResult,
+  getGameResultByChallengeId,
   canPlayChallenge,
   getUserGameHistory,
   getTodayGames,
@@ -18,6 +19,9 @@ router.post('/submit', asyncHandler(submitGameResult));
 
 // Get game result
 router.get('/:gameId', asyncHandler(getGameResult));
+
+// Get game result by challenge ID
+router.get('/challenge/:username/:challengeId', asyncHandler(getGameResultByChallengeId));
 
 // Check if user can play challenge
 router.get('/can-play/:username/:challengeId', asyncHandler(canPlayChallenge));

@@ -1,58 +1,80 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
-import { DailyChallengeManager } from '@client/game/data/DailyChallengeManager';
-import { ChallengeLevel } from '@shared/types/challenge';
+import { GameResult } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
-import { Trophy, Clock, Target, Gem, ArrowLeft, Play } from 'lucide-react';
+import { Trophy, Clock, Gem } from 'lucide-react';
+import { userApi } from '@client/utils/api';
 
 export default function GameResultPage() {
   const router = useRouter();
-  const [challenge, setChallenge] = useState<ChallengeLevel | null>(null);
+  const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = router.getParams();
-    const challengeId = params.challengeId;
+    const fetchGameResult = async () => {
+      try {
+        console.log('GameResultPage: Starting to fetch game result');
+        const params = router.getParams();
+        console.log('GameResultPage: Router params:', params);
 
-    if (!challengeId) {
-      setError('No challenge ID provided');
-      setLoading(false);
-      return;
-    }
+        const challengeId = params.challengeId;
+        const gameResultParam = params.gameResult;
 
-    const challengeManager = DailyChallengeManager.getInstance();
-    const challenges = challengeManager.getTodaysChallenges();
-    const foundChallenge = challenges.levels.find((level) => level.id === challengeId);
+        if (!challengeId) {
+          console.error('GameResultPage: No challenge ID provided');
+          setError('No challenge ID provided');
+          setLoading(false);
+          return;
+        }
 
-    if (!foundChallenge) {
-      setError('Challenge not found');
-      setLoading(false);
-      return;
-    }
+        console.log('GameResultPage: Challenge ID:', challengeId);
+        console.log('GameResultPage: Game result param:', gameResultParam);
 
-    if (!foundChallenge.isCompleted) {
-      setError('Challenge not completed yet');
-      setLoading(false);
-      return;
-    }
+        let result: GameResult | null = null;
 
-    setChallenge(foundChallenge);
-    setLoading(false);
+        // If gameResult is passed as parameter, use it directly
+        if (gameResultParam) {
+          try {
+            console.log('GameResultPage: Parsing game result parameter');
+            result = JSON.parse(gameResultParam);
+            console.log('GameResultPage: Parsed result:', result);
+          } catch (parseError) {
+            console.warn('GameResultPage: Failed to parse gameResult parameter:', parseError);
+          }
+        }
+
+        // If no gameResult parameter or parsing failed, fetch from server
+        if (!result) {
+          console.log('GameResultPage: Fetching from server with challengeId:', challengeId);
+          // Try to get username from context or params
+          const username = params.username || 'anonymous';
+          result = await userApi.getGameResultByChallengeId(username, challengeId);
+          console.log('GameResultPage: Server result:', result);
+        }
+
+        if (!result) {
+          console.error('GameResultPage: No game result found');
+          setError('Game result not found');
+          setLoading(false);
+          return;
+        }
+
+        console.log('GameResultPage: Setting game result:', result);
+        setGameResult(result);
+        setLoading(false);
+      } catch (err) {
+        console.error('GameResultPage: Error fetching game result:', err);
+        setError('Failed to load game result');
+        setLoading(false);
+      }
+    };
+
+    void fetchGameResult();
   }, [router]);
 
   const handleBackToChallenges = () => {
     router.goto('daily-challenges');
-  };
-
-  const handleReplayChallenge = () => {
-    if (challenge) {
-      router.goto('game', { challengeId: challenge.id });
-    }
-  };
-
-  const handleBackToHome = () => {
-    router.goto('home');
   };
 
   if (loading) {
@@ -63,7 +85,7 @@ export default function GameResultPage() {
     );
   }
 
-  if (error || !challenge) {
+  if (error || !gameResult) {
     return (
       <div className="w-full min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -131,52 +153,56 @@ export default function GameResultPage() {
           <div className="bg-black/60 backdrop-blur-sm rounded-2xl border border-gray-700 p-8 mb-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">{challenge.themeName}</h1>
+                <h1 className="text-3xl font-bold text-white mb-2">{gameResult.themeName}</h1>
                 <div className="flex items-center gap-4">
                   <div
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${getDifficultyColor(challenge.difficulty)}`}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${getDifficultyColor(gameResult.difficulty)}`}
                   >
-                    {challenge.difficulty.toUpperCase()}
+                    {gameResult.difficulty.toUpperCase()}
                   </div>
                   <div className="flex items-center gap-1 text-yellow-400">
-                    <span className="text-sm">{getDifficultyStars(challenge.difficulty)}</span>
+                    <span className="text-sm">{getDifficultyStars(gameResult.difficulty)}</span>
                   </div>
                   <div className="flex items-center gap-1 text-green-400">
                     <Gem className="w-4 h-4" />
-                    <span className="text-sm font-semibold">+{challenge.gemReward} Gems</span>
+                    <span className="text-sm font-semibold">+{gameResult.gemsEarned} Gems</span>
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-4xl font-bold text-green-400 mb-1">{challenge.score || 0}</div>
+                <div className="text-4xl font-bold text-green-400 mb-1">{gameResult.score}</div>
                 <div className="text-gray-400 text-sm">Final Score</div>
               </div>
             </div>
 
-            {/* Challenge Content */}
+            {/* Game Info */}
             <div className="bg-gray-800/50 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-white mb-3">Challenge Content</h3>
-              <p className="text-gray-300 text-lg leading-relaxed mb-4">{challenge.content}</p>
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-gray-400">Correct words found:</span>
-                {challenge.correctWords.map((word, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-sm font-medium"
-                  >
-                    {word}
-                  </span>
-                ))}
+              <h3 className="text-lg font-semibold text-white mb-3">Game Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <span className="text-gray-400 text-sm">Theme:</span>
+                  <p className="text-white font-medium">{gameResult.themeName}</p>
+                </div>
+                <div>
+                  <span className="text-gray-400 text-sm">Difficulty:</span>
+                  <p className="text-white font-medium capitalize">{gameResult.difficulty}</p>
+                </div>
+                <div>
+                  <span className="text-gray-400 text-sm">Time Spent:</span>
+                  <p className="text-white font-medium">{gameResult.timeSpent} seconds</p>
+                </div>
+                <div>
+                  <span className="text-gray-400 text-sm">Hints Used:</span>
+                  <p className="text-white font-medium">{gameResult.hintsUsed}</p>
+                </div>
               </div>
             </div>
 
             {/* Completion Info */}
-            {challenge.completedAt && (
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <Clock className="w-4 h-4" />
-                <span>Completed on {formatDate(challenge.completedAt)}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 text-gray-400 text-sm">
+              <Clock className="w-4 h-4" />
+              <span>Completed on {formatDate(gameResult.completedAt)}</span>
+            </div>
           </div>
 
           {/* Stats Grid */}
@@ -187,20 +213,18 @@ export default function GameResultPage() {
                 <Trophy className="w-6 h-6 text-yellow-400" />
                 <h3 className="text-lg font-semibold text-white">Score</h3>
               </div>
-              <div className="text-3xl font-bold text-yellow-400 mb-2">{challenge.score || 0}</div>
+              <div className="text-3xl font-bold text-yellow-400 mb-2">{gameResult.score}</div>
               <div className="text-gray-400 text-sm">Points earned</div>
             </div>
 
-            {/* Difficulty Card */}
+            {/* Time Card */}
             <div className="bg-black/80 backdrop-blur-sm rounded-xl border border-gray-700 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Target className="w-6 h-6 text-blue-400" />
-                <h3 className="text-lg font-semibold text-white">Difficulty</h3>
+                <Clock className="w-6 h-6 text-blue-400" />
+                <h3 className="text-lg font-semibold text-white">Time</h3>
               </div>
-              <div className="text-3xl font-bold text-blue-400 mb-2">
-                {getDifficultyStars(challenge.difficulty)}
-              </div>
-              <div className="text-gray-400 text-sm capitalize">{challenge.difficulty} level</div>
+              <div className="text-3xl font-bold text-blue-400 mb-2">{gameResult.timeSpent}s</div>
+              <div className="text-gray-400 text-sm">Time spent</div>
             </div>
 
             {/* Gems Card */}
@@ -209,7 +233,7 @@ export default function GameResultPage() {
                 <Gem className="w-6 h-6 text-green-400" />
                 <h3 className="text-lg font-semibold text-white">Gems</h3>
               </div>
-              <div className="text-3xl font-bold text-green-400 mb-2">+{challenge.gemReward}</div>
+              <div className="text-3xl font-bold text-green-400 mb-2">+{gameResult.gemsEarned}</div>
               <div className="text-gray-400 text-sm">Gems earned</div>
             </div>
           </div>

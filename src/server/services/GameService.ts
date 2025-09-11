@@ -91,6 +91,13 @@ export class GameService {
     return await this.redis.getGameResult(gameId);
   }
 
+  async getGameResultByChallengeId(
+    username: string,
+    challengeId: string
+  ): Promise<GameResult | null> {
+    return await this.redis.getGameResultByChallengeId(username, challengeId);
+  }
+
   async getUserGames(username: string): Promise<GameResult[]> {
     return await this.redis.getUserGames(username);
   }
