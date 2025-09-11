@@ -29,7 +29,7 @@
     "onAppInstall": "/internal/on-app-install"
   },
   "dev": {
-    "subreddit": "rony0110_dev"
+    "subreddit": "dailyhomophone_dev"
   },
   "permissions": {
     "redis": true

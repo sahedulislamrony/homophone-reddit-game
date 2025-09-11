@@ -2,20 +2,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { useUserContext } from '@client/contexts/UserContext';
 import { ChallengeLevel, DailyChallenge } from '@shared/types/challenge';
-import { DailyData } from '@shared/types/game';
+import { DailyData, ThemeData } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
 import ChallengeCard from '@client/game/components/ChallengeCard';
 import { Gem, Calendar, Trophy } from 'lucide-react';
 import { userApi } from '@client/utils/api';
 import { GameDataConverter } from '@client/utils/GameDataConverter';
 import {
-  getTodayData,
+  getDailyData,
   getCompletionStats,
   getTotalGemsForDate,
   getEarnedGemsForDate,
 } from '@client/game/data/gameData';
 import { FullScreenLoader } from '@client/components';
 import Notice from '@client/components/Notice';
+import { getToday } from '@client/services/TimeService';
 
 export default function DailyChallengePage() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function DailyChallengePage() {
   const [userProgress, setUserProgress] = useState<{ totalGems: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [today, setToday] = useState<string>('');
 
   useEffect(() => {
     const fetchDailyChallenges = async () => {
@@ -37,16 +39,20 @@ export default function DailyChallengePage() {
           return;
         }
 
-        // Get today's structured data from static game data
-        const todayData = getTodayData();
+        // Get server date using TimeService
+        const serverToday = await getToday();
+        console.log('Server today:', serverToday);
+        setToday(serverToday);
+
+        const todayData = getDailyData(serverToday);
         if (!todayData) {
           setError('No challenges available for today');
           setLoading(false);
           return;
         }
 
-        // Fetch today's completed games from server
-        const todayGames = await userApi.getTodayGames(username);
+        // Fetch today's completed games from server using server date
+        const todayGames = await userApi.getTodayGames(username, serverToday);
 
         // Create a map of completed games for quick lookup
         const completedGamesMap = new Map();
@@ -55,7 +61,7 @@ export default function DailyChallengePage() {
         });
 
         // Update completion status based on server data (without modifying original theme data)
-        const updatedThemes = todayData.themes.map((theme) => {
+        const updatedThemes = todayData.themes.map((theme: ThemeData) => {
           const completedGame = completedGamesMap.get(theme.themeId);
           const isCompleted = !!completedGame;
 
@@ -179,13 +185,6 @@ export default function DailyChallengePage() {
     );
   }
 
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
   return (
     <div className="w-full min-h-screen bg-black pb-10">
       {/* Header */}
@@ -196,7 +195,15 @@ export default function DailyChallengePage() {
         <div className="mt-6 text-center">
           <div className="flex items-center justify-center gap-2 text-white mb-2">
             <Calendar className="w-5 h-5" />
-            <span className="text-lg font-semibold">{today}</span>
+            <span className="text-lg font-semibold">
+              {today
+                ? new Date(today).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
+                : 'Loading...'}
+            </span>
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm text-gray-300">

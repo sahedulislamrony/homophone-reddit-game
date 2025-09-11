@@ -175,12 +175,14 @@ export const getUserGameHistory = async (req: Request, res: Response): Promise<v
  */
 export const getTodayGames = async (req: Request, res: Response): Promise<void> => {
   const { username } = req.params;
+  const { date } = req.query;
+
   if (!username) {
     res.status(400).json({ error: 'Username is required' });
     return;
   }
 
-  const games = await gameService.getTodayGames(username);
+  const games = await gameService.getTodayGames(username, date as string);
 
   res.json({
     success: true,

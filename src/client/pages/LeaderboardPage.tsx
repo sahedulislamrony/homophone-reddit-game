@@ -6,6 +6,7 @@ import { LeaderboardEntry } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
 import { userApi } from '@client/utils/api';
 import { FullScreenLoader } from '@client/components';
+import { getToday } from '@client/services/TimeService';
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -13,10 +14,7 @@ export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<'today' | 'allTime'>('today');
   const [todayData, setTodayData] = useState<LeaderboardEntry[]>([]);
   const [allTimeData, setAllTimeData] = useState<LeaderboardEntry[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    // Initialize with today's date
-    return new Date().toISOString().split('T')[0]!;
-  });
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [userRank, setUserRank] = useState<{
     dailyRank: number;
     allTimeRank: number;
@@ -27,24 +25,27 @@ export default function LeaderboardPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [allTimeLoaded, setAllTimeLoaded] = useState(false);
 
+  // Load initial data (today's leaderboard)
   useEffect(() => {
-    const fetchLeaderboardData = async () => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch daily leaderboard for selected date
-        console.log('Fetching daily leaderboard for date:', selectedDate);
-        const todayResponse = await userApi.getDailyLeaderboard(selectedDate);
+        // Get server time for today's date
+        const serverToday = await getToday();
+        console.log('Server today:', serverToday);
+
+        // Set selectedDate to today
+        setSelectedDate(serverToday);
+
+        // Fetch today's daily leaderboard
+        console.log("Fetching today's daily leaderboard for date:", serverToday);
+        const todayResponse = await userApi.getDailyLeaderboard(serverToday);
         console.log('Daily leaderboard response:', todayResponse);
         setTodayData(todayResponse.entries);
-
-        // Fetch all-time leaderboard
-        console.log('Fetching all-time leaderboard...');
-        const allTimeResponse = await userApi.getAllTimeLeaderboard();
-        console.log('All-time leaderboard response:', allTimeResponse);
-        setAllTimeData(allTimeResponse);
 
         // Fetch user rank if username is available
         if (username && username !== 'anonymous') {
@@ -76,14 +77,53 @@ export default function LeaderboardPage() {
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch leaderboard data');
-        console.error('Error fetching leaderboard data:', err);
+        console.error('Error fetching initial leaderboard data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    void fetchLeaderboardData();
-  }, [username, selectedDate]);
+    void fetchInitialData();
+  }, [username]);
+
+  // Load daily data when selectedDate changes
+  useEffect(() => {
+    const fetchDailyData = async () => {
+      if (!selectedDate) return;
+
+      try {
+        console.log('Fetching daily leaderboard for selected date:', selectedDate);
+        const response = await userApi.getDailyLeaderboard(selectedDate);
+        console.log('Daily leaderboard response for', selectedDate, ':', response);
+        setTodayData(response.entries);
+      } catch (err) {
+        console.error('Error fetching daily leaderboard data:', err);
+        setTodayData([]);
+      }
+    };
+
+    void fetchDailyData();
+  }, [selectedDate]);
+
+  // Load all-time data when user switches to all-time tab
+  useEffect(() => {
+    const fetchAllTimeData = async () => {
+      if (activeTab !== 'allTime' || allTimeLoaded) return;
+
+      try {
+        console.log('Fetching all-time leaderboard...');
+        const allTimeResponse = await userApi.getAllTimeLeaderboard();
+        console.log('All-time leaderboard response:', allTimeResponse);
+        setAllTimeData(allTimeResponse);
+        setAllTimeLoaded(true);
+      } catch (err) {
+        console.error('Error fetching all-time leaderboard data:', err);
+        setAllTimeData([]);
+      }
+    };
+
+    void fetchAllTimeData();
+  }, [activeTab, allTimeLoaded]);
 
   const currentData = activeTab === 'today' ? todayData : allTimeData;
 
@@ -97,23 +137,23 @@ export default function LeaderboardPage() {
     }
   };
 
-  const goToNextDay = () => {
+  const goToNextDay = async () => {
     const currentDate = new Date(selectedDate);
     currentDate.setDate(currentDate.getDate() + 1);
     const nextDate = currentDate.toISOString().split('T')[0];
-    const today = new Date().toISOString().split('T')[0];
+
+    // Get server time to check if we can go to next day
+    const serverToday = await getToday();
 
     // Don't allow going to future dates
-    if (nextDate && today && nextDate <= today) {
+    if (nextDate && serverToday && nextDate <= serverToday) {
       setSelectedDate(nextDate);
     }
   };
 
-  const goToToday = () => {
-    const today = new Date().toISOString().split('T')[0];
-    if (today) {
-      setSelectedDate(today);
-    }
+  const goToToday = async () => {
+    const serverToday = await getToday();
+    setSelectedDate(serverToday);
   };
 
   const formatDate = (dateString: string) => {
@@ -125,8 +165,18 @@ export default function LeaderboardPage() {
     });
   };
 
-  const isToday = selectedDate === new Date().toISOString().split('T')[0];
+  const [isToday, setIsToday] = useState(false);
   const isFirstDay = selectedDate === '2025-09-10'; // Adjust based on your app's start date
+
+  // Check if selected date is today (server time)
+  useEffect(() => {
+    const checkIsToday = async () => {
+      if (!selectedDate) return;
+      const serverToday = await getToday();
+      setIsToday(selectedDate === serverToday);
+    };
+    void checkIsToday();
+  }, [selectedDate]);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -230,7 +280,7 @@ export default function LeaderboardPage() {
                     {/* Next Day Button */}
                     <button
                       onClick={goToNextDay}
-                      disabled={isToday}
+                      // disabled={isToday}
                       className={`p-3 rounded-full transition-all duration-200 ${
                         isToday
                           ? 'bg-black/50 text-yellow-400/30 cursor-not-allowed'

@@ -3,6 +3,7 @@ import { RedisService } from './RedisService';
 import { UserService } from './UserService';
 import { GameResult } from '@shared/types/server';
 import { v4 as uuidv4 } from 'uuid';
+import { getServerDate } from '../utils/timeUtils';
 
 export class GameService {
   private redis: RedisService;
@@ -227,13 +228,12 @@ export class GameService {
     return await this.getUserGamesByChallenge(username, challengeId);
   }
 
-  async getTodayGames(username: string): Promise<GameResult[]> {
+  async getTodayGames(username: string, date?: string): Promise<GameResult[]> {
     if (!username) {
       return [];
     }
-    const date =
-      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
-    return await this.getUserGamesByDate(username, date);
+    const targetDate = date || getServerDate();
+    return await this.getUserGamesByDate(username, targetDate);
   }
 
   // Performance analytics

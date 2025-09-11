@@ -130,9 +130,13 @@ const submitGameResult = async (gameData: {
   }
 };
 
-const getTodayGames = async (username: string): Promise<GameResult[]> => {
+const getTodayGames = async (username: string, date?: string): Promise<GameResult[]> => {
   try {
-    const response = await fetch(`${baseUrl}/games/today/${username}`);
+    const url = date
+      ? `${baseUrl}/games/today/${username}?date=${date}`
+      : `${baseUrl}/games/today/${username}`;
+
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw createApiError(`HTTP error! status: ${response.status}`, response.status);

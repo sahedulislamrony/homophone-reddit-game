@@ -7,6 +7,7 @@ import {
   GameTransaction,
   REDIS_KEYS,
 } from '@shared/types/server';
+import { getServerDate, getServerTime } from '../utils/timeUtils';
 
 export class RedisService {
   constructor() {
@@ -32,7 +33,7 @@ export class RedisService {
       dailyPoints: 0,
       currentStreak: 0,
       lastPlayedDate: '',
-      createdAt: new Date().toISOString(),
+      createdAt: getServerTime(),
       isActive: true,
     };
 
@@ -90,7 +91,7 @@ export class RedisService {
     const userData = await this.getUserData(username);
     if (userData) {
       userData.currentStreak = streak;
-      userData.lastPlayedDate = new Date().toISOString().split('T')[0] || '';
+      userData.lastPlayedDate = getServerDate();
       await this.setUserData(userData);
     }
   }
@@ -305,7 +306,7 @@ export class RedisService {
     points: number,
     isDaily: boolean = false
   ): Promise<void> {
-    const date = new Date().toISOString().split('T')[0] || '';
+    const date = getServerDate();
 
     if (isDaily) {
       // For daily leaderboard, get the current daily points and update with that
@@ -640,7 +641,7 @@ export class RedisService {
       dailyPoints: 0,
       currentStreak: 0,
       lastPlayedDate: '',
-      createdAt: new Date().toISOString(),
+      createdAt: getServerTime(),
       isActive: true,
     };
 
@@ -676,16 +677,14 @@ export class RedisService {
   }
 
   async getUserRank(username: string, isDaily: boolean = false): Promise<number> {
-    const date =
-      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+    const date = getServerDate();
     const key = isDaily ? REDIS_KEYS.DAILY_LEADERBOARD(date) : REDIS_KEYS.ALL_TIME_LEADERBOARD;
     const rank = await redis.zRank(key, username);
     return rank !== null && rank !== undefined ? rank + 1 : 0;
   }
 
   async getUserPoints(username: string, isDaily: boolean = false): Promise<number> {
-    const date =
-      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+    const date = getServerDate();
     const key = isDaily ? REDIS_KEYS.DAILY_LEADERBOARD(date) : REDIS_KEYS.ALL_TIME_LEADERBOARD;
     const score = await redis.zScore(key, username);
     return score !== null && score !== undefined ? Math.round(score) : 0;
@@ -698,8 +697,7 @@ export class RedisService {
       console.log('App initialized successfully - New users will start with 10 gems');
 
       // Add some test data for leaderboard
-      const today =
-        new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+      const today = getServerDate();
       console.log('Adding test leaderboard data for date:', today);
 
       // Add test entries to daily leaderboard
