@@ -1,31 +1,373 @@
-## Devvit React Starter
+# 🎯 The Daily Homophone
 
-A starter to build web applications on Reddit's developer platform
+A Reddit-based word game where players hunt down impostor words and replace them with correct homophones. Built with Devvit, React, and TypeScript.
 
-- [Devvit](https://developers.reddit.com/): A way to build and deploy immersive games on Reddit
-- [Vite](https://vite.dev/): For compiling the webView
-- [React](https://react.dev/): For UI
-- [Express](https://expressjs.com/): For backend logic
-- [Tailwind](https://tailwindcss.com/): For styles
-- [Typescript](https://www.typescriptlang.org/): For type safety
+![Game Preview](assets/logo.png)
 
-## Getting Started
+## 🎮 Game Overview
 
-> Make sure you have Node 22 downloaded on your machine before running!
+**The Daily Homophone** is an engaging word puzzle game that challenges players to identify and correct homophone errors in themed text passages. Players earn points, build streaks, and compete on leaderboards while improving their language skills.
 
-1. Run `npm create devvit@latest --template=react`
-2. Go through the installation wizard. You will need to create a Reddit account and connect it to Reddit developers
-3. Copy the command on the success page into your terminal
+### Key Features
 
-## Commands
+- **Daily Challenges**: Fresh content every day with 8 themed challenges
+- **Progressive Difficulty**: Easy (5 gems), Medium (10 gems), Hard (20 gems)
+- **Streak System**: Build consecutive correct answers for bonus points
+- **Hint System**: 3 free hints per challenge + gem-purchased additional hints
+- **Leaderboards**: Daily, weekly, monthly, and all-time rankings
+- **Statistics Tracking**: Comprehensive performance analytics
+- **Gem Economy**: Earn gems for first-time completions
+- **Real-time Sync**: Server-based data synchronization
 
-- `npm run dev`: Starts a development server where you can develop your application live on Reddit.
-- `npm run build`: Builds your client and server projects
-- `npm run deploy`: Uploads a new version of your app
-- `npm run launch`: Publishes your app for review
-- `npm run login`: Logs your CLI into Reddit
-- `npm run check`: Type checks, lints, and prettifies your app
+## 🎯 How to Play
 
-## Cursor Integration
+### Objective
 
-This template comes with a pre-configured cursor environment. To get started, [download cursor](https://www.cursor.com/downloads) and enable the `devvit-mcp` when prompted.
+Find incorrect words in themed text passages and replace them with the correct homophones. Homophones are words that sound the same but have different meanings and spellings.
+
+### Gameplay Steps
+
+1. **Read the Text**: Carefully examine the themed passage
+2. **Identify Errors**: Look for words that sound correct but are spelled wrong
+3. **Type Corrections**: Enter the correct homophone in the input field
+4. **Submit Answer**: Get immediate feedback and earn points
+5. **Build Streaks**: Consecutive correct answers earn bonus points
+
+### Example
+
+```
+Given: "I went to the store and board a car."
+Correct: "I went to the store and bought a car."
+Explanation: "board" should be "bought" - they sound similar but have different meanings.
+```
+
+### Scoring System
+
+- **Base Points**: Varies by challenge difficulty
+- **Streak Bonuses**:
+  - 2nd consecutive: +50% bonus
+  - 3rd+ consecutive: Increasing multipliers
+- **Penalties**:
+  - Wrong answer: Streak resets to 0
+  - Using hints: -2 points, streak resets
+- **Time Bonuses**: Optional time-based scoring
+
+### Hints & Rewards
+
+- **Free Hints**: 3 per challenge
+- **Gem Hints**: 1 gem = 3 additional hints
+- **Gems**: Earned for first-time challenge completions
+- **Leaderboards**: Compete with other players globally
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js 22+**: Download from [nodejs.org](https://nodejs.org/)
+- **Reddit Account**: Required for Devvit platform access
+- **Devvit CLI**: Installed via npm
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd dailyhomophone
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Login to Devvit**
+
+   ```bash
+   npm run login
+   ```
+
+   Follow the prompts to authenticate with Reddit.
+
+4. **Build the project**
+   ```bash
+   npm run build
+   ```
+
+## 🛠️ Development
+
+### Development Commands
+
+| Command              | Description                               |
+| -------------------- | ----------------------------------------- |
+| `npm run dev`        | Start development server with live reload |
+| `npm run dev:client` | Build client with watch mode              |
+| `npm run dev:server` | Build server with watch mode              |
+| `npm run dev:devvit` | Start Devvit playtest                     |
+| `npm run dev:vite`   | Start Vite dev server on port 7474        |
+
+### Development Workflow
+
+1. **Start Development**
+
+   ```bash
+   npm run dev
+   ```
+
+   This runs all development servers concurrently:
+
+   - Client build watcher
+   - Server build watcher
+   - Devvit playtest server
+
+2. **Test on Reddit**
+
+   - The app will be available in your test subreddit
+   - Default test subreddit: `dailyhomophone_dev`
+   - Configure in `devvit.json` under `dev.subreddit`
+
+3. **Make Changes**
+   - Edit files in `src/client/` for UI changes
+   - Edit files in `src/server/` for backend logic
+   - Changes auto-rebuild and sync to Reddit
+
+### Project Structure
+
+```
+src/
+├── client/                 # Frontend React app
+│   ├── components/        # Reusable UI components
+│   ├── game/             # Game-specific components & logic
+│   ├── pages/            # Main app pages
+│   ├── services/         # API and data services
+│   └── utils/            # Client utilities
+├── server/               # Backend Express server
+│   ├── controllers/      # API route handlers
+│   ├── services/         # Business logic services
+│   ├── middleware/       # Express middleware
+│   └── routes/           # API route definitions
+└── shared/               # Shared types and utilities
+    └── types/            # TypeScript type definitions
+```
+
+## 🏗️ Building & Deployment
+
+### Build Commands
+
+| Command                | Description                       |
+| ---------------------- | --------------------------------- |
+| `npm run build`        | Build both client and server      |
+| `npm run build:client` | Build only client                 |
+| `npm run build:server` | Build only server                 |
+| `npm run check`        | Type check, lint, and format code |
+
+### Deployment Process
+
+1. **Build the Project**
+
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy to Reddit**
+
+   ```bash
+   npm run deploy
+   ```
+
+   This uploads the built app to Reddit's servers.
+
+3. **Publish for Review**
+   ```bash
+   npm run launch
+   ```
+   This submits the app for Reddit's review process.
+
+### Configuration
+
+The app is configured via `devvit.json`:
+
+```json
+{
+  "name": "dailyhomophone",
+  "post": {
+    "dir": "dist/client",
+    "entrypoints": {
+      "default": {
+        "entry": "index.html"
+      }
+    }
+  },
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "dev": {
+    "subreddit": "dailyhomophone_dev"
+  },
+  "permissions": {
+    "redis": true
+  }
+}
+```
+
+## 🔧 Technical Details
+
+### Tech Stack
+
+- **Frontend**: React 19, TypeScript, Tailwind CSS, Vite
+- **Backend**: Node.js, Express, TypeScript
+- **Platform**: Reddit Devvit
+- **Database**: Redis (via Devvit)
+- **Build Tools**: Vite, ESLint, Prettier
+
+### Key Technologies
+
+- **Devvit**: Reddit's developer platform for building immersive experiences
+- **React**: Modern UI library with hooks and context
+- **Express**: Web framework for API endpoints
+- **Redis**: In-memory data store for game data and leaderboards
+- **Tailwind CSS**: Utility-first CSS framework
+- **TypeScript**: Type-safe JavaScript development
+
+### Architecture
+
+- **Client-Server**: React frontend communicates with Express backend
+- **Real-time Sync**: Server-based data synchronization
+- **Offline Fallback**: Graceful degradation when server unavailable
+- **Redis Storage**: Efficient data persistence and leaderboard operations
+
+## 📊 Game Data Management
+
+### Daily Challenges
+
+Daily challenges are stored in `src/client/game/data/dailyChallengesData.ts`. Each day includes:
+
+- **8 Themed Challenges**: Unique content with different difficulty levels
+- **Progressive Unlocking**: Complete challenges to unlock harder ones
+- **Gem Rewards**: 5, 10, or 20 gems based on difficulty
+- **Server Time**: All times based on server timezone
+
+### Adding New Content
+
+1. **Use the Template**: Copy from `dailyChallengesTemplate.ts`
+2. **Update Data**: Add to `dailyChallengesData.ts` array
+3. **Follow Structure**: Include all required fields (date, theme, content, etc.)
+4. **Test**: Verify in development environment
+
+### Data Structure
+
+```typescript
+{
+  id: '2024-01-04-theme-name',
+  themeName: 'Theme Name',
+  content: 'Content with incorrect words...',
+  correctWords: ['word1', 'word2', 'word3'],
+  themeBgImage: '/images/theme_bg.jpg',
+  difficulty: 'easy' | 'medium' | 'hard',
+  gemReward: 5 | 10 | 20
+}
+```
+
+## 🎨 Customization
+
+### Themes & Styling
+
+- **Background Images**: Add to `src/client/public/images/`
+- **Color Scheme**: Modify Tailwind classes in components
+- **Game Assets**: Update `src/client/game/assets/GameAssets.ts`
+
+### Game Configuration
+
+- **Scoring**: Adjust in `src/client/game/engine/GameEngine.ts`
+- **Hints**: Modify hint system in game components
+- **Difficulty**: Update challenge data structure
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Build Errors**
+
+   - Ensure Node.js 22+ is installed
+   - Run `npm install` to update dependencies
+   - Check TypeScript errors with `npm run type-check`
+
+2. **Devvit Login Issues**
+
+   - Run `npm run login` to re-authenticate
+   - Check Reddit developer account permissions
+
+3. **Development Server Issues**
+
+   - Restart with `npm run dev`
+   - Check port availability (7474 for Vite)
+
+4. **Deployment Issues**
+   - Ensure `npm run build` completes successfully
+   - Check `devvit.json` configuration
+   - Verify Redis permissions
+
+### Debug Mode
+
+Enable debug logging by setting environment variables:
+
+```bash
+DEBUG=true npm run dev
+```
+
+## 📈 Performance
+
+### Optimization Features
+
+- **Code Splitting**: Automatic route-based splitting
+- **Tree Shaking**: Unused code elimination
+- **Redis Caching**: Efficient data storage and retrieval
+- **Lazy Loading**: Components loaded on demand
+
+### Monitoring
+
+- **Server Logs**: Available via Devvit CLI
+- **Performance Metrics**: Tracked in game statistics
+- **Error Handling**: Comprehensive error boundaries
+
+## 🤝 Contributing
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run `npm run check` to ensure code quality
+5. Submit a pull request
+
+### Code Standards
+
+- **TypeScript**: Strict type checking enabled
+- **ESLint**: Configured for React and TypeScript
+- **Prettier**: Automatic code formatting
+- **Conventional Commits**: Use descriptive commit messages
+
+## 📄 License
+
+This project is licensed under the BSD-3-Clause License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+### Getting Help
+
+- **Documentation**: Check this README and inline code comments
+- **Issues**: Report bugs via GitHub issues
+- **Devvit Docs**: [developers.reddit.com](https://developers.reddit.com/)
+
+### Community
+
+- **Reddit**: Join the discussion in your test subreddit
+- **Discord**: Connect with other Devvit developers
+
+---
+
+**Happy Homophone Hunting!** 🎯✨
+
+Built with ❤️ using [Devvit](https://developers.reddit.com/)
