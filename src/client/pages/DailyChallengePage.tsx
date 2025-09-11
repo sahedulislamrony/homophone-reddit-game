@@ -14,6 +14,7 @@ import {
   getTotalGemsForDate,
   getEarnedGemsForDate,
 } from '@client/game/data/gameData';
+import { FullScreenLoader } from '@client/components';
 
 export default function DailyChallengePage() {
   const router = useRouter();
@@ -130,7 +131,7 @@ export default function DailyChallengePage() {
         // Navigate to result page with the actual game result data
         router.goto('game-result', {
           challengeId,
-          username,
+          username: username || 'anonymous',
           gameResult: JSON.stringify(gameResult),
         });
       } else {
@@ -149,11 +150,7 @@ export default function DailyChallengePage() {
   };
 
   if (loading) {
-    return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading challenges...</div>
-      </div>
-    );
+    return <FullScreenLoader isLoading={true} variant="challenge" message="Loading challenges" />;
   }
 
   if (error) {

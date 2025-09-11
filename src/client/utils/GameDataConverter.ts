@@ -32,13 +32,14 @@ export class GameDataConverter {
   /**
    * Convert ThemeData to GameObject format for game engine
    */
-  public static themeToGameObject(theme: ThemeData): GameObject {
+  public static themeToGameObject(theme: ThemeData): GameObject & { initialPoints: number } {
     return {
       themeName: theme.themeName,
       content: theme.content,
       correctWords: theme.correctWords,
       themeBgImage: theme.themeBgImage,
       hints: theme.hints,
+      initialPoints: theme.pointPerCorrectWord,
     };
   }
 

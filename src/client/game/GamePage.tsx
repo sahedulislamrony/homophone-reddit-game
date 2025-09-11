@@ -11,6 +11,7 @@ import { GameCard, FeedbackMessage } from './components';
 import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
 import { dataSync } from '@client/services/DataSyncService';
+import { FullScreenLoader } from '@client/components';
 
 export default function GamePage() {
   const router = useRouter();
@@ -92,7 +93,7 @@ export default function GamePage() {
             pointsPerHint: -2,
             maxFreeHints: 3,
             gemsPerHint: 1,
-            timeBonus: true,
+            timeBonus: false,
             streakMultiplier: true,
           }
         );
@@ -125,7 +126,7 @@ export default function GamePage() {
             pointsPerHint: -2,
             maxFreeHints: 3,
             gemsPerHint: 1,
-            timeBonus: true,
+            timeBonus: false,
             streakMultiplier: true,
           }
         );
@@ -236,32 +237,23 @@ export default function GamePage() {
   ]);
 
   if (!gameEngine || !gameState || !gameObject) {
-    return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading game...</div>
-      </div>
-    );
+    return <FullScreenLoader isLoading={true} variant="game" message="Loading game" />;
   }
 
   // Show loading while submitting and redirecting
   if (gameState?.isCompleted) {
     return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-white text-xl mb-4">Game Completed!</div>
-          <div className="text-gray-400">Submitting results...</div>
-        </div>
-      </div>
+      <FullScreenLoader
+        isLoading={true}
+        variant="game"
+        message="Game Completed! Submitting results"
+      />
     );
   }
 
   const currentWord = gameEngine.getCurrentWord();
   if (!currentWord) {
-    return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">No more words to find!</div>
-      </div>
-    );
+    return <FullScreenLoader isLoading={true} variant="game" message="No more words to find!" />;
   }
 
   const handleSubmit = () => {

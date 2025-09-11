@@ -1,12 +1,12 @@
 import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 
 export interface GameEngineConfig {
-  pointsPerCorrect: number; // Base points for first correct answer
+  pointsPerCorrect: number; // Base points for first correct answer (default: 10)
   pointsPerHint: number; // Points deducted for using hints after free hints (negative value)
   maxFreeHints: number; // Maximum free hints allowed per game (3)
   gemsPerHint: number; // Gems required for additional hints (1 gem = 3 hints)
   timeBonus: boolean; // Enable time-based bonuses
-  streakMultiplier: boolean; // Enable progressive streak multipliers (1x, 2x, 3x, etc.)
+  streakMultiplier: boolean; // Enable progressive streak multipliers with half-value bonus
 }
 
 export class GameEngine {
@@ -31,14 +31,17 @@ export class GameEngine {
     this.onFeedback = onFeedback;
     this.startTime = Date.now();
 
+    // Get base points from theme data or use default
+    const themePoints = (gameObject as GameObject & { initialPoints?: number }).initialPoints || 10;
+
     // Default configuration
     this.config = {
-      pointsPerCorrect: 10, // Base points: 10 for first correct answer
+      pointsPerCorrect: themePoints, // Use theme's pointPerCorrectWord or default to 10
       pointsPerHint: -2, // -2 points per hint used after free hints
       maxFreeHints: 3, // Maximum 3 free hints per game
       gemsPerHint: 1, // 1 gem = 3 additional hints
-      timeBonus: true, // Enable time bonuses
-      streakMultiplier: true, // Enable progressive multipliers (1x, 2x, 3x, 4x...)
+      timeBonus: false, // Disabled for consistent scoring
+      streakMultiplier: true, // Enable progressive multipliers with half-value bonus
       ...config,
     };
   }
@@ -105,20 +108,26 @@ export class GameEngine {
     // Word is correct and not previously submitted
     let points = 0;
 
-    // Calculate base points with progressive multiplier
-    // First correct: min points (1x)
-    // Second consecutive: min points * 2
-    // Third consecutive: min points * 3
-    // And so on...
-    const multiplier = this.currentStreak + 1; // +1 because we increment streak after this
-    points = this.config.pointsPerCorrect * multiplier;
+    // Calculate points with new streak system:
+    // 1st correct: basePoints (e.g., 10)
+    // 2nd consecutive: basePoints + (basePoints * 0.5 * 2) = 10 + 10 = 20
+    // 3rd consecutive: basePoints + (basePoints * 0.5 * 3) = 10 + 15 = 25
+    // 4th consecutive: basePoints + (basePoints * 0.5 * 4) = 10 + 20 = 30
+    // Formula: basePoints + (basePoints * 0.5 * streak) for streak > 1, basePoints for streak = 1
+    const streak = this.currentStreak + 1; // +1 because we increment streak after this
+    const basePoints = this.config.pointsPerCorrect;
 
-    // Add time bonus if enabled
-    if (this.config.timeBonus) {
-      const timeElapsed = Date.now() - this.startTime;
-      const timeBonus = Math.max(0, Math.floor(30 - timeElapsed / 1000));
-      points += timeBonus;
+    if (this.config.streakMultiplier && streak > 1) {
+      // Streak bonus: half of base points multiplied by streak count
+      const streakBonus = basePoints * 0.5 * streak;
+      points = basePoints + streakBonus;
+    } else {
+      // First correct answer gets base points only
+      points = basePoints;
     }
+
+    // Time bonus removed for consistent scoring
+    // Points are now based purely on streak system for predictable results
 
     this.currentStreak++;
 
@@ -131,11 +140,12 @@ export class GameEngine {
       isCompleted: this.gameState.userAnswers.length + 1 >= this.gameObject.correctWords.length,
     };
 
-    // Provide feedback
+    // Provide feedback with detailed breakdown
+    const streakText = streak > 1 ? ` (${streak}x streak!)` : '';
     const feedback: GameFeedback = {
       type: 'correct',
-      message: `Correct! You found "${correctWord}". You earned ${points} points (${multiplier}x multiplier!)`,
-      points,
+      message: `Correct! You found "${correctWord}". You earned ${Math.round(points)} points${streakText}`,
+      points: Math.round(points),
     };
 
     this.onStateChange(this.gameState);
@@ -410,11 +420,24 @@ export class GameEngine {
 
   // Get streak information for display
   getStreakInfo() {
+    const nextStreak = this.getCurrentMultiplier();
+    const basePoints = this.config.pointsPerCorrect;
+
+    let nextPoints = basePoints;
+    if (this.config.streakMultiplier && nextStreak > 1) {
+      const streakBonus = basePoints * 0.5 * nextStreak;
+      nextPoints = basePoints + streakBonus;
+    }
+
     return {
       currentStreak: this.currentStreak,
-      nextMultiplier: this.getCurrentMultiplier(),
-      basePoints: this.config.pointsPerCorrect,
-      nextPoints: this.config.pointsPerCorrect * this.getCurrentMultiplier(),
+      nextMultiplier: nextStreak,
+      basePoints: basePoints,
+      nextPoints: Math.round(nextPoints),
+      streakBonus:
+        this.config.streakMultiplier && nextStreak > 1
+          ? Math.round(basePoints * 0.5 * nextStreak)
+          : 0,
     };
   }
 }

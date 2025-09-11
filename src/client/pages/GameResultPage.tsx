@@ -4,6 +4,7 @@ import { GameResult } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
 import { Trophy, Clock, Gem } from 'lucide-react';
 import { userApi } from '@client/utils/api';
+import { FullScreenLoader } from '@client/components';
 
 export default function GameResultPage() {
   const router = useRouter();
@@ -78,11 +79,7 @@ export default function GameResultPage() {
   };
 
   if (loading) {
-    return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading result...</div>
-      </div>
-    );
+    return <FullScreenLoader isLoading={true} variant="game" message="Loading result" />;
   }
 
   if (error || !gameResult) {

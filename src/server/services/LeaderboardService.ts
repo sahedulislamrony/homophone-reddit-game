@@ -194,10 +194,10 @@ export class LeaderboardService {
     const monthlyRank = monthlyLeaderboard.findIndex((entry) => entry.username === username) + 1;
 
     return {
-      dailyRank: dailyRank > 0 ? dailyRank : -1,
-      allTimeRank: allTimeRank > 0 ? allTimeRank : -1,
-      weeklyRank: weeklyRank > 0 ? weeklyRank : -1,
-      monthlyRank: monthlyRank > 0 ? monthlyRank : -1,
+      dailyRank: dailyRank > 0 ? dailyRank : 0,
+      allTimeRank: allTimeRank > 0 ? allTimeRank : 0,
+      weeklyRank: weeklyRank > 0 ? weeklyRank : 0,
+      monthlyRank: monthlyRank > 0 ? monthlyRank : 0,
     };
   }
 }

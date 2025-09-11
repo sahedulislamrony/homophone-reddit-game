@@ -4,6 +4,7 @@ export type GameObject = {
   correctWords: string[];
   themeBgImage: string;
   hints: string[]; // 4-10 hints per game
+  initialPoints: number;
 };
 
 export type GameState = {
@@ -37,7 +38,7 @@ export type ThemeData = {
   correctWords: string[];
   difficulty: 'easy' | 'medium' | 'hard';
   gemsEarn: number;
-  initialPoints: number;
+  pointPerCorrectWord: number;
   themeBgImage: string;
   hints: string[];
   isLocked?: boolean;

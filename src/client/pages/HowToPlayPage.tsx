@@ -22,7 +22,7 @@ export default function HowToPlayPage() {
           {/* Header */}
 
           {/* Main Instructions Card */}
-          <div className="bg-black/85 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8 mb-8">
+          <div className="bg-black/85 backdrop-blur-sm rounded-2xl shadow-lg  p-8 mb-8">
             <div className="text-center mb-8">
               <Target className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-white mb-4">The Objective</h2>
@@ -82,7 +82,7 @@ export default function HowToPlayPage() {
                   <Play className="w-5 h-5 text-yellow-400" />
                   How to Play
                 </h3>
-                <ul className="space-y-3 text-gray-300">
+                <ul className="space-y-3 text-gray-300 ml-6">
                   <li className="flex items-start gap-3">
                     <span className="w-6 h-6 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
                       1
@@ -107,37 +107,106 @@ export default function HowToPlayPage() {
                     </span>
                     <span>Submit your answer and earn points</span>
                   </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-yellow-400/20 text-yellow-400 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                      5
+                    </span>
+                    <span>Build streaks for bonus points!</span>
+                  </li>
                 </ul>
               </div>
 
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold text-white flex items-center gap-2">
                   <Award className="w-5 h-5 text-yellow-400" />
-                  Scoring
+                  Scoring System
                 </h3>
-                <ul className="space-y-3 text-gray-300">
+                <ul className="space-y-3 text-gray-300 ml-6">
                   <li className="flex items-center gap-3">
                     <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                     <span>
-                      <strong>Correct answer:</strong> +10 points
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                    <span>
-                      <strong>Wrong answer:</strong> 0 points
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                    <span>
-                      <strong>Using hints:</strong> No penalty
+                      <strong>1st correct:</strong> Base points (varies by theme)
                     </span>
                   </li>
                   <li className="flex items-center gap-3">
                     <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
                     <span>
-                      <strong>Complete game:</strong> Bonus points
+                      <strong>2nd consecutive:</strong> Base + 50% bonus
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
+                    <span>
+                      <strong>3rd+ consecutive:</strong> Increasing bonus!
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <span>
+                      <strong>Wrong answer:</strong> Streak resets to 0
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <span>
+                      <strong>Using hints:</strong> -2 points, streak resets
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Hints & Gems */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-yellow-400" />
+                  Hints System
+                </h3>
+                <ul className="space-y-3 text-gray-300 ml-6">
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                    <span>
+                      <strong>Free hints:</strong> 3 per challenge
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <span>
+                      <strong>Gem hints:</strong> 1 gem = 3 additional hints
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <span>
+                      <strong>Hint cost:</strong> -2 points per hint
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Award className="w-5 h-5 text-yellow-400" />
+                  Rewards
+                </h3>
+                <ul className="space-y-3 text-gray-300 ml-6 ">
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <span>
+                      <strong>Gems:</strong> Earned for first-time completions
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                    <span>
+                      <strong>Leaderboards:</strong> Daily & all-time rankings
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
+                    <span>
+                      <strong>Stats:</strong> Track your progress & streaks
                     </span>
                   </li>
                 </ul>
@@ -145,42 +214,8 @@ export default function HowToPlayPage() {
             </div>
           </div>
 
-          {/* Tips Section */}
-          <div className="bg-black/85 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8 mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">Pro Tips</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Lightbulb className="w-6 h-6 text-yellow-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-2">Use Hints Wisely</h3>
-                <p className="text-sm text-gray-400">
-                  Hints show the first letter and word length. Use them when you're stuck!
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Clock className="w-6 h-6 text-yellow-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-2">Take Your Time</h3>
-                <p className="text-sm text-gray-400">
-                  There's no time limit. Read carefully and think about context.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Target className="w-6 h-6 text-yellow-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-2">Context Matters</h3>
-                <p className="text-sm text-gray-400">
-                  Consider the sentence context to determine the correct homophone.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Start Game Button */}
-          <div className="text-center">
+          <div className="text-center mb-10">
             <button
               onClick={handleStartGame}
               className="group w-full max-w-sm mx-auto py-3 px-6 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"

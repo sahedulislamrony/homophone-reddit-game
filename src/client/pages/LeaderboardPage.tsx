@@ -5,6 +5,7 @@ import { Trophy, Medal, Award, Crown } from 'lucide-react';
 import { LeaderboardEntry } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
 import { userApi } from '@client/utils/api';
+import { FullScreenLoader } from '@client/components';
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -104,14 +105,7 @@ export default function LeaderboardPage() {
 
   if (loading) {
     return (
-      <div
-        className="w-full min-h-screen bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: "url('/root_bg.png')" }}
-      >
-        <div className="w-full min-h-screen bg-black/70 flex items-center justify-center">
-          <div className="text-white text-xl">Loading leaderboard...</div>
-        </div>
-      </div>
+      <FullScreenLoader isLoading={true} variant="leaderboard" message="Loading leaderboard..." />
     );
   }
 

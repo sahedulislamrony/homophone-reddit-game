@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { UserStats } from '@shared/types/stats';
 import NavigationBar from '@client/components/basic/Navigation';
+import { FullScreenLoader } from '@client/components';
 import { userApi } from '@client/utils/api';
 
 export default function StatsPage() {
@@ -24,12 +25,6 @@ export default function StatsPage() {
   const { username } = useUserContext();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [userData, setUserData] = useState<any>(null);
-  const [userRank, setUserRank] = useState<{
-    dailyRank: number;
-    allTimeRank: number;
-    weeklyRank: number;
-    monthlyRank: number;
-  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,8 +60,9 @@ export default function StatsPage() {
           averageScore: statsResponse.averageScore,
           hintsUsed: statsResponse.totalHintsUsed,
           accuracy: 0, // Calculate from available data if needed
-          joinDate: userDataResponse.createdAt, // Use actual creation date
-          lastPlayed: userDataResponse.lastPlayedDate || statsResponse.lastPlayedDate,
+          joinDate: userDataResponse.userData?.createdAt || new Date().toISOString(), // Use actual creation date
+          lastPlayed:
+            userDataResponse.userData?.lastPlayedDate || statsResponse.lastPlayedDate || '',
           achievements: [], // Placeholder - achievements would need separate implementation
         };
 
@@ -75,7 +71,6 @@ export default function StatsPage() {
         // Fetch user rank
         try {
           const rankResponse = await userApi.getUserRank(username);
-          setUserRank(rankResponse);
 
           // Update stats with rank data
           setUserStats((prev) =>
@@ -102,16 +97,7 @@ export default function StatsPage() {
   }, [username]);
 
   if (loading) {
-    return (
-      <div
-        className="w-full min-h-screen bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: "url('/root_bg.png')" }}
-      >
-        <div className="w-full min-h-screen bg-black/70 flex items-center justify-center">
-          <div className="text-white text-xl">Loading stats...</div>
-        </div>
-      </div>
-    );
+    return <FullScreenLoader isLoading={true} variant="stats" message="Loading stats" />;
   }
 
   if (error || !userStats) {
@@ -137,15 +123,22 @@ export default function StatsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'Never';
+    if (!dateString || dateString === 'Never' || dateString === '') return 'Not played yet';
+
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
+      const date = new Date(dateString);
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        return 'Not played yet';
+      }
+
+      return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
       });
     } catch {
-      return 'Invalid Date';
+      return 'Not played yet';
     }
   };
 

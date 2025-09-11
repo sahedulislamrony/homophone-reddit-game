@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { serverApi } from './ServerApiService';
 import { UserData, UserStats, GameResult, LeaderboardEntry } from '@shared/types/server';
-import { GameState } from '@shared/types/game';
 
 export class DataSyncService {
   private static instance: DataSyncService;
@@ -196,10 +195,10 @@ export class DataSyncService {
     } catch (error) {
       console.error('Failed to get user rank:', error);
       return {
-        dailyRank: -1,
-        allTimeRank: -1,
-        weeklyRank: -1,
-        monthlyRank: -1,
+        dailyRank: 0,
+        allTimeRank: 0,
+        weeklyRank: 0,
+        monthlyRank: 0,
       };
     }
   }

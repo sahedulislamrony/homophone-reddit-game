@@ -528,6 +528,13 @@ export class RedisService {
       Object.entries(stats.gamesByTheme).sort(([, a], [, b]) => b - a)[0]?.[0] || '';
 
     await redis.set(REDIS_KEYS.USER_STATS(username), JSON.stringify(stats));
+
+    // Also update user's lastPlayedDate in user data
+    const userData = await this.getUserData(username);
+    if (userData) {
+      userData.lastPlayedDate = gameResult.date;
+      await this.setUserData(userData);
+    }
   }
 
   // Transaction logging
@@ -635,7 +642,7 @@ export class RedisService {
       new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
     const key = isDaily ? REDIS_KEYS.DAILY_LEADERBOARD(date) : REDIS_KEYS.ALL_TIME_LEADERBOARD;
     const rank = await redis.zRank(key, username);
-    return rank !== null && rank !== undefined ? rank + 1 : -1;
+    return rank !== null && rank !== undefined ? rank + 1 : 0;
   }
 
   // Initialize app for new installations (no dummy data)
