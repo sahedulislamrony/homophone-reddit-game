@@ -13,39 +13,54 @@
     font-weight: 400;
     line-height: 1.6;
   }
+}
 
-  button {
-    @apply cursor-pointer;
-  }
-
-  /* Ensure proper webview sizing */
-  html,
-  body,
-  #root {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
-
-  /* Desktop-focused responsive design */
-  @media (min-width: 1024px) {
-    body {
-      font-size: 14px;
+@layer utilities {
+  @keyframes shrink {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
     }
   }
 
-  @media (min-width: 1280px) {
-    body {
-      font-size: 15px;
-    }
+  .animate-shrink {
+    animation: shrink linear forwards;
   }
+}
 
-  @media (min-width: 1536px) {
-    body {
-      font-size: 16px;
-    }
+button {
+  @apply cursor-pointer;
+}
+
+/* Ensure proper webview sizing */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Desktop-focused responsive design */
+@media (min-width: 1024px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1280px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1536px) {
+  body {
+    font-size: 16px;
   }
 }
 

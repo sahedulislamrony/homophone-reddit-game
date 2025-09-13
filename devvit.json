@@ -32,6 +32,11 @@
     "subreddit": "dailyhomophone_dev"
   },
   "permissions": {
-    "redis": true
+    "redis": true,
+    "reddit": {
+      "asUser": [
+        "SUBMIT_COMMENT"
+      ]
+    }
   }
 }

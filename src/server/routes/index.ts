@@ -4,6 +4,7 @@ import gameRoutes from './game.router';
 import leaderboardRoutes from './leaderboard.router';
 import internalRoutes from './internal.router';
 import timeRoutes from './time.router';
+import commentRoutes from './comment.router';
 
 const router = Router();
 
@@ -12,6 +13,7 @@ router.use('/api/users', userRoutes);
 router.use('/api/games', gameRoutes);
 router.use('/api/leaderboard', leaderboardRoutes);
 router.use('/api/time', timeRoutes);
+router.use('/api/comments', commentRoutes);
 
 // Internal routes
 router.use('/internal', internalRoutes);

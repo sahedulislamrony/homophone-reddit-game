@@ -9,3 +9,6 @@ export * from './leaderboard.controller';
 
 // Internal controllers
 export * from './internal.controller';
+
+// Comment controllers
+export * from './comment.controller';

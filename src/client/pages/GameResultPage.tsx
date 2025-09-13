@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { GameResult } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
-import { Clock, Gem, Star, MessageCircle, Trophy, Zap, Target } from 'lucide-react';
+import { Clock, Gem, MessageCircle, Trophy, Zap, Target, Loader2 } from 'lucide-react';
 import { userApi } from '@client/utils/api';
-import { FullScreenLoader } from '@client/components';
+import { FullScreenLoader, SuccessPopup } from '@client/components';
 
 export default function GameResultPage() {
   const router = useRouter();
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [isCommenting, setIsCommenting] = useState(false);
 
   useEffect(() => {
     const fetchGameResult = async () => {
@@ -62,8 +64,35 @@ export default function GameResultPage() {
     router.goto('daily-challenges');
   };
 
-  const handleCommentResult = () => {
-    console.log('Comment your result clicked');
+  const handleCommentResult = async () => {
+    if (!gameResult || isCommenting) {
+      return;
+    }
+
+    setIsCommenting(true);
+
+    try {
+      const response = await fetch('/api/comments/submit-game-result', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          gameResult: gameResult,
+          username: gameResult.username,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        setShowSuccessPopup(true);
+      }
+    } catch (error) {
+      // Silent fail - could add error popup if needed
+    } finally {
+      setIsCommenting(false);
+    }
   };
 
   if (loading) {
@@ -234,13 +263,35 @@ export default function GameResultPage() {
         <div className="mb-10 mt-8">
           <button
             onClick={handleCommentResult}
-            className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold rounded-xl hover:from-yellow-500 hover:to-yellow-400 transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-yellow-500/30 hover:shadow-xl hover:shadow-yellow-500/40"
+            disabled={isCommenting}
+            className={`w-full flex items-center justify-center gap-3 px-8 py-4 font-bold rounded-xl transition-all duration-300 transform ${
+              isCommenting
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed scale-95'
+                : 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-black hover:from-yellow-500 hover:to-yellow-400 hover:-translate-y-1 shadow-lg shadow-yellow-500/30 hover:shadow-xl hover:shadow-yellow-500/40'
+            }`}
           >
-            <MessageCircle className="w-6 h-6" />
-            Comment Your Result
+            {isCommenting ? (
+              <>
+                <Loader2 className="w-6 h-6 animate-spin" />
+                Posting Comment...
+              </>
+            ) : (
+              <>
+                <MessageCircle className="w-6 h-6" />
+                Comment Your Result
+              </>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Success Popup */}
+      <SuccessPopup
+        isVisible={showSuccessPopup}
+        onClose={() => setShowSuccessPopup(false)}
+        title="Comment Posted!"
+        message="Your game result has been successfully posted as a comment on this Reddit post."
+      />
     </div>
   );
 }

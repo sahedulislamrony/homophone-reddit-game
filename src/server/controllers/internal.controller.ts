@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { context } from '@devvit/web/server';
+import { context, reddit } from '@devvit/web/server';
 import { createPost } from '../core/post';
 import { RedisService } from '../services/RedisService';
 
