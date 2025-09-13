@@ -5,24 +5,18 @@ import { ChallengeLevel, DailyChallenge } from '@shared/types/challenge';
 import { DailyData, ThemeData } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
 import ChallengeCard from '@client/game/components/ChallengeCard';
-import { Gem, Calendar, Trophy } from 'lucide-react';
+import { Calendar, Trophy } from 'lucide-react';
 import { userApi } from '@client/utils/api';
 import { GameDataConverter } from '@client/utils/GameDataConverter';
-import {
-  getDailyData,
-  getCompletionStats,
-  getTotalGemsForDate,
-  getEarnedGemsForDate,
-} from '@client/game/data/gameData';
+import { getDailyData, getCompletionStats, getTotalGemsForDate } from '@client/game/data/gameData';
 import { FullScreenLoader } from '@client/components';
 import Notice from '@client/components/Notice';
 import { getToday } from '@client/services/TimeService';
 
 export default function DailyChallengePage() {
   const router = useRouter();
-  const { username } = useUserContext();
+  const { username, loading: userLoading } = useUserContext();
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
-  const [userProgress, setUserProgress] = useState<{ totalGems: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [today, setToday] = useState<string>('');
@@ -32,6 +26,11 @@ export default function DailyChallengePage() {
       try {
         setLoading(true);
         setError(null);
+
+        // Wait for user context to finish loading
+        if (userLoading) {
+          return;
+        }
 
         if (!username || username === 'anonymous') {
           setError('User not logged in');
@@ -92,11 +91,6 @@ export default function DailyChallengePage() {
         };
 
         setDailyChallenge(dailyChallenge);
-
-        // Set user progress
-        setUserProgress({
-          totalGems: getEarnedGemsForDate(updatedDailyData.date),
-        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch daily challenges');
         console.error('Error fetching daily challenges:', err);
@@ -106,7 +100,7 @@ export default function DailyChallengePage() {
     };
 
     void fetchDailyChallenges();
-  }, [username]);
+  }, [username, userLoading]);
 
   const handleChallengeClick = (challenge: ChallengeLevel) => {
     if (challenge.isLocked) {
@@ -156,7 +150,7 @@ export default function DailyChallengePage() {
     router.goto('home');
   };
 
-  if (loading) {
+  if (loading || userLoading) {
     return <FullScreenLoader isLoading={true} variant="challenge" message="Loading challenges" />;
   }
 
