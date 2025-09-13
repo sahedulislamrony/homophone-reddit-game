@@ -19,6 +19,7 @@ import { UserStats } from '@shared/types/stats';
 import NavigationBar from '@client/components/basic/Navigation';
 import { FullScreenLoader } from '@client/components';
 import { userApi } from '@client/utils/api';
+import { TimeService } from '@client/services/TimeService';
 
 export default function StatsPage() {
   const router = useRouter();
@@ -60,7 +61,9 @@ export default function StatsPage() {
           averageScore: statsResponse.averageScore,
           hintsUsed: statsResponse.totalHintsUsed,
           accuracy: 0, // Calculate from available data if needed
-          joinDate: userDataResponse.userData?.createdAt || new Date().toISOString(), // Use actual creation date
+          joinDate:
+            userDataResponse.userData?.createdAt ||
+            (await TimeService.getServerTime().then((d) => d.toISOString())), // Use actual creation date
           lastPlayed:
             userDataResponse.userData?.lastPlayedDate || statsResponse.lastPlayedDate || '',
           achievements: [], // Placeholder - achievements would need separate implementation
@@ -160,15 +163,13 @@ export default function StatsPage() {
         <div className="p-6">
           <div className="max-w-6xl mx-auto">
             <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
-
-            {/* Header */}
+            {/* Header
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-white mb-2">Your Statistics</h1>
               <p className="text-gray-400">
                 Track your progress and achievements in The Daily Homophone
               </p>
-            </div>
-
+            </div> */}
             {/* Gems Section - Prominent Display */}
             <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 backdrop-blur-sm rounded-2xl border border-yellow-400/30 p-8 mb-8">
               <div className="flex items-center justify-between">
@@ -188,7 +189,6 @@ export default function StatsPage() {
                 </button>
               </div>
             </div>
-
             {/* Main Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {/* Current Streak */}
@@ -253,7 +253,6 @@ export default function StatsPage() {
                 </div>
               </div>
             </div>
-
             {/* Detailed Stats Section */}
             <div className="grid lg:grid-cols-2 gap-8 mb-10">
               {/* Performance Overview */}
@@ -350,7 +349,6 @@ export default function StatsPage() {
                 </div>
               </div>
             </div>
-
             {/* Quick Actions */}
             <div className="text-center">
               <div className="flex flex-wrap justify-center gap-4">

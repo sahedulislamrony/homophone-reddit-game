@@ -1,5 +1,6 @@
 import { GameData } from '@shared/types/game';
 import { dailyData } from './dailyData';
+import { TimeService } from '@client/services/TimeService';
 
 export const gameData: GameData = {
   dailyData: dailyData,
@@ -14,8 +15,8 @@ export const getDailyData = (date: string) => {
   return gameData.dailyData.find((daily) => daily.date === date) || null;
 };
 
-export const getTodayData = () => {
-  const today = new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+export const getTodayData = async () => {
+  const today = await TimeService.getToday();
   return getDailyData(today);
 };
 
@@ -30,8 +31,8 @@ export const getAllDates = (): string[] => {
   return gameData.dailyData.map((daily) => daily.date);
 };
 
-export const getWeekData = () => {
-  const today = new Date();
+export const getWeekData = async () => {
+  const today = await TimeService.getServerTime();
   const weekData = [];
 
   for (let i = 0; i < 7; i++) {

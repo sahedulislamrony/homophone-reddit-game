@@ -61,7 +61,9 @@ export default function LeaderboardPage() {
         // Handle today's leaderboard
         if (todayResponse.status === 'fulfilled') {
           console.log('Daily leaderboard response:', todayResponse.value);
-          setTodayData(todayResponse.value.entries);
+          console.log('Daily leaderboard entries:', todayResponse.value.entries);
+          console.log('Daily leaderboard entries length:', todayResponse.value.entries?.length);
+          setTodayData(todayResponse.value.entries || []);
         } else {
           console.error('Failed to fetch daily leaderboard:', todayResponse.reason);
           setTodayData([]);
@@ -70,7 +72,8 @@ export default function LeaderboardPage() {
         // Handle all-time leaderboard
         if (allTimeResponse.status === 'fulfilled') {
           console.log('All-time leaderboard response:', allTimeResponse.value);
-          setAllTimeData(allTimeResponse.value);
+          console.log('All-time leaderboard length:', allTimeResponse.value?.length);
+          setAllTimeData(allTimeResponse.value || []);
           setAllTimeLoaded(true);
         } else {
           console.error('Failed to fetch all-time leaderboard:', allTimeResponse.reason);

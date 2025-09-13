@@ -79,10 +79,27 @@ export class RedisService {
   ): Promise<void> {
     const userData = await this.getUserData(username);
     if (userData) {
+      const today = getServerDate();
+
+      // Check if it's a new day and reset daily points if needed
+      if (userData.lastPlayedDate !== today) {
+        console.log(
+          `updateUserPoints: New day detected (${userData.lastPlayedDate} -> ${today}), resetting daily points from ${userData.dailyPoints} to 0`
+        );
+        userData.dailyPoints = 0;
+        userData.lastPlayedDate = today;
+      }
+
+      console.log(
+        `updateUserPoints: Before - totalPoints: ${userData.totalPoints}, dailyPoints: ${userData.dailyPoints}, adding: ${points}, isDaily: ${isDaily}`
+      );
       userData.totalPoints += points;
       if (isDaily) {
         userData.dailyPoints += points;
       }
+      console.log(
+        `updateUserPoints: After - totalPoints: ${userData.totalPoints}, dailyPoints: ${userData.dailyPoints}`
+      );
       await this.setUserData(userData);
     }
   }
@@ -91,6 +108,19 @@ export class RedisService {
     const userData = await this.getUserData(username);
     if (userData) {
       userData.currentStreak = streak;
+      userData.lastPlayedDate = getServerDate();
+      await this.setUserData(userData);
+    }
+  }
+
+  // Reset daily points for a user (useful for testing or fixing data)
+  async resetDailyPoints(username: string): Promise<void> {
+    const userData = await this.getUserData(username);
+    if (userData) {
+      console.log(
+        `resetDailyPoints: Resetting daily points for ${username} from ${userData.dailyPoints} to 0`
+      );
+      userData.dailyPoints = 0;
       userData.lastPlayedDate = getServerDate();
       await this.setUserData(userData);
     }
@@ -130,18 +160,8 @@ export class RedisService {
       }
     }
 
-    // Update daily points (accumulate if user has played before today)
-    const dailyPointsKey = REDIS_KEYS.DAILY_POINTS(gameResult.username, gameResult.date);
-    const existingDailyPoints = await redis.get(dailyPointsKey);
-    const currentDailyPoints = existingDailyPoints ? parseInt(existingDailyPoints) : 0;
-    const newDailyPoints = currentDailyPoints + gameResult.score;
-    await redis.set(dailyPointsKey, newDailyPoints.toString());
-
-    // Note: Leaderboard updates are now handled by the addPoints method in UserService
+    // Note: Daily points and leaderboard updates are now handled by the addPoints method in UserService
     // to avoid duplicate updates and race conditions
-
-    // Update user's total points and stats
-    await this.updateUserPoints(gameResult.username, gameResult.score, true);
 
     // Note: Gem updates are handled by GameService to avoid double counting
     // Gems are added/spent in GameService.saveGameResult method
@@ -246,27 +266,51 @@ export class RedisService {
     isDaily: boolean = false
   ): Promise<void> {
     const date = getServerDate();
+    console.log(
+      `updateLeaderboard: username=${username}, points=${points}, isDaily=${isDaily}, date=${date}`
+    );
 
     if (isDaily) {
-      // For daily leaderboard, get the current daily points and update with that
-      const dailyPointsKey = REDIS_KEYS.DAILY_POINTS(username, date);
-      const currentDailyPoints = await redis.get(dailyPointsKey);
-      const dailyPoints = currentDailyPoints ? parseInt(currentDailyPoints) : 0;
+      // For daily leaderboard, get the current daily points from user data
+      // This ensures we use the most up-to-date daily points
+      const userData = await this.getUserData(username);
+      const dailyPoints = userData ? userData.dailyPoints : 0;
+      const dailyKey = REDIS_KEYS.DAILY_LEADERBOARD(date);
 
-      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(date), {
+      console.log(
+        `updateLeaderboard: Updating daily leaderboard - key=${dailyKey}, dailyPoints=${dailyPoints}`
+      );
+
+      await redis.zAdd(dailyKey, {
         member: username,
         score: dailyPoints,
       });
+
+      // Verify the update
+      const verifyScore = await redis.zScore(dailyKey, username);
+      console.log(`updateLeaderboard: Verified daily score for ${username}: ${verifyScore}`);
     }
 
     // Always update all-time leaderboard (this should accumulate)
     // Get current score and add new points
     const currentScore = await redis.zScore(REDIS_KEYS.ALL_TIME_LEADERBOARD, username);
     const newScore = (currentScore || 0) + points;
-    await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
+    const allTimeKey = REDIS_KEYS.ALL_TIME_LEADERBOARD;
+
+    console.log(
+      `updateLeaderboard: Updating all-time leaderboard - key=${allTimeKey}, currentScore=${currentScore}, newScore=${newScore}`
+    );
+
+    await redis.zAdd(allTimeKey, {
       member: username,
       score: newScore,
     });
+
+    // Verify the update
+    const verifyAllTimeScore = await redis.zScore(allTimeKey, username);
+    console.log(
+      `updateLeaderboard: Verified all-time score for ${username}: ${verifyAllTimeScore}`
+    );
   }
 
   async getDailyLeaderboard(date: string, limit: number = 100): Promise<LeaderboardEntry[]> {
@@ -292,9 +336,8 @@ export class RedisService {
       if (totalCount === 0) return [];
 
       // Get entries in descending order by score
-      const entries = await redis.zRange(key, 0, limit - 1, {
-        by: 'score',
-      });
+      // Use zRange with negative indices to get highest scores first
+      const entries = await redis.zRange(key, -limit, -1);
       // Reverse to get descending order since zRange returns ascending by default
       entries.reverse();
       const leaderboard: LeaderboardEntry[] = [];
@@ -303,6 +346,14 @@ export class RedisService {
       entries.forEach((entry, index) => {
         console.log(`  ${index + 1}. ${entry.member}: ${entry.score} points`);
       });
+
+      // Debug: Check if the key exists and has data
+      const debugKeyExists = await redis.exists(key);
+      const debugKeyType = await redis.type(key);
+      const debugKeyCard = await redis.zCard(key);
+      console.log(
+        `Debug - Key exists: ${debugKeyExists}, type: ${debugKeyType}, card count: ${debugKeyCard}`
+      );
 
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
@@ -377,9 +428,8 @@ export class RedisService {
       if (totalCount === 0) return [];
 
       // Get entries in descending order by score
-      const entries = await redis.zRange(key, 0, limit - 1, {
-        by: 'score',
-      });
+      // Use zRange with negative indices to get highest scores first
+      const entries = await redis.zRange(key, -limit, -1);
       // Reverse to get descending order since zRange returns ascending by default
       entries.reverse();
       const leaderboard: LeaderboardEntry[] = [];

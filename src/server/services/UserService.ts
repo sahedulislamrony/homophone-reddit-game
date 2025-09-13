@@ -1,4 +1,5 @@
 import { RedisService } from './RedisService';
+import { getServerTime } from '../utils/timeUtils';
 import { UserData, UserStats, GameTransaction } from '@shared/types/server';
 import { isAdmin } from '../config/admins';
 
@@ -50,7 +51,7 @@ export class UserService {
       amount,
       reason,
       gameId: gameId || '',
-      timestamp: new Date().toISOString(),
+      timestamp: getServerTime(),
     });
 
     return newGems;
@@ -73,7 +74,7 @@ export class UserService {
         amount,
         reason,
         gameId: gameId || '',
-        timestamp: new Date().toISOString(),
+        timestamp: getServerTime(),
       });
     }
 
@@ -92,9 +93,14 @@ export class UserService {
     isDaily: boolean = false,
     gameId?: string
   ): Promise<void> {
+    console.log(
+      `UserService.addPoints: username=${username}, points=${points}, isDaily=${isDaily}, reason=${reason}`
+    );
+
     await this.redis.updateUserPoints(username, points, isDaily);
 
     // Update leaderboard
+    console.log(`UserService.addPoints: Calling updateLeaderboard for ${username}`);
     await this.redis.updateLeaderboard(username, points, isDaily);
 
     // Log transaction
@@ -105,7 +111,7 @@ export class UserService {
       amount: points,
       reason,
       gameId: gameId || '',
-      timestamp: new Date().toISOString(),
+      timestamp: getServerTime(),
     });
   }
 

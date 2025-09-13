@@ -205,19 +205,6 @@ export default function DailyChallengePage() {
                 : 'Loading...'}
             </span>
           </div>
-
-          <div className="flex items-center justify-center gap-6 text-sm text-gray-300">
-            <div className="flex items-center gap-1">
-              <Gem className="w-4 h-4 text-yellow-400" />
-              <span>{userProgress?.totalGems || 0} Gems</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Trophy className="w-4 h-4 text-orange-400" />
-              <span>
-                {dailyChallenge.completedLevels}/{dailyChallenge.levels.length} Complete
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 

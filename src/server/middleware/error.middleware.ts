@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { getServerTime } from '../utils/timeUtils';
 
 /**
  * Global error handler middleware
@@ -40,7 +41,7 @@ export const notFoundHandler = (req: Request, res: Response, _next: NextFunction
  * Request logging middleware
  */
 export const requestLogger = (req: Request, _res: Response, next: NextFunction): void => {
-  const timestamp = new Date().toISOString();
+  const timestamp = getServerTime();
   console.log(`[${timestamp}] ${req.method} ${req.path}`);
   next();
 };

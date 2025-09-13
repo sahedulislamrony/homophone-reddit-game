@@ -3,7 +3,12 @@ import { RedisService } from './RedisService';
 import { UserService } from './UserService';
 import { GameResult } from '@shared/types/server';
 import { v4 as uuidv4 } from 'uuid';
-import { getServerDate } from '../utils/timeUtils';
+import {
+  getServerDate,
+  getServerTime,
+  getServerDateObject,
+  formatToDateString,
+} from '../utils/timeUtils';
 
 export class GameService {
   private redis: RedisService;
@@ -34,8 +39,7 @@ export class GameService {
     }
 
     const gameId = uuidv4();
-    const date =
-      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+    const date = getServerDate();
 
     // Calculate gems earned from theme only
     const gemsEarned = gameData.gemsEarn;
@@ -54,7 +58,7 @@ export class GameService {
       freeHintsUsed: gameData.freeHintsUsed,
       gemsSpent: gameData.gemsSpent,
       gemsEarned,
-      completedAt: new Date().toISOString(),
+      completedAt: getServerTime(),
       timeSpent: gameData.timeSpent,
       difficulty: gameData.difficulty,
       themeName: gameData.themeName,
@@ -67,6 +71,9 @@ export class GameService {
     await this.redis.updateUserStats(username, gameResult);
 
     // Add points to user
+    console.log(
+      `GameService.saveGameResult: Adding ${gameData.score} points to user ${username} (daily: true)`
+    );
     await this.userService.addPoints(
       username,
       gameData.score,
@@ -74,6 +81,7 @@ export class GameService {
       true, // Daily points
       gameId
     );
+    console.log(`GameService.saveGameResult: Points added successfully for ${username}`);
 
     // Add gems if earned
     if (gemsEarned > 0) {
@@ -154,8 +162,7 @@ export class GameService {
       };
     }
 
-    const date =
-      new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+    const date = getServerDate();
     const hasPlayedToday = await this.redis.getUserGamesByDate(username, date);
     const hasPlayedThisChallenge = hasPlayedToday.some((game) => game.challengeId === challengeId);
 
@@ -266,9 +273,9 @@ export class GameService {
 
     // Initialize last 30 days
     for (let i = 0; i < days; i++) {
-      const date = new Date();
+      const date = getServerDateObject();
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0] || date.toISOString().substring(0, 10);
+      const dateStr = formatToDateString(date);
       performanceData[dateStr] = {
         date: dateStr,
         gamesPlayed: 0,

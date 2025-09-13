@@ -1,4 +1,10 @@
 import { RedisService } from './RedisService';
+import {
+  getServerDate,
+  getServerTime,
+  getServerDateObject,
+  formatToDateString,
+} from '../utils/timeUtils';
 import { LeaderboardEntry, DailyLeaderboard } from '@shared/types/server';
 
 export class LeaderboardService {
@@ -10,14 +16,14 @@ export class LeaderboardService {
 
   // Daily leaderboard
   async getDailyLeaderboard(date?: string, limit: number = 100): Promise<DailyLeaderboard> {
-    const targetDate = date || new Date().toISOString().split('T')[0] || '';
+    const targetDate = date || getServerDate();
     const entries = await this.redis.getDailyLeaderboard(targetDate, limit);
 
     return {
       date: targetDate,
       entries,
       totalPlayers: entries.length,
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: getServerTime(),
     };
   }
 
@@ -64,13 +70,13 @@ export class LeaderboardService {
   // Weekly leaderboard (last 7 days)
   async getWeeklyLeaderboard(limit: number = 100): Promise<LeaderboardEntry[]> {
     const weeklyData: { [username: string]: LeaderboardEntry } = {};
-    const today = new Date();
+    const today = getServerDateObject();
 
     // Get data for last 7 days
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0] || '';
+      const dateStr = formatToDateString(date);
 
       const dailyEntries = await this.redis.getDailyLeaderboard(dateStr, 1000);
 
@@ -110,14 +116,14 @@ export class LeaderboardService {
   // Monthly leaderboard (current month)
   async getMonthlyLeaderboard(limit: number = 100): Promise<LeaderboardEntry[]> {
     const monthlyData: { [username: string]: LeaderboardEntry } = {};
-    const today = new Date();
+    const today = getServerDateObject();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
 
     // Get data for current month
     for (let day = 1; day <= today.getDate(); day++) {
       const date = new Date(currentYear, currentMonth, day);
-      const dateStr = date.toISOString().split('T')[0] || '';
+      const dateStr = formatToDateString(date);
 
       const dailyEntries = await this.redis.getDailyLeaderboard(dateStr, 1000);
 

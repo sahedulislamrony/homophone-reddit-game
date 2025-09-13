@@ -4,6 +4,7 @@ import {
   UserProgress,
   GemTransaction,
 } from '@shared/types/challenge';
+import { TimeService } from '@client/services/TimeService';
 import { GameObject } from '@shared/types/game';
 import { getChallengesForDate } from './dailyChallengesData';
 
@@ -25,40 +26,44 @@ export class DailyChallengeManager {
   }
 
   // Generate daily challenges for a specific date
-  generateDailyChallenges(date: string): DailyChallenge {
+  async generateDailyChallenges(date: string): Promise<DailyChallenge> {
     // Try to get challenges from raw data first
     const rawData = getChallengesForDate(date);
 
     if (rawData) {
       // Use raw data if available
-      const levels: ChallengeLevel[] = rawData.challenges.map((challenge, index) => {
-        // Check if already completed
-        const isCompleted = this.userProgress.completedChallenges.includes(challenge.id);
-        const isLocked =
-          index > 0 &&
-          !!this.userProgress?.completedChallenges &&
-          !this.userProgress.completedChallenges.includes(rawData.challenges[index - 1]?.id || '');
+      const levels: ChallengeLevel[] = await Promise.all(
+        rawData.challenges.map(async (challenge, index) => {
+          // Check if already completed
+          const isCompleted = this.userProgress.completedChallenges.includes(challenge.id);
+          const isLocked =
+            index > 0 &&
+            !!this.userProgress?.completedChallenges &&
+            !this.userProgress.completedChallenges.includes(
+              rawData.challenges[index - 1]?.id || ''
+            );
 
-        const challengeLevel: ChallengeLevel = {
-          id: challenge.id,
-          themeName: challenge.themeName,
-          content: challenge.content,
-          correctWords: challenge.correctWords,
-          themeBgImage: challenge.themeBgImage,
-          hints: challenge.hints || [], // Add hints with fallback to empty array
-          difficulty: challenge.difficulty,
-          gemReward: challenge.gemReward,
-          isLocked,
-          isCompleted,
-        };
+          const challengeLevel: ChallengeLevel = {
+            id: challenge.id,
+            themeName: challenge.themeName,
+            content: challenge.content,
+            correctWords: challenge.correctWords,
+            themeBgImage: challenge.themeBgImage,
+            hints: challenge.hints || [], // Add hints with fallback to empty array
+            difficulty: challenge.difficulty,
+            gemReward: challenge.gemReward,
+            isLocked,
+            isCompleted,
+          };
 
-        if (isCompleted) {
-          challengeLevel.completedAt = this.getCompletionDate(challenge.id);
-          challengeLevel.score = this.getCompletionScore(challenge.id);
-        }
+          if (isCompleted) {
+            challengeLevel.completedAt = await this.getCompletionDate(challenge.id);
+            challengeLevel.score = this.getCompletionScore(challenge.id);
+          }
 
-        return challengeLevel;
-      });
+          return challengeLevel;
+        })
+      );
 
       const completedLevels = levels.filter((level) => level.isCompleted).length;
       const totalGems = levels.reduce(
@@ -76,11 +81,11 @@ export class DailyChallengeManager {
     }
 
     // Fallback to generated challenges if no raw data available
-    return this.generateFallbackChallenges(date);
+    return await this.generateFallbackChallenges(date);
   }
 
   // Fallback method for generating challenges when no raw data is available
-  private generateFallbackChallenges(date: string): DailyChallenge {
+  private async generateFallbackChallenges(date: string): Promise<DailyChallenge> {
     const themes = [
       'Harry Potter',
       'Space Adventure',
@@ -93,42 +98,43 @@ export class DailyChallengeManager {
     ];
 
     const difficulties: Array<'easy' | 'medium' | 'hard'> = ['easy', 'medium', 'hard'];
-    const levels: ChallengeLevel[] = [];
 
     // Generate 8 challenges (one for each theme)
-    themes.forEach((theme, index) => {
-      const difficulty = difficulties[index % 3] || 'easy';
-      const challengeId = `${date}-${theme.toLowerCase().replace(/\s+/g, '-')}`;
+    const levels = await Promise.all(
+      themes.map(async (theme, index) => {
+        const difficulty = difficulties[index % 3] || 'easy';
+        const challengeId = `${date}-${theme.toLowerCase().replace(/\s+/g, '-')}`;
 
-      // Check if already completed
-      const isCompleted = this.userProgress.completedChallenges.includes(challengeId);
-      const isLocked =
-        index > 0 &&
-        !!this.userProgress?.completedChallenges &&
-        !this.userProgress.completedChallenges.includes(
-          `${date}-${themes[index - 1]?.toLowerCase().replace(/\s+/g, '-') || ''}`
-        );
+        // Check if already completed
+        const isCompleted = this.userProgress.completedChallenges.includes(challengeId);
+        const isLocked =
+          index > 0 &&
+          !!this.userProgress?.completedChallenges &&
+          !this.userProgress.completedChallenges.includes(
+            `${date}-${themes[index - 1]?.toLowerCase().replace(/\s+/g, '-') || ''}`
+          );
 
-      const challengeLevel: ChallengeLevel = {
-        id: challengeId,
-        themeName: theme,
-        content: this.generateContentForTheme(theme),
-        correctWords: this.generateCorrectWordsForTheme(theme),
-        themeBgImage: this.getThemeImage(theme),
-        hints: this.generateHintsForTheme(theme), // Generate hints for the theme
-        difficulty,
-        gemReward: this.getGemReward(difficulty),
-        isLocked,
-        isCompleted,
-      };
+        const challengeLevel: ChallengeLevel = {
+          id: challengeId,
+          themeName: theme,
+          content: this.generateContentForTheme(theme),
+          correctWords: this.generateCorrectWordsForTheme(theme),
+          themeBgImage: this.getThemeImage(theme),
+          hints: this.generateHintsForTheme(theme), // Generate hints for the theme
+          difficulty,
+          gemReward: this.getGemReward(difficulty),
+          isLocked,
+          isCompleted,
+        };
 
-      if (isCompleted) {
-        challengeLevel.completedAt = this.getCompletionDate(challengeId);
-        challengeLevel.score = this.getCompletionScore(challengeId);
-      }
+        if (isCompleted) {
+          challengeLevel.completedAt = await this.getCompletionDate(challengeId);
+          challengeLevel.score = this.getCompletionScore(challengeId);
+        }
 
-      levels.push(challengeLevel);
-    });
+        return challengeLevel;
+      })
+    );
 
     const completedLevels = levels.filter((level) => level.isCompleted).length;
     const totalGems = levels.reduce(
@@ -146,21 +152,21 @@ export class DailyChallengeManager {
   }
 
   // Get today's challenges
-  getTodaysChallenges(): DailyChallenge {
-    const today = new Date().toISOString().split('T')[0]!;
-    return this.generateDailyChallenges(today);
+  async getTodaysChallenges(): Promise<DailyChallenge> {
+    const today = await TimeService.getToday();
+    return await this.generateDailyChallenges(today);
   }
 
   // Complete a challenge
-  completeChallenge(challengeId: string, score: number): boolean {
-    const challenge = this.findChallengeById(challengeId);
+  async completeChallenge(challengeId: string, score: number): Promise<boolean> {
+    const challenge = await this.findChallengeById(challengeId);
     if (!challenge || challenge.isLocked || challenge.isCompleted) {
       return false;
     }
 
     // Mark as completed
     challenge.isCompleted = true;
-    challenge.completedAt = new Date().toISOString();
+    challenge.completedAt = await TimeService.getServerTime().then((d) => d.toISOString());
     challenge.score = score;
 
     // Add to completed challenges
@@ -169,13 +175,17 @@ export class DailyChallengeManager {
     }
 
     // Award gems
-    this.awardGems(challenge.gemReward, `Completed ${challenge.themeName} challenge`, challengeId);
+    await this.awardGems(
+      challenge.gemReward,
+      `Completed ${challenge.themeName} challenge`,
+      challengeId
+    );
 
     // Unlock next challenge
-    this.unlockNextChallenge(challengeId);
+    await this.unlockNextChallenge(challengeId);
 
     // Update streak
-    this.updateStreak();
+    await this.updateStreak();
 
     this.saveUserProgress();
     this.saveGemTransactions();
@@ -199,7 +209,7 @@ export class DailyChallengeManager {
   }
 
   // Award gems
-  awardGems(amount: number, reason: string, challengeId?: string): void {
+  async awardGems(amount: number, reason: string, challengeId?: string): Promise<void> {
     this.userProgress.totalGems += amount;
 
     const transaction: GemTransaction = {
@@ -207,7 +217,7 @@ export class DailyChallengeManager {
       type: 'earned',
       amount,
       reason,
-      timestamp: new Date().toISOString(),
+      timestamp: await TimeService.getServerTime().then((d) => d.toISOString()),
       ...(challengeId && { challengeId }),
     };
 
@@ -215,7 +225,7 @@ export class DailyChallengeManager {
   }
 
   // Spend gems
-  spendGems(amount: number, reason: string): boolean {
+  async spendGems(amount: number, reason: string): Promise<boolean> {
     if (this.userProgress.totalGems < amount) {
       return false;
     }
@@ -227,7 +237,7 @@ export class DailyChallengeManager {
       type: 'spent',
       amount,
       reason,
-      timestamp: new Date().toISOString(),
+      timestamp: await TimeService.getServerTime().then((d) => d.toISOString()),
     };
 
     this.gemTransactions.push(transaction);
@@ -245,6 +255,9 @@ export class DailyChallengeManager {
       correctWords: challenge.correctWords,
       themeBgImage: challenge.themeBgImage,
       hints: challenge.hints || [], // Add hints array, fallback to empty array
+      initialPoints: 10, // Default points
+      difficulty: challenge.difficulty,
+      gemsEarn: challenge.gemReward,
     };
   }
 
@@ -289,15 +302,15 @@ export class DailyChallengeManager {
     localStorage.setItem('gemTransactions', JSON.stringify(this.gemTransactions));
   }
 
-  private findChallengeById(challengeId: string): ChallengeLevel | null {
-    const today = new Date().toISOString().split('T')[0]!;
-    const challenges = this.generateDailyChallenges(today);
+  private async findChallengeById(challengeId: string): Promise<ChallengeLevel | null> {
+    const today = await TimeService.getToday();
+    const challenges = await this.generateDailyChallenges(today);
     return challenges.levels.find((level) => level.id === challengeId) || null;
   }
 
-  private unlockNextChallenge(completedChallengeId: string): void {
-    const today = new Date().toISOString().split('T')[0]!;
-    const challenges = this.generateDailyChallenges(today);
+  private async unlockNextChallenge(completedChallengeId: string): Promise<void> {
+    const today = await TimeService.getToday();
+    const challenges = await this.generateDailyChallenges(today);
     const completedIndex = challenges.levels.findIndex(
       (level) => level.id === completedChallengeId
     );
@@ -310,9 +323,9 @@ export class DailyChallengeManager {
     }
   }
 
-  private updateStreak(): void {
-    const today = new Date().toISOString().split('T')[0]!;
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]!;
+  private async updateStreak(): Promise<void> {
+    const today = await TimeService.getToday();
+    const yesterday = await TimeService.getYesterday();
 
     if (this.userProgress.lastPlayedDate === yesterday) {
       this.userProgress.currentStreak++;
@@ -479,9 +492,9 @@ export class DailyChallengeManager {
     );
   }
 
-  private getCompletionDate(_challengeId: string): string {
+  private async getCompletionDate(_challengeId: string): Promise<string> {
     // This would be stored in a more sophisticated system
-    return new Date().toISOString();
+    return await TimeService.getServerTime().then((d) => d.toISOString());
   }
 
   private getCompletionScore(_challengeId: string): number {

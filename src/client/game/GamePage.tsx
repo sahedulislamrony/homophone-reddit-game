@@ -13,6 +13,7 @@ import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
 import { dataSync } from '@client/services/DataSyncService';
 import { FullScreenLoader } from '@client/components';
+import { TimeService } from '@client/services/TimeService';
 
 export default function GamePage() {
   const router = useRouter();
@@ -40,8 +41,7 @@ export default function GamePage() {
         let game: GameObject;
         if (challengeIdParam) {
           // Load challenge-specific game from static data
-          const today =
-            new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
+          const today = await TimeService.getToday();
           const themeData = getThemeData(today, challengeIdParam);
 
           if (themeData) {
