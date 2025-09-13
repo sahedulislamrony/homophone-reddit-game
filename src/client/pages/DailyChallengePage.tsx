@@ -180,7 +180,7 @@ export default function DailyChallengePage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-black pb-10">
+    <div className="w-full min-h-screen bg-black pb-4">
       {/* Header */}
       <div className="relative z-10 p-6">
         <NavigationBar title="Daily Challenges" onBack={handleBackToHome} />
