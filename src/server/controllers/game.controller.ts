@@ -60,6 +60,27 @@ export const submitGameResult = async (req: Request, res: Response): Promise<voi
 };
 
 /**
+ * Update game result comment status
+ */
+export const updateGameResultCommentStatus = async (req: Request, res: Response): Promise<void> => {
+  const { gameId } = req.params;
+  const { isCommented } = req.body;
+
+  if (!gameId || typeof isCommented !== 'boolean') {
+    res.status(400).json({ error: 'Missing required fields' });
+    return;
+  }
+
+  try {
+    await redisService.updateGameResultCommentStatus(gameId, isCommented);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating comment status:', error);
+    res.status(500).json({ error: 'Failed to update comment status' });
+  }
+};
+
+/**
  * Get game result
  */
 export const getGameResult = async (req: Request, res: Response): Promise<void> => {

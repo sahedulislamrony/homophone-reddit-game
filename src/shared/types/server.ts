@@ -28,6 +28,7 @@ export type GameResult = {
   timeSpent: number; // in seconds
   difficulty: 'easy' | 'medium' | 'hard';
   themeName: string;
+  isResultCommented: boolean;
 };
 
 export type LeaderboardEntry = {

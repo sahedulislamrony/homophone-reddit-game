@@ -734,5 +734,38 @@ export class RedisService {
     }
   }
 
+  // Comment tracking methods
+  async hasCommented(commentKey: string): Promise<boolean> {
+    try {
+      const result = await redis.get(commentKey);
+      return result !== null;
+    } catch (error) {
+      console.error('Error checking comment status:', error);
+      return false;
+    }
+  }
+
+  async markAsCommented(commentKey: string): Promise<void> {
+    try {
+      // Store permanently (no expiration)
+      await redis.set(commentKey, 'true');
+    } catch (error) {
+      console.error('Error marking comment as posted:', error);
+    }
+  }
+
+  // Update game result comment status
+  async updateGameResultCommentStatus(gameId: string, isCommented: boolean): Promise<void> {
+    try {
+      const gameResult = await this.getGameResult(gameId);
+      if (gameResult) {
+        gameResult.isResultCommented = isCommented;
+        await redis.set(REDIS_KEYS.GAME_RESULT(gameId), JSON.stringify(gameResult));
+      }
+    } catch (error) {
+      console.error('Error updating game result comment status:', error);
+    }
+  }
+
   // Note: No close method needed as Redis is managed by Devvit
 }

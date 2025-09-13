@@ -62,6 +62,7 @@ export class GameService {
       timeSpent: gameData.timeSpent,
       difficulty: gameData.difficulty,
       themeName: gameData.themeName,
+      isResultCommented: false,
     };
 
     // Save game result

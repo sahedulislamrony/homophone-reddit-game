@@ -26,6 +26,16 @@ export const submitGameResultComment = async (req: Request, res: Response): Prom
       return;
     }
 
+    // Check if user has already commented on this challenge
+    if (gameResult.isResultCommented) {
+      res.status(400).json({
+        status: 'error',
+        message: 'You have already commented on this challenge result',
+        alreadyCommented: true,
+      });
+      return;
+    }
+
     // Format the comment text with game result data
     const getScoreEmoji = (score: number) => {
       if (score >= 90) return '🌟';
@@ -97,6 +107,9 @@ ${
       text: commentText,
       runAs: 'USER',
     });
+
+    // Update the game result to mark as commented
+    // Note: This will be handled by the client-side API call
 
     res.json({
       status: 'success',

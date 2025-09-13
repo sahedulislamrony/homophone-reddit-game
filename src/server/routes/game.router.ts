@@ -11,6 +11,7 @@ import {
   getGameStats,
   getPerformanceData,
   getChallengeHistory,
+  updateGameResultCommentStatus,
 } from '../controllers/game.controller';
 
 const router = Router();
@@ -44,5 +45,8 @@ router.get('/performance/:username', asyncHandler(getPerformanceData));
 
 // Get challenge history
 router.get('/challenge/:username/:challengeId', asyncHandler(getChallengeHistory));
+
+// Update game result comment status
+router.patch('/:gameId/comment-status', asyncHandler(updateGameResultCommentStatus));
 
 export default router;

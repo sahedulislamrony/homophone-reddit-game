@@ -87,6 +87,21 @@ export default function GameResultPage() {
 
       if (result.status === 'success') {
         setShowSuccessPopup(true);
+        // Update the game result to mark as commented
+        if (gameResult) {
+          setGameResult({ ...gameResult, isResultCommented: true });
+          // Also update on the server
+          await fetch(`/api/games/${gameResult.id}/comment-status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isCommented: true }),
+          });
+        }
+      } else if (result.alreadyCommented) {
+        // User has already commented, update the game result
+        if (gameResult) {
+          setGameResult({ ...gameResult, isResultCommented: true });
+        }
       }
     } catch (error) {
       // Silent fail - could add error popup if needed
@@ -263,17 +278,24 @@ export default function GameResultPage() {
         <div className="mb-10 mt-8">
           <button
             onClick={handleCommentResult}
-            disabled={isCommenting}
+            disabled={isCommenting || gameResult?.isResultCommented}
             className={`w-full flex items-center justify-center gap-3 px-8 py-4 font-bold rounded-xl transition-all duration-300 transform ${
               isCommenting
                 ? 'bg-gray-400 text-gray-600 cursor-not-allowed scale-95'
-                : 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-black hover:from-yellow-500 hover:to-yellow-400 hover:-translate-y-1 shadow-lg shadow-yellow-500/30 hover:shadow-xl hover:shadow-yellow-500/40'
+                : gameResult?.isResultCommented
+                  ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-black hover:from-yellow-500 hover:to-yellow-400 hover:-translate-y-1 shadow-lg shadow-yellow-500/30 hover:shadow-xl hover:shadow-yellow-500/40'
             }`}
           >
             {isCommenting ? (
               <>
                 <Loader2 className="w-6 h-6 animate-spin" />
                 Posting Comment...
+              </>
+            ) : gameResult?.isResultCommented ? (
+              <>
+                <MessageCircle className="w-6 h-6" />
+                Comment Posted ✓
               </>
             ) : (
               <>
