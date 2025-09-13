@@ -137,64 +137,8 @@ export class RedisService {
     const newDailyPoints = currentDailyPoints + gameResult.score;
     await redis.set(dailyPointsKey, newDailyPoints.toString());
 
-    // Update daily leaderboard with accumulated daily points
-    const dailyKey = REDIS_KEYS.DAILY_LEADERBOARD(gameResult.date);
-    console.log(`Updating daily leaderboard: ${dailyKey} with ${newDailyPoints} points`);
-    const dailyKeyExists = await redis.exists(dailyKey);
-    if (dailyKeyExists === 0) {
-      // Create new sorted set
-      await redis.zAdd(dailyKey, {
-        member: gameResult.username,
-        score: newDailyPoints,
-      });
-    } else {
-      // Check if it's a sorted set
-      const dailyKeyType = await redis.type(dailyKey);
-      if (dailyKeyType === 'zset') {
-        // Use zAdd to replace the score (not add to it)
-        await redis.zAdd(dailyKey, {
-          member: gameResult.username,
-          score: newDailyPoints,
-        });
-      } else {
-        console.log(
-          `Converting daily leaderboard key from ${dailyKeyType} to zset for ${gameResult.date}`
-        );
-        await redis.del(dailyKey);
-        await redis.zAdd(dailyKey, {
-          member: gameResult.username,
-          score: newDailyPoints,
-        });
-      }
-    }
-
-    // Update all-time leaderboard
-    const allTimeKey = REDIS_KEYS.ALL_TIME_LEADERBOARD;
-    console.log(`Updating all-time leaderboard: ${allTimeKey}`);
-    const allTimeKeyExists = await redis.exists(allTimeKey);
-    if (allTimeKeyExists === 0) {
-      // Create new sorted set
-      await redis.zAdd(allTimeKey, {
-        member: gameResult.username,
-        score: gameResult.score,
-      });
-    } else {
-      // Check if it's a sorted set
-      const allTimeKeyType = await redis.type(allTimeKey);
-      if (allTimeKeyType === 'zset') {
-        await redis.zAdd(allTimeKey, {
-          member: gameResult.username,
-          score: gameResult.score,
-        });
-      } else {
-        console.log(`Converting all-time leaderboard key from ${allTimeKeyType} to zset`);
-        await redis.del(allTimeKey);
-        await redis.zAdd(allTimeKey, {
-          member: gameResult.username,
-          score: gameResult.score,
-        });
-      }
-    }
+    // Note: Leaderboard updates are now handled by the addPoints method in UserService
+    // to avoid duplicate updates and race conditions
 
     // Update user's total points and stats
     await this.updateUserPoints(gameResult.username, gameResult.score, true);
@@ -321,7 +265,13 @@ export class RedisService {
     }
 
     // Always update all-time leaderboard (this should accumulate)
-    await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, { member: username, score: points });
+    // Get current score and add new points
+    const currentScore = await redis.zScore(REDIS_KEYS.ALL_TIME_LEADERBOARD, username);
+    const newScore = (currentScore || 0) + points;
+    await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
+      member: username,
+      score: newScore,
+    });
   }
 
   async getDailyLeaderboard(date: string, limit: number = 100): Promise<LeaderboardEntry[]> {
@@ -680,7 +630,12 @@ export class RedisService {
     const date = getServerDate();
     const key = isDaily ? REDIS_KEYS.DAILY_LEADERBOARD(date) : REDIS_KEYS.ALL_TIME_LEADERBOARD;
     const rank = await redis.zRank(key, username);
-    return rank !== null && rank !== undefined ? rank + 1 : 0;
+    if (rank === null || rank === undefined) return 0;
+
+    // Since leaderboards are displayed in descending order (highest scores first),
+    // we need to convert the ascending rank to descending rank
+    const totalCount = await redis.zCard(key);
+    return totalCount - rank; // Convert to descending rank (1-based)
   }
 
   async getUserPoints(username: string, isDaily: boolean = false): Promise<number> {

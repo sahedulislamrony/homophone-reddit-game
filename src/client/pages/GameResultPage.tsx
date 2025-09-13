@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { GameResult } from '@shared/types/server';
 import NavigationBar from '@client/components/basic/Navigation';
-import { Trophy, Clock, Gem } from 'lucide-react';
+import { Clock, Gem, Star, MessageCircle, Trophy, Zap, Target } from 'lucide-react';
 import { userApi } from '@client/utils/api';
 import { FullScreenLoader } from '@client/components';
 
@@ -15,57 +15,41 @@ export default function GameResultPage() {
   useEffect(() => {
     const fetchGameResult = async () => {
       try {
-        console.log('GameResultPage: Starting to fetch game result');
         const params = router.getParams();
-        console.log('GameResultPage: Router params:', params);
-
         const challengeId = params.challengeId;
         const gameResultParam = params.gameResult;
 
         if (!challengeId) {
-          console.error('GameResultPage: No challenge ID provided');
           setError('No challenge ID provided');
           setLoading(false);
           return;
         }
 
-        console.log('GameResultPage: Challenge ID:', challengeId);
-        console.log('GameResultPage: Game result param:', gameResultParam);
-
         let result: GameResult | null = null;
 
-        // If gameResult is passed as parameter, use it directly
         if (gameResultParam) {
           try {
-            console.log('GameResultPage: Parsing game result parameter');
             result = JSON.parse(gameResultParam);
-            console.log('GameResultPage: Parsed result:', result);
           } catch (parseError) {
-            console.warn('GameResultPage: Failed to parse gameResult parameter:', parseError);
+            console.warn('Failed to parse gameResult parameter:', parseError);
           }
         }
 
-        // If no gameResult parameter or parsing failed, fetch from server
         if (!result) {
-          console.log('GameResultPage: Fetching from server with challengeId:', challengeId);
-          // Try to get username from context or params
           const username = params.username || 'anonymous';
           result = await userApi.getGameResultByChallengeId(username, challengeId);
-          console.log('GameResultPage: Server result:', result);
         }
 
         if (!result) {
-          console.error('GameResultPage: No game result found');
           setError('Game result not found');
           setLoading(false);
           return;
         }
 
-        console.log('GameResultPage: Setting game result:', result);
         setGameResult(result);
         setLoading(false);
       } catch (err) {
-        console.error('GameResultPage: Error fetching game result:', err);
+        console.error('Error fetching game result:', err);
         setError('Failed to load game result');
         setLoading(false);
       }
@@ -78,19 +62,23 @@ export default function GameResultPage() {
     router.goto('daily-challenges');
   };
 
+  const handleCommentResult = () => {
+    console.log('Comment your result clicked');
+  };
+
   if (loading) {
     return <FullScreenLoader isLoading={true} variant="game" message="Loading result" />;
   }
 
   if (error || !gameResult) {
     return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-400 text-xl mb-4">Error</div>
-          <div className="text-white mb-6">{error}</div>
+      <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4">
+        <div className="text-center bg-black/40 backdrop-blur-lg rounded-2xl border border-yellow-500/30 p-8 max-w-md w-full">
+          <div className="text-red-400 text-xl mb-4 font-semibold">Error</div>
+          <div className="text-gray-300 mb-6">{error}</div>
           <button
             onClick={handleBackToChallenges}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-400 transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-semibold rounded-xl hover:from-yellow-500 hover:to-yellow-400 transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-yellow-500/20"
           >
             Back to Challenges
           </button>
@@ -102,34 +90,33 @@ export default function GameResultPage() {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
-        return 'text-green-400 bg-green-400/20';
+        return 'text-green-400';
       case 'medium':
-        return 'text-yellow-400 bg-yellow-400/20';
+        return 'text-yellow-400';
       case 'hard':
-        return 'text-red-400 bg-red-400/20';
+        return 'text-red-400';
       default:
-        return 'text-gray-400 bg-gray-400/20';
+        return 'text-gray-400';
     }
   };
 
-  const getDifficultyStars = (difficulty: string) => {
+  const getDifficultyBgColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
-        return '⭐';
+        return 'bg-green-400/10';
       case 'medium':
-        return '⭐⭐';
+        return 'bg-yellow-400/10';
       case 'hard':
-        return '⭐⭐⭐';
+        return 'bg-red-400/10';
       default:
-        return '⭐';
+        return 'bg-gray-400/10';
     }
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
@@ -137,128 +124,121 @@ export default function GameResultPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-black">
-      {/* Header */}
-      <div className="relative z-10 p-6">
-        <NavigationBar title="Game Result" onBack={handleBackToChallenges} />
+    <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-y-auto py-8 px-4">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-yellow-500/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-2/3 left-1/2 w-64 h-64 bg-yellow-600/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 px-6 pb-6">
-        <div className="max-w-4xl mx-auto">
-          {/* Challenge Header */}
-          <div className="bg-black/60 backdrop-blur-sm rounded-2xl border border-gray-700 p-8 mb-6">
+      {/* Header */}
+      <NavigationBar title="Game Results" onBack={handleBackToChallenges} />
+      {/* Main Content */}
+      <div className="relative z-10 container mx-auto px-4 py-0 max-w-4xl">
+        {/* Score Highlight */}
+        <div className="flex flex-col items-center justify-center mb-10 mt-6">
+          <div className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mb-2">
+            {gameResult.score.toLocaleString()}
+          </div>
+          <div className="text-gray-400 text-lg">Total Points</div>
+          <div className="mt-2 flex items-center gap-2 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
+            <Trophy className="w-5 h-5 text-yellow-400" />
+            <span className="text-yellow-400 font-medium">Challenge Completed</span>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+          {/* Theme Card */}
+          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">{gameResult.themeName}</h1>
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${getDifficultyColor(gameResult.difficulty)}`}
-                  >
-                    {gameResult.difficulty.toUpperCase()}
-                  </div>
-                  <div className="flex items-center gap-1 text-yellow-400">
-                    <span className="text-sm">{getDifficultyStars(gameResult.difficulty)}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-green-400">
-                    <Gem className="w-4 h-4" />
-                    <span className="text-sm font-semibold">+{gameResult.gemsEarned} Gems</span>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-4xl font-bold text-green-400 mb-1">{gameResult.score}</div>
-                <div className="text-gray-400 text-sm">Final Score</div>
+              <h3 className="text-lg font-semibold text-white">Theme</h3>
+              <div className="p-2 bg-yellow-500/20 rounded-full">
+                <Target className="w-6 h-6 text-yellow-400" />
               </div>
             </div>
-
-            {/* Game Info */}
-            <div className="bg-gray-800/50 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-white mb-3">Game Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <span className="text-gray-400 text-sm">Theme:</span>
-                  <p className="text-white font-medium">{gameResult.themeName}</p>
-                </div>
-                <div>
-                  <span className="text-gray-400 text-sm">Difficulty:</span>
-                  <p className="text-white font-medium capitalize">{gameResult.difficulty}</p>
-                </div>
-                <div>
-                  <span className="text-gray-400 text-sm">Time Spent:</span>
-                  <p className="text-white font-medium">{gameResult.timeSpent} seconds</p>
-                </div>
-                <div>
-                  <span className="text-gray-400 text-sm">Hints Used:</span>
-                  <p className="text-white font-medium">{gameResult.hintsUsed}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Completion Info */}
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
-              <Clock className="w-4 h-4" />
-              <span>Completed on {formatDate(gameResult.completedAt)}</span>
+            <div className="flex items-end justify-between">
+              <div className="text-2xl font-bold text-white">{gameResult.themeName}</div>
+              <div className="text-yellow-500/70 text-sm font-medium">Challenge</div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {/* Score Card */}
-            <div className="bg-black/80 backdrop-blur-sm rounded-xl border border-gray-700 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Trophy className="w-6 h-6 text-yellow-400" />
-                <h3 className="text-lg font-semibold text-white">Score</h3>
+          {/* Difficulty Card */}
+          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-white">Difficulty</h3>
+              <div className="p-2 bg-yellow-500/20 rounded-full">
+                <Zap className="w-6 h-6 text-yellow-400" />
               </div>
-              <div className="text-3xl font-bold text-yellow-400 mb-2">{gameResult.score}</div>
-              <div className="text-gray-400 text-sm">Points earned</div>
             </div>
-
-            {/* Time Card */}
-            <div className="bg-black/80 backdrop-blur-sm rounded-xl border border-gray-700 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Clock className="w-6 h-6 text-blue-400" />
-                <h3 className="text-lg font-semibold text-white">Time</h3>
+            <div className="flex items-end justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`text-2xl font-bold ${getDifficultyColor(gameResult.difficulty)}`}>
+                  {gameResult.difficulty.charAt(0).toUpperCase() + gameResult.difficulty.slice(1)}
+                </span>
               </div>
-              <div className="text-3xl font-bold text-blue-400 mb-2">{gameResult.timeSpent}s</div>
-              <div className="text-gray-400 text-sm">Time spent</div>
-            </div>
-
-            {/* Gems Card */}
-            <div className="bg-black/60 backdrop-blur-sm rounded-xl border border-gray-700 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Gem className="w-6 h-6 text-green-400" />
-                <h3 className="text-lg font-semibold text-white">Gems</h3>
-              </div>
-              <div className="text-3xl font-bold text-green-400 mb-2">+{gameResult.gemsEarned}</div>
-              <div className="text-gray-400 text-sm">Gems earned</div>
+              <div className="text-yellow-500/70 text-sm font-medium">Level</div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          {/* <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={handleReplayChallenge}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-blue-500 text-white rounded-xl hover:bg-blue-400 transition-all duration-300 font-semibold"
-            >
-              <Play className="w-5 h-5" />
-              Replay Challenge
-            </button>
-            <button
-              onClick={handleBackToChallenges}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gray-600 text-white rounded-xl hover:bg-gray-500 transition-all duration-300 font-semibold"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back to Challenges
-            </button>
-            <button
-              onClick={handleBackToHome}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 font-semibold"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back to Home
-            </button>
-          </div> */}
+          {/* Gems Earned */}
+          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-white">Gems Earned</h3>
+              <div className="p-2 bg-yellow-500/20 rounded-full">
+                <Gem className="w-6 h-6 text-yellow-400" />
+              </div>
+            </div>
+            <div className="flex items-end justify-between">
+              <div className="text-4xl font-bold text-yellow-400">+{gameResult.gemsEarned}</div>
+              <div className="text-yellow-500/70 text-sm font-medium">Reward</div>
+            </div>
+          </div>
+        </div>
+
+        {/*  Time Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          {/* Time Spent */}
+          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-white">Time Spent</h3>
+              <div className="p-2 bg-yellow-500/20 rounded-full">
+                <Clock className="w-6 h-6 text-yellow-400" />
+              </div>
+            </div>
+            <div className="flex items-end justify-between">
+              <div className="text-4xl font-bold text-yellow-400">{gameResult.timeSpent}s</div>
+              <div className="text-yellow-500/70 text-sm font-medium">Duration</div>
+            </div>
+          </div>
+
+          {/* Completed At */}
+          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-white">Completed At</h3>
+              <div className="p-2 bg-yellow-500/20 rounded-full">
+                <Clock className="w-6 h-6 text-yellow-400" />
+              </div>
+            </div>
+            <div className="flex items-end justify-between">
+              <div className="text-lg font-bold text-white">
+                {formatDate(gameResult.completedAt)}
+              </div>
+              <div className="text-yellow-500/70 text-sm font-medium">Date</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Comment Button */}
+        <div className="mb-10 mt-8">
+          <button
+            onClick={handleCommentResult}
+            className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold rounded-xl hover:from-yellow-500 hover:to-yellow-400 transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-yellow-500/30 hover:shadow-xl hover:shadow-yellow-500/40"
+          >
+            <MessageCircle className="w-6 h-6" />
+            Comment Your Result
+          </button>
         </div>
       </div>
     </div>

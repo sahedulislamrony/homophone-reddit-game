@@ -27,7 +27,7 @@ export default function LeaderboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [allTimeLoaded, setAllTimeLoaded] = useState(false);
 
-  // Load initial data (today's leaderboard)
+  // Load initial data (today's leaderboard + all-time leaderboard)
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -41,31 +41,47 @@ export default function LeaderboardPage() {
         // Set selectedDate to today
         setSelectedDate(serverToday);
 
-        // Fetch today's daily leaderboard
-        console.log("Fetching today's daily leaderboard for date:", serverToday);
-        const todayResponse = await userApi.getDailyLeaderboard(serverToday);
-        console.log('Daily leaderboard response:', todayResponse);
-        setTodayData(todayResponse.entries);
+        // Fetch both today's daily leaderboard and all-time leaderboard in parallel
+        console.log("Fetching today's daily leaderboard and all-time leaderboard...");
+        const [todayResponse, allTimeResponse, rankResponse] = await Promise.allSettled([
+          userApi.getDailyLeaderboard(serverToday),
+          userApi.getAllTimeLeaderboard(),
+          username && username !== 'anonymous'
+            ? userApi.getUserRank(username)
+            : Promise.resolve({
+                dailyRank: 0,
+                allTimeRank: 0,
+                weeklyRank: 0,
+                monthlyRank: 0,
+                dailyPoints: 0,
+                totalPoints: 0,
+              }),
+        ]);
 
-        // Fetch user rank if username is available
-        if (username && username !== 'anonymous') {
-          try {
-            const rankResponse = await userApi.getUserRank(username);
-            setUserRank(rankResponse);
-          } catch (rankError) {
-            console.warn('Could not fetch user rank:', rankError);
-            // Set default values if rank fetch fails
-            setUserRank({
-              dailyRank: 0,
-              allTimeRank: 0,
-              weeklyRank: 0,
-              monthlyRank: 0,
-              dailyPoints: 0,
-              totalPoints: 0,
-            });
-          }
+        // Handle today's leaderboard
+        if (todayResponse.status === 'fulfilled') {
+          console.log('Daily leaderboard response:', todayResponse.value);
+          setTodayData(todayResponse.value.entries);
         } else {
-          // Set default values if no username
+          console.error('Failed to fetch daily leaderboard:', todayResponse.reason);
+          setTodayData([]);
+        }
+
+        // Handle all-time leaderboard
+        if (allTimeResponse.status === 'fulfilled') {
+          console.log('All-time leaderboard response:', allTimeResponse.value);
+          setAllTimeData(allTimeResponse.value);
+          setAllTimeLoaded(true);
+        } else {
+          console.error('Failed to fetch all-time leaderboard:', allTimeResponse.reason);
+          setAllTimeData([]);
+        }
+
+        // Handle user rank
+        if (rankResponse.status === 'fulfilled') {
+          setUserRank(rankResponse.value);
+        } else {
+          console.warn('Could not fetch user rank:', rankResponse.reason);
           setUserRank({
             dailyRank: 0,
             allTimeRank: 0,
@@ -105,25 +121,7 @@ export default function LeaderboardPage() {
     void fetchDailyData();
   }, [selectedDate]);
 
-  // Load all-time data when user switches to all-time tab
-  useEffect(() => {
-    const fetchAllTimeData = async () => {
-      if (activeTab !== 'allTime' || allTimeLoaded) return;
-
-      try {
-        console.log('Fetching all-time leaderboard...');
-        const allTimeResponse = await userApi.getAllTimeLeaderboard();
-        console.log('All-time leaderboard response:', allTimeResponse);
-        setAllTimeData(allTimeResponse);
-        setAllTimeLoaded(true);
-      } catch (err) {
-        console.error('Error fetching all-time leaderboard data:', err);
-        setAllTimeData([]);
-      }
-    };
-
-    void fetchAllTimeData();
-  }, [activeTab, allTimeLoaded]);
+  // All-time data is now loaded initially, no need for separate effect
 
   const currentData = activeTab === 'today' ? todayData : allTimeData;
 
