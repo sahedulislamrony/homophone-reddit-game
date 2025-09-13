@@ -9,7 +9,7 @@ type GameCardProps = {
   userInput: string;
   onInputChange: (value: string) => void;
   onSubmit: () => void;
-  onKeyPress: (e: React.KeyboardEvent) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
   onHint: () => boolean;
   canUseHint: boolean;
   feedback: GameFeedback | null;
@@ -28,7 +28,7 @@ export default function GameCard({
   userInput,
   onInputChange,
   onSubmit,
-  onKeyPress,
+  onKeyDown,
   onHint,
   canUseHint,
   streakInfo,
@@ -41,9 +41,6 @@ export default function GameCard({
           <div className="flex items-center gap-4">
             <div>
               Score: <span className="text-yellow-400 font-bold">{gameState.score}</span>
-            </div>
-            <div className="text-sm">
-              Gems: <span className="text-blue-400 font-bold">{gameState.gems}</span>
             </div>
             {streakInfo && (
               <div className="text-sm">
@@ -99,7 +96,7 @@ export default function GameCard({
             type="text"
             value={userInput}
             onChange={(e) => onInputChange(e.target.value)}
-            onKeyPress={onKeyPress}
+            onKeyDown={onKeyDown}
             placeholder="Enter the correct word..."
             className="flex-1 w-full px-4 py-3 bg-black/80 text-white rounded-full border-0 focus:outline-none focus:ring-0 transition-all duration-300"
           />

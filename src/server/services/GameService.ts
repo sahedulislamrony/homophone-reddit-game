@@ -26,6 +26,7 @@ export class GameService {
       timeSpent: number;
       difficulty: 'easy' | 'medium' | 'hard';
       themeName: string;
+      gemsEarn: number;
     }
   ): Promise<GameResult> {
     if (!username || !challengeId) {
@@ -36,8 +37,11 @@ export class GameService {
     const date =
       new Date().toISOString().split('T')[0] || new Date().toISOString().substring(0, 10);
 
-    // Calculate gems earned (first time bonuses)
-    const gemsEarned = await this.userService.getFirstTimeBonus(username, challengeId, date);
+    // Calculate gems earned from theme only
+    const gemsEarned = gameData.gemsEarn;
+    console.log(
+      `GameService: Theme ${gameData.themeName} - gemsEarn: ${gameData.gemsEarn}, gemsEarned: ${gemsEarned}`
+    );
 
     // Create game result
     const gameResult: GameResult = {
@@ -73,12 +77,14 @@ export class GameService {
 
     // Add gems if earned
     if (gemsEarned > 0) {
-      await this.userService.addGems(
+      console.log(`GameService: Adding ${gemsEarned} gems to user ${username}`);
+      const newGems = await this.userService.addGems(
         username,
         gemsEarned,
-        `First time bonus: ${gameData.themeName}`,
+        `Game completion: ${gameData.themeName}`,
         gameId
       );
+      console.log(`GameService: User ${username} now has ${newGems} gems`);
     }
 
     // Deduct gems if spent

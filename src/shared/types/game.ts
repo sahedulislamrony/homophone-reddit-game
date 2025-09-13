@@ -5,6 +5,8 @@ export type GameObject = {
   themeBgImage: string;
   hints: string[]; // 4-10 hints per game
   initialPoints: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  gemsEarn: number;
 };
 
 export type GameState = {

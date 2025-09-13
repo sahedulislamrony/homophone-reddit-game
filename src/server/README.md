@@ -39,7 +39,7 @@ This document describes the server-side implementation for the Reddit Game with 
 - **Game Results**: Complete game result storage with metadata
 - **Challenge Tracking**: Prevents duplicate challenge completion
 - **Performance Analytics**: Detailed user performance metrics
-- **First-time Bonuses**: Gems awarded for first-time completions
+- **Theme-based Rewards**: Gems awarded based on theme difficulty and completion
 
 ### Leaderboards
 

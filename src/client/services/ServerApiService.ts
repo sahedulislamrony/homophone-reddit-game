@@ -126,6 +126,7 @@ export class ServerApiService {
     timeSpent: number;
     difficulty: 'easy' | 'medium' | 'hard';
     themeName: string;
+    gemsEarn: number;
   }): Promise<GameResult> {
     const response = await fetch(`${this.baseUrl}/games/submit`, {
       method: 'POST',

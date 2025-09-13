@@ -109,17 +109,15 @@ export class GameEngine {
     let points = 0;
 
     // Calculate points with new streak system:
-    // 1st correct: basePoints (e.g., 10)
-    // 2nd consecutive: basePoints + (basePoints * 0.5 * 2) = 10 + 10 = 20
-    // 3rd consecutive: basePoints + (basePoints * 0.5 * 3) = 10 + 15 = 25
-    // 4th consecutive: basePoints + (basePoints * 0.5 * 4) = 10 + 20 = 30
-    // Formula: basePoints + (basePoints * 0.5 * streak) for streak > 1, basePoints for streak = 1
+    // Streak 1: main points only (e.g., 10)
+    // Streak 2: main points + half of main points (e.g., 10 + 5 = 15)
+    // Streak 3: main points + half * 2 (e.g., 10 + 10 = 20)
     const streak = this.currentStreak + 1; // +1 because we increment streak after this
     const basePoints = this.config.pointsPerCorrect;
 
     if (this.config.streakMultiplier && streak > 1) {
-      // Streak bonus: half of base points multiplied by streak count
-      const streakBonus = basePoints * 0.5 * streak;
+      // Streak bonus: half of base points multiplied by (streak - 1)
+      const streakBonus = basePoints * 0.5 * (streak - 1);
       points = basePoints + streakBonus;
     } else {
       // First correct answer gets base points only
@@ -435,8 +433,8 @@ export class GameEngine {
       basePoints: basePoints,
       nextPoints: Math.round(nextPoints),
       streakBonus:
-        this.config.streakMultiplier && nextStreak > 1
-          ? Math.round(basePoints * 0.5 * nextStreak)
+        this.config.streakMultiplier && nextStreak >= 2
+          ? Math.round(basePoints * 0.5 * (nextStreak - 1))
           : 0,
     };
   }

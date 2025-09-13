@@ -22,6 +22,7 @@ export const submitGameResult = async (req: Request, res: Response): Promise<voi
     timeSpent,
     difficulty,
     themeName,
+    gemsEarn,
   } = req.body;
 
   // Validate required fields
@@ -49,6 +50,7 @@ export const submitGameResult = async (req: Request, res: Response): Promise<voi
     timeSpent: timeSpent || 0,
     difficulty: difficulty || 'easy',
     themeName: themeName || 'Unknown',
+    gemsEarn: gemsEarn || 0,
   });
 
   res.json({

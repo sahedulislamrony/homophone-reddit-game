@@ -32,7 +32,7 @@ export class GameDataConverter {
   /**
    * Convert ThemeData to GameObject format for game engine
    */
-  public static themeToGameObject(theme: ThemeData): GameObject & { initialPoints: number } {
+  public static themeToGameObject(theme: ThemeData): GameObject {
     return {
       themeName: theme.themeName,
       content: theme.content,
@@ -40,6 +40,8 @@ export class GameDataConverter {
       themeBgImage: theme.themeBgImage,
       hints: theme.hints,
       initialPoints: theme.pointPerCorrectWord,
+      difficulty: theme.difficulty,
+      gemsEarn: theme.gemsEarn,
     };
   }
 

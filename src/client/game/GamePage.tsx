@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { useUserContext } from '@client/contexts/UserContext';
@@ -158,8 +159,9 @@ export default function GamePage() {
             freeHintsUsed: gameState.freeHintsUsed,
             gemsSpent: gameState.hintsUsed > 3 ? Math.floor((gameState.hintsUsed - 3) / 3) : 0,
             timeSpent: Math.floor(gameStats.timeElapsed / 1000),
-            difficulty: 'easy', // This could be determined by the challenge
+            difficulty: gameObject.difficulty,
             themeName: gameObject.themeName,
+            gemsEarn: gameObject.gemsEarn,
           });
 
           // Update local gems
@@ -197,6 +199,9 @@ export default function GamePage() {
         try {
           console.log('GamePage: Game completed, submitting result...');
 
+          // Get game stats for accurate time calculation
+          const gameStats = gameEngine?.getGameStats();
+
           // Submit the game result
           await dataSync.submitGameResult({
             username,
@@ -205,9 +210,10 @@ export default function GamePage() {
             hintsUsed: gameState.hintsUsed || 0,
             freeHintsUsed: 0,
             gemsSpent: 0,
-            timeSpent: 0, // GameState doesn't have timeSpent, using 0
-            difficulty: 'easy', // GameObject doesn't have difficulty, using default
+            timeSpent: gameStats ? Math.floor(gameStats.timeElapsed / 1000) : 0, // Calculate actual time spent
+            difficulty: gameObject?.difficulty || 'easy',
             themeName: gameObject?.themeName || 'Unknown',
+            gemsEarn: gameObject?.gemsEarn || 0,
           });
 
           console.log('GamePage: Game result submitted, redirecting to result page...');
@@ -267,7 +273,7 @@ export default function GamePage() {
     return gameEngine.useHint();
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSubmit();
     }
@@ -303,7 +309,7 @@ export default function GamePage() {
               userInput={userInput}
               onInputChange={setUserInput}
               onSubmit={handleSubmit}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               onHint={handleHint}
               canUseHint={gameEngine.canUseHint()}
               feedback={feedback}

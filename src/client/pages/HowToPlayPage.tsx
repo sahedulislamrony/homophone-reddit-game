@@ -194,7 +194,7 @@ export default function HowToPlayPage() {
                   <li className="flex items-center gap-3">
                     <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                     <span>
-                      <strong>Gems:</strong> Earned for first-time completions
+                      <strong>Gems:</strong> Earned based on theme difficulty
                     </span>
                   </li>
                   <li className="flex items-center gap-3">

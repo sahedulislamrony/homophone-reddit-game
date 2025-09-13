@@ -129,24 +129,6 @@ export class UserService {
     return !userGames.some((game) => game.challengeId === challengeId);
   }
 
-  async getFirstTimeBonus(username: string, challengeId: string, date: string): Promise<number> {
-    const userGames = await this.redis.getUserGamesByDate(username, date);
-    const hasPlayedToday = userGames.length > 0;
-    const hasPlayedThisChallenge = userGames.some((game) => game.challengeId === challengeId);
-
-    // First time playing today gets bonus
-    if (!hasPlayedToday) {
-      return 5; // 5 gems for first game of the day
-    }
-
-    // First time playing this specific challenge gets bonus
-    if (!hasPlayedThisChallenge) {
-      return 2; // 2 gems for first time playing this challenge
-    }
-
-    return 0; // No bonus
-  }
-
   // Admin operations
   async getAllUsers(): Promise<UserData[]> {
     // This would need to be implemented with a different approach

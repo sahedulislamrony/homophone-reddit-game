@@ -76,18 +76,12 @@ export class DataSyncService {
     timeSpent: number;
     difficulty: 'easy' | 'medium' | 'hard';
     themeName: string;
+    gemsEarn: number;
   }): Promise<GameResult> {
     try {
       const result = await serverApi.submitGameResult(gameData);
 
-      // Update local data
-      if (this.userData) {
-        this.userData.totalPoints += gameData.score;
-        this.userData.dailyPoints += gameData.score;
-        this.gems = this.gems - gameData.gemsSpent + result.gemsEarned;
-      }
-
-      // Sync updated data
+      // Sync updated data from server (includes correct gem calculation)
       await this.syncUserData(gameData.username);
 
       return result;

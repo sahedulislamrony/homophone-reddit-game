@@ -143,13 +143,8 @@ export class RedisService {
     // Update user's total points and stats
     await this.updateUserPoints(gameResult.username, gameResult.score, true);
 
-    // Update user's gems (earned - spent)
-    const gemChange = gameResult.gemsEarned - gameResult.gemsSpent;
-    if (gemChange > 0) {
-      await this.addUserGems(gameResult.username, gemChange);
-    } else if (gemChange < 0) {
-      await this.spendUserGems(gameResult.username, Math.abs(gemChange));
-    }
+    // Note: Gem updates are handled by GameService to avoid double counting
+    // Gems are added/spent in GameService.saveGameResult method
 
     // Update user's detailed stats
     await this.updateUserStats(gameResult.username, gameResult);

@@ -16,6 +16,9 @@ export const sampleGames: GameObject[] = [
       'The first word starts with "H"',
       'One word rhymes with "late"',
     ],
+    initialPoints: 10,
+    difficulty: 'easy',
+    gemsEarn: 10,
   },
   {
     themeName: 'Space Adventure',
@@ -33,6 +36,9 @@ export const sampleGames: GameObject[] = [
       'The telescope word is wrong',
       'One word rhymes with "blue"',
     ],
+    initialPoints: 15,
+    difficulty: 'medium',
+    gemsEarn: 15,
   },
   {
     themeName: 'Ocean Exploration',
@@ -50,6 +56,9 @@ export const sampleGames: GameObject[] = [
       'The current word is wrong',
       'One word should start with "th"',
     ],
+    initialPoints: 20,
+    difficulty: 'hard',
+    gemsEarn: 20,
   },
   {
     themeName: 'Medieval Times',
@@ -67,6 +76,9 @@ export const sampleGames: GameObject[] = [
       'The forest word is wrong',
       'One word should start with "th"',
     ],
+    initialPoints: 12,
+    difficulty: 'easy',
+    gemsEarn: 12,
   },
 ];
 
