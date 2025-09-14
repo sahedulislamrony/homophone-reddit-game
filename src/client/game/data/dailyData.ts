@@ -2,7 +2,7 @@ import { DailyData } from '@shared/types/game';
 
 export const dailyData: DailyData[] = [
   {
-    date: '2025-09-11',
+    date: '2025-09-14',
     themes: [
       {
         themeId: 'harry-potter-new-2025-09-12',
@@ -99,7 +99,7 @@ export const dailyData: DailyData[] = [
     ],
   },
   {
-    date: '2025-09-12',
+    date: '2025-09-15',
     themes: [
       {
         themeId: 'harry-potter-new-2025-09-12',
@@ -196,7 +196,7 @@ export const dailyData: DailyData[] = [
     ],
   },
   {
-    date: '2025-09-13',
+    date: '2025-09-16',
     themes: [
       {
         themeId: 'harry-potter-new-2025-09-12',

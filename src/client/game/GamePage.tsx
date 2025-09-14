@@ -223,10 +223,8 @@ export default function GamePage() {
   }
 
   const handleSubmit = () => {
-    const isCorrect = gameEngine.submitAnswer(userInput);
-    if (isCorrect) {
-      setUserInput('');
-    }
+    gameEngine.submitAnswer(userInput);
+    setUserInput('');
   };
 
   const handleHint = () => {

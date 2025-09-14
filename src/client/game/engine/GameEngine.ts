@@ -72,7 +72,8 @@ export class GameEngine {
   }
 
   submitAnswer(userInput: string): boolean {
-    if (!userInput.trim()) {
+    const trimmedUserInput = userInput.trim();
+    if (!trimmedUserInput) {
       this.onFeedback({
         type: 'wrong',
         message: 'Please enter a word before submitting.',
@@ -82,7 +83,9 @@ export class GameEngine {
 
     // Check if word has already been submitted
     if (
-      this.gameState.userAnswers.some((answer) => answer.toLowerCase() === userInput.toLowerCase())
+      this.gameState.userAnswers.some(
+        (answer) => answer.toLowerCase() === trimmedUserInput.toLowerCase()
+      )
     ) {
       this.onFeedback({
         type: 'wrong',
@@ -93,7 +96,7 @@ export class GameEngine {
 
     // Check if the submitted word is one of the correct words
     const correctWord = this.gameObject.correctWords.find(
-      (word) => word.toLowerCase() === userInput.toLowerCase()
+      (word) => word.toLowerCase() === trimmedUserInput.toLowerCase()
     );
 
     if (!correctWord) {
@@ -132,7 +135,7 @@ export class GameEngine {
     // Update game state
     this.gameState = {
       ...this.gameState,
-      userAnswers: [...this.gameState.userAnswers, userInput],
+      userAnswers: [...this.gameState.userAnswers, trimmedUserInput],
       score: this.gameState.score + points,
       currentWordIndex: this.gameState.currentWordIndex + 1,
       isCompleted: this.gameState.userAnswers.length + 1 >= this.gameObject.correctWords.length,
