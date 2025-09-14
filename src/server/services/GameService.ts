@@ -65,11 +65,8 @@ export class GameService {
       isResultCommented: false,
     };
 
-    // Save game result
+    // Save game result (this also updates user stats)
     await this.redis.saveGameResult(gameResult);
-
-    // Update user stats
-    await this.redis.updateUserStats(username, gameResult);
 
     // Add points to user
     console.log(
