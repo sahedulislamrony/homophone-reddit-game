@@ -542,35 +542,6 @@ export class RedisService {
     }
   }
 
-  // Get historical daily leaderboard data
-  async getHistoricalDailyLeaderboards(
-    startDate: string,
-    endDate: string
-  ): Promise<{ [date: string]: LeaderboardEntry[] }> {
-    try {
-      const results: { [date: string]: LeaderboardEntry[] } = {};
-
-      // Generate date range
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
-        if (dateStr) {
-          const leaderboard = await this.getDailyLeaderboard(dateStr, 100);
-          if (leaderboard.length > 0) {
-            results[dateStr] = leaderboard;
-          }
-        }
-      }
-
-      return results;
-    } catch (error) {
-      console.error('Error getting historical daily leaderboards:', error);
-      return {};
-    }
-  }
-
   // Transaction logging
   async logTransaction(transaction: GameTransaction): Promise<void> {
     try {
@@ -688,50 +659,6 @@ export class RedisService {
     const key = isDaily ? REDIS_KEYS.DAILY_LEADERBOARD(date) : REDIS_KEYS.ALL_TIME_LEADERBOARD;
     const score = await redis.zScore(key, username);
     return score !== null && score !== undefined ? Math.round(score) : 0;
-  }
-
-  // Initialize app for new installations (no dummy data)
-  async initializeSampleData(): Promise<void> {
-    try {
-      // Just log that the app is ready for new users
-      console.log('App initialized successfully - New users will start with 10 gems');
-
-      // Add some test data for leaderboard
-      const today = getServerDate();
-      console.log('Adding test leaderboard data for date:', today);
-
-      // Add test entries to daily leaderboard
-      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(today), {
-        member: 'testuser1',
-        score: 150,
-      });
-      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(today), {
-        member: 'testuser2',
-        score: 200,
-      });
-      await redis.zAdd(REDIS_KEYS.DAILY_LEADERBOARD(today), {
-        member: 'testuser3',
-        score: 100,
-      });
-
-      // Add test entries to all-time leaderboard
-      await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
-        member: 'testuser1',
-        score: 150,
-      });
-      await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
-        member: 'testuser2',
-        score: 200,
-      });
-      await redis.zAdd(REDIS_KEYS.ALL_TIME_LEADERBOARD, {
-        member: 'testuser3',
-        score: 100,
-      });
-
-      console.log('Test leaderboard data added successfully');
-    } catch (error) {
-      console.error('Error initializing app:', error);
-    }
   }
 
   // Comment tracking methods

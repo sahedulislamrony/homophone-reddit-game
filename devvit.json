@@ -34,9 +34,7 @@
   "permissions": {
     "redis": true,
     "reddit": {
-      "asUser": [
-        "SUBMIT_COMMENT"
-      ]
+      "asUser": ["SUBMIT_COMMENT"]
     }
   }
 }

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { Request, Response } from 'express';
-import { getServerTime } from '../utils/timeUtils';
+import { getServerTime } from '@server/utils/timeUtils';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/asyncHandler.middleware';
+import { asyncHandler } from '@server/middleware/asyncHandler.middleware';
 import {
   getDailyLeaderboard,
   getAllTimeLeaderboard,
@@ -9,7 +9,7 @@ import {
   getLeaderboardStats,
   getUserLeaderboardPosition,
   getUserRank,
-} from '../controllers/leaderboard.controller';
+} from '@server/controllers/leaderboard.controller';
 
 const router = Router();
 

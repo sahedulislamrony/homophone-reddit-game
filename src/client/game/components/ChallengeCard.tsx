@@ -1,5 +1,5 @@
 import { ChallengeLevel } from '@/shared/types/challenge';
-import { Lock, CheckCircle, Gem, Star, Sparkles } from 'lucide-react';
+import { Lock, CheckCircle, Gem, Sparkles } from 'lucide-react';
 
 type ChallengeCardProps = {
   challenge: ChallengeLevel;
@@ -24,19 +24,6 @@ export default function ChallengeCard({
         return 'text-red-400 bg-red-400/20';
       default:
         return 'text-gray-400 bg-gray-400/20';
-    }
-  };
-
-  const getDifficultyStars = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 1;
-      case 'medium':
-        return 2;
-      case 'hard':
-        return 3;
-      default:
-        return 1;
     }
   };
 

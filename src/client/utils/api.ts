@@ -200,29 +200,6 @@ const getAllTimeLeaderboard = async (limit: number = 100): Promise<LeaderboardEn
   }
 };
 
-const getHistoricalLeaderboards = async (
-  startDate: string,
-  endDate: string
-): Promise<{ [date: string]: LeaderboardEntry[] }> => {
-  try {
-    const url = `${baseUrl}/internal/historical-leaderboards?startDate=${startDate}&endDate=${endDate}`;
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw createApiError(`HTTP error! status: ${response.status}`, response.status);
-    }
-
-    const data = await response.json();
-    return data.data;
-  } catch (error) {
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'ApiError') {
-      throw error;
-    }
-    throw createApiError('Failed to fetch historical leaderboards');
-  }
-};
-
 const getUserRank = async (
   username: string
 ): Promise<{
@@ -334,6 +311,5 @@ export const userApi = {
   spendGems,
   getDailyLeaderboard,
   getAllTimeLeaderboard,
-  getHistoricalLeaderboards,
   getUserRank,
 };

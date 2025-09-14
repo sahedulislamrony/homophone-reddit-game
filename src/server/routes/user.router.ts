@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/asyncHandler.middleware';
+import { asyncHandler } from '@server/middleware/asyncHandler.middleware';
 import {
   getCurrentRedditUser,
   syncUser,
@@ -10,7 +10,7 @@ import {
   getUserPosition,
   getUserPerformance,
   getUserGames,
-} from '../controllers/user.controller';
+} from '@server/controllers/user.controller';
 
 const router = Router();
 

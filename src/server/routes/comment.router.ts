@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { submitGameResultComment } from '../controllers/comment.controller';
-import { asyncHandler } from '../middleware/asyncHandler.middleware';
+import { submitGameResultComment } from '@server/controllers/comment.controller';
+import { asyncHandler } from '@server/middleware/asyncHandler.middleware';
 
 const router = Router();
 

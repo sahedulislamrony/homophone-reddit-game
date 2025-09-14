@@ -3,11 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { useUserContext } from '@client/contexts/UserContext';
 import { GameEngine } from './engine/GameEngine';
-import { GameDataManager } from './data/GameDataManager';
-import { getRandomGame } from './data/sampleGames';
 import { getThemeData } from './data/gameData';
 import { GameDataConverter } from '@client/utils/GameDataConverter';
-import { getBackgroundStyle } from './assets/GameAssets';
 import { GameCard, FeedbackMessage } from './components';
 import { GameObject, GameState, GameFeedback } from '@shared/types/game';
 import NavigationBar from '@client/components/basic/Navigation';
@@ -29,8 +26,6 @@ export default function GamePage() {
   useEffect(() => {
     const initializeGame = async () => {
       try {
-        const dataManager = GameDataManager.getInstance();
-
         // Check if this is a challenge game
         const params = router.getParams();
         const challengeIdParam = params.challengeId;
@@ -50,13 +45,10 @@ export default function GamePage() {
             game = GameDataConverter.themeToGameObject(themeData);
             setChallengeId(challengeIdParam);
           } else {
-            console.log('GamePage: Theme not found, using random game');
-            game = getRandomGame();
+            throw new Error('Theme not found for challenge ID: ' + challengeIdParam);
           }
         } else {
-          console.log('GamePage: No challenge ID, using random game');
-          // Load random game
-          game = getRandomGame();
+          throw new Error('No challenge ID provided');
         }
 
         // Load user data from server
@@ -74,8 +66,6 @@ export default function GamePage() {
           isCompleted: false,
         };
 
-        dataManager.setCurrentGame(game);
-        dataManager.setGameState(initialState);
         setGameObject(game);
         setGameState(initialState);
 
@@ -84,7 +74,6 @@ export default function GamePage() {
           initialState,
           (newState) => {
             setGameState(newState);
-            dataManager.setGameState(newState);
           },
           (newFeedback) => {
             setFeedback(newFeedback);
@@ -102,37 +91,8 @@ export default function GamePage() {
         setGameEngine(engine);
       } catch (error) {
         console.error('Failed to initialize game:', error);
-        // Fallback to local data
-        const dataManager = GameDataManager.getInstance();
-        const game = getRandomGame();
-        const initialState = dataManager.createInitialGameState();
-
-        dataManager.setCurrentGame(game);
-        dataManager.setGameState(initialState);
-        setGameObject(game);
-        setGameState(initialState);
-
-        const engine = new GameEngine(
-          game,
-          initialState,
-          (newState) => {
-            setGameState(newState);
-            dataManager.setGameState(newState);
-          },
-          (newFeedback) => {
-            setFeedback(newFeedback);
-          },
-          {
-            pointsPerCorrect: 10,
-            pointsPerHint: -2,
-            maxFreeHints: 3,
-            gemsPerHint: 1,
-            timeBonus: false,
-            streakMultiplier: true,
-          }
-        );
-
-        setGameEngine(engine);
+        // Redirect back to challenges page on error
+        router.goto('daily-challenges');
       }
     };
 
@@ -280,15 +240,13 @@ export default function GamePage() {
   };
 
   const handleBackToHome = () => {
-    const dataManager = GameDataManager.getInstance();
-    dataManager.resetGameData();
     router.goto('daily-challenges');
   };
 
   return (
     <div
       className="w-full min-h-screen relative bg-cover bg-center bg-no-repeat"
-      style={getBackgroundStyle(gameObject.themeName)}
+      style={{ backgroundImage: `url(${gameObject.themeBgImage})` }}
     >
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/90"></div>

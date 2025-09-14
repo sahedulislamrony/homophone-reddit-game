@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/asyncHandler.middleware';
+import { asyncHandler } from '@server/middleware/asyncHandler.middleware';
 import {
   submitGameResult,
   getGameResult,
@@ -12,7 +12,7 @@ import {
   getPerformanceData,
   getChallengeHistory,
   updateGameResultCommentStatus,
-} from '../controllers/game.controller';
+} from '@server/controllers/game.controller';
 
 const router = Router();
 

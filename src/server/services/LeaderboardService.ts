@@ -4,7 +4,7 @@ import {
   getServerTime,
   getServerDateObject,
   formatToDateString,
-} from '../utils/timeUtils';
+} from '@server/utils/timeUtils';
 import { LeaderboardEntry, DailyLeaderboard } from '@shared/types/server';
 
 export class LeaderboardService {
@@ -30,14 +30,6 @@ export class LeaderboardService {
   // All-time leaderboard
   async getAllTimeLeaderboard(limit: number = 100): Promise<LeaderboardEntry[]> {
     return await this.redis.getAllTimeLeaderboard(limit);
-  }
-
-  // Historical daily leaderboards
-  async getHistoricalDailyLeaderboards(
-    startDate: string,
-    endDate: string
-  ): Promise<{ [date: string]: LeaderboardEntry[] }> {
-    return await this.redis.getHistoricalDailyLeaderboards(startDate, endDate);
   }
 
   // User ranking

@@ -144,19 +144,6 @@ export default function GameResultPage() {
     }
   };
 
-  const getDifficultyBgColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'bg-green-400/10';
-      case 'medium':
-        return 'bg-yellow-400/10';
-      case 'hard':
-        return 'bg-red-400/10';
-      default:
-        return 'bg-gray-400/10';
-    }
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',

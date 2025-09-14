@@ -8,7 +8,7 @@ import {
   getServerTime,
   getServerDateObject,
   formatToDateString,
-} from '../utils/timeUtils';
+} from '@server/utils/timeUtils';
 
 export class GameService {
   private redis: RedisService;

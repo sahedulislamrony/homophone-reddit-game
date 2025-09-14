@@ -25,7 +25,6 @@ export default function LeaderboardPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [allTimeLoaded, setAllTimeLoaded] = useState(false);
 
   // Load initial data (today's leaderboard + all-time leaderboard)
   useEffect(() => {
@@ -74,7 +73,6 @@ export default function LeaderboardPage() {
           console.log('All-time leaderboard response:', allTimeResponse.value);
           console.log('All-time leaderboard length:', allTimeResponse.value?.length);
           setAllTimeData(allTimeResponse.value || []);
-          setAllTimeLoaded(true);
         } else {
           console.error('Failed to fetch all-time leaderboard:', allTimeResponse.reason);
           setAllTimeData([]);

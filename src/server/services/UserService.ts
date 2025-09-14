@@ -1,7 +1,7 @@
 import { RedisService } from './RedisService';
-import { getServerTime } from '../utils/timeUtils';
+import { getServerTime } from '@server/utils/timeUtils';
 import { UserData, UserStats, GameTransaction } from '@shared/types/server';
-import { isAdmin } from '../config/admins';
+import { isAdmin } from '@server/config/admins';
 
 export class UserService {
   private redis: RedisService;
