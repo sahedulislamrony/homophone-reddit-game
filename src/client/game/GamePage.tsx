@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { useUserContext } from '@client/contexts/UserContext';
@@ -99,24 +98,25 @@ export default function GamePage() {
     void initializeGame();
   }, [router, username]);
 
-  // Handle game state changes
+  // Handle game completion - submit result and redirect
   useEffect(() => {
-    if (gameState?.isCompleted && gameEngine && gameObject) {
+    if (gameState?.isCompleted && gameEngine && gameObject && challengeId && username) {
       setUserInput('');
 
-      const submitGameResult = async () => {
+      const submitAndRedirect = async () => {
         try {
-          const currentUsername = username || 'anonymous'; // Use actual username or fallback
-          console.log('GamePage: Submitting game result for username:', currentUsername);
+          console.log('GamePage: Game completed, submitting result...');
+
+          // Get game stats for accurate time calculation
           const gameStats = gameEngine.getGameStats();
 
-          // Submit game result to server
+          // Submit the game result
           const result = await dataSync.submitGameResult({
-            username: currentUsername,
-            challengeId: challengeId || 'random',
+            username,
+            challengeId,
             score: gameState.score,
-            hintsUsed: gameState.hintsUsed,
-            freeHintsUsed: gameState.freeHintsUsed,
+            hintsUsed: gameState.hintsUsed || 0,
+            freeHintsUsed: gameState.freeHintsUsed || 0,
             gemsSpent: gameState.hintsUsed > 3 ? Math.floor((gameState.hintsUsed - 3) / 3) : 0,
             timeSpent: Math.floor(gameStats.timeElapsed / 1000),
             difficulty: gameObject.difficulty,
@@ -135,47 +135,6 @@ export default function GamePage() {
             points: gameState.score,
           });
 
-          // Challenge completion is handled by server
-          // No local completion needed since we use static data
-        } catch (error) {
-          console.error('Failed to submit game result:', error);
-          // Show fallback feedback
-          setFeedback({
-            type: 'correct',
-            message: `Game completed! You earned ${gameState.score} points!`,
-            points: gameState.score,
-          });
-        }
-      };
-
-      void submitGameResult();
-    }
-  }, [gameState?.isCompleted, challengeId, gameState, gameEngine, gameObject, username]);
-
-  // Handle game completion - redirect to result page
-  useEffect(() => {
-    if (gameState?.isCompleted && challengeId && username) {
-      const submitAndRedirect = async () => {
-        try {
-          console.log('GamePage: Game completed, submitting result...');
-
-          // Get game stats for accurate time calculation
-          const gameStats = gameEngine?.getGameStats();
-
-          // Submit the game result
-          await dataSync.submitGameResult({
-            username,
-            challengeId,
-            score: gameState.score,
-            hintsUsed: gameState.hintsUsed || 0,
-            freeHintsUsed: 0,
-            gemsSpent: 0,
-            timeSpent: gameStats ? Math.floor(gameStats.timeElapsed / 1000) : 0, // Calculate actual time spent
-            difficulty: gameObject?.difficulty || 'easy',
-            themeName: gameObject?.themeName || 'Unknown',
-            gemsEarn: gameObject?.gemsEarn || 0,
-          });
-
           console.log('GamePage: Game result submitted, redirecting to result page...');
 
           // Redirect directly to result page
@@ -185,6 +144,12 @@ export default function GamePage() {
           });
         } catch (error) {
           console.error('GamePage: Error submitting game result:', error);
+          // Show fallback feedback
+          setFeedback({
+            type: 'correct',
+            message: `Game completed! You earned ${gameState.score} points!`,
+            points: gameState.score,
+          });
           // Fallback to challenges page
           router.goto('daily-challenges');
         }
@@ -198,7 +163,12 @@ export default function GamePage() {
     username,
     gameState?.score,
     gameState?.hintsUsed,
+    gameState?.freeHintsUsed,
     gameObject?.themeName,
+    gameObject?.difficulty,
+    gameObject?.gemsEarn,
+    gameEngine,
+    gameObject,
     router,
   ]);
 

@@ -254,9 +254,9 @@ export default function StatsPage() {
               </div>
             </div>
             {/* Detailed Stats Section */}
-            <div className="grid lg:grid-cols-2 gap-8 mb-10">
-              {/* Performance Overview */}
-              <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+            {/* <div className="grid lg:grid-cols-2 gap-8 mb-10"> */}
+            {/* Performance Overview */}
+            {/* <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <BarChart3 className="w-6 h-6 text-yellow-400" />
                   Performance Overview
@@ -301,10 +301,10 @@ export default function StatsPage() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              {/* Additional Stats */}
-              <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+            {/* Additional Stats */}
+            {/* <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <Trophy className="w-6 h-6 text-yellow-400" />
                   Additional Stats
@@ -348,7 +348,7 @@ export default function StatsPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
             {/* Quick Actions */}
             <div className="text-center">
               <div className="flex flex-wrap justify-center gap-4">
