@@ -14,7 +14,7 @@ A Reddit-based word game where players hunt down impostor words and replace them
 - **Hint System**: 3 free hints per challenge + gem-purchased additional hints
 - **Leaderboards**: Daily, and all-time rankings (weekly and monthly will come latter)
 - **Statistics Tracking**: Comprehensive performance analytics
-- **Gem Economy**: Earn gems for completions
+- **Gem Economy**: Earn gems for completions and can use for using extra hints. Plans to expend it on custom game profile section , boosted post and many more.
 - **Real-time Sync**: Server-based data synchronization
 - **User Generated Content (UGC)**: Players can comment on their game results and share experiences on game posts
 
