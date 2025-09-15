@@ -281,30 +281,40 @@ The app is configured via `devvit.json`:
 
 ### Daily Challenges
 
-Daily challenges are stored in `src/client/game/data/dailyChallengesData.ts`. Each day includes:
+Daily challenges are stored in `src/client/game/data/dailyData.ts`. Each day includes:
 
 - **Themed Challenges**: Unique content with different difficulty levels
 - **Progressive Unlocking**: Complete challenges to unlock harder ones
-- **Gem Rewards**: 5, 10, or 20 gems based on difficulty
+- **Gem Rewards**: Variable gems based on difficulty (10-20 gems)
+- **Point System**: Points per correct word based on difficulty
 - **Server Time**: All times based on server timezone
 
 ### Adding New Content
 
-1. **Update Data**: Add to `dailyChallengesData.ts` array
-2. **Follow Structure**: Include all required fields (date, theme, content, etc.)
+1. **Update Data**: Add to `dailyData.ts` array
+2. **Follow Structure**: Include all required fields (date, themes, content, etc.)
 3. **Test**: Verify in development environment
 
 ### Data Structure
 
 ```typescript
 {
-  id: '2024-01-04-theme-name',
-  themeName: 'Theme Name',
-  content: 'Content with incorrect words...',
-  correctWords: ['word1', 'word2', 'word3'],
-  themeBgImage: '/images/theme_bg.jpg',
-  difficulty: 'easy' | 'medium' | 'hard',
-  gemReward: 5 | 10 | 20
+  date: '2025-09-14',
+  themes: [
+    {
+      themeId: 'theme-name-2025-09-12',
+      themeName: 'Theme Name',
+      content: 'Content with incorrect words...',
+      correctWords: ['word1', 'word2', 'word3'],
+      difficulty: 'easy' | 'medium' | 'hard',
+      gemsEarn: 10 | 15 | 20,
+      pointPerCorrectWord: 10 | 15 | 20,
+      themeBgImage: '/images/theme_bg.jpg',
+      hints: ['hint1', 'hint2', 'hint3'],
+      isLocked: false,
+      isCompleted: false
+    }
+  ]
 }
 ```
 

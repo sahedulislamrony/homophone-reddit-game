@@ -1,6 +1,15 @@
-import { GameData } from '@shared/types/game';
-import { dailyData } from './dailyData';
+import { GameData, DailyData } from '@shared/types/game';
+import { dailyChallengesData } from './dailyChallengesData';
 import { TimeService } from '@client/services/TimeService';
+
+// Since we're now using DailyData directly, we just need to add isCompleted property
+const dailyData: DailyData[] = dailyChallengesData.map((dayData) => ({
+  ...dayData,
+  themes: dayData.themes.map((theme) => ({
+    ...theme,
+    isCompleted: false, // This will be updated from server data
+  })),
+}));
 
 export const gameData: GameData = {
   dailyData: dailyData,
