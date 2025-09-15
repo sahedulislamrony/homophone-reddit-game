@@ -155,32 +155,29 @@ export default function GameResultPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-y-auto py-8 px-4">
-      {/* Animated background elements */}
-      <div className="fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-yellow-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-2/3 left-1/2 w-64 h-64 bg-yellow-600/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
-
+    <div className="w-full min-h-screen bg-transparent text-white overflow-y-auto py-8 px-4">
       {/* Header */}
       <NavigationBar title="Game Results" onBack={handleBackToChallenges} />
       {/* Main Content */}
       <div className="relative z-10 container mx-auto px-4 py-0 max-w-4xl">
         {/* Score Highlight */}
         <div className="flex flex-col items-center justify-center mb-10 mt-6">
-          <div className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mb-2">
+          <div className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mb-2 drop-shadow-[0_0_20px_rgba(255,215,0,0.6)] animate-pulse">
             {gameResult.score.toLocaleString()}
           </div>
-          <div className="text-gray-400 text-lg">Total Points</div>
-          <div className="mt-2 flex items-center gap-2 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
-            <Trophy className="w-5 h-5 text-yellow-400" />
-            <span className="text-yellow-400 font-medium">Challenge Completed</span>
+          <div className="text-gray-400 text-lg drop-shadow-[0_0_10px_rgba(156,163,175,0.3)]">
+            Total Points
+          </div>
+          <div className="mt-2 flex items-center gap-2 bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20 shadow-[0_0_15px_rgba(255,215,0,0.3)] backdrop-blur-sm">
+            <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+            <span className="text-yellow-400 font-medium drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">
+              Challenge Completed
+            </span>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
           {/* Theme Card */}
           <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
@@ -226,10 +223,7 @@ export default function GameResultPage() {
               <div className="text-yellow-500/70 text-sm font-medium">Reward</div>
             </div>
           </div>
-        </div>
 
-        {/*  Time Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
           {/* Time Spent */}
           <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
@@ -241,22 +235,6 @@ export default function GameResultPage() {
             <div className="flex items-end justify-between">
               <div className="text-4xl font-bold text-yellow-400">{gameResult.timeSpent}s</div>
               <div className="text-yellow-500/70 text-sm font-medium">Duration</div>
-            </div>
-          </div>
-
-          {/* Completed At */}
-          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">Completed At</h3>
-              <div className="p-2 bg-yellow-500/20 rounded-full">
-                <Clock className="w-6 h-6 text-yellow-400" />
-              </div>
-            </div>
-            <div className="flex items-end justify-between">
-              <div className="text-lg font-bold text-white">
-                {formatDate(gameResult.completedAt)}
-              </div>
-              <div className="text-yellow-500/70 text-sm font-medium">Date</div>
             </div>
           </div>
         </div>

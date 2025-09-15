@@ -213,11 +213,11 @@ export default function GamePage() {
 
   return (
     <div
-      className="w-full min-h-screen relative bg-cover bg-center bg-no-repeat"
+      className="w-full min-h-screen relative bg-cover bg-center bg-no-repeat bg-transparent"
       style={{ backgroundImage: `url(${gameObject.themeBgImage})` }}
     >
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/90"></div>
+      <div className="absolute inset-0 bg-black/70"></div>
 
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex flex-col p-6">
