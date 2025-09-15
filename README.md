@@ -8,13 +8,13 @@ A Reddit-based word game where players hunt down impostor words and replace them
 
 ### Key Features
 
-- **Daily Challenges**: Fresh content every day with 8 themed challenges
+- **Daily Challenges**: Fresh content every day with themed challenges
 - **Progressive Difficulty**: Easy (5 gems), Medium (10 gems), Hard (20 gems)
 - **Streak System**: Build consecutive correct answers for bonus points
 - **Hint System**: 3 free hints per challenge + gem-purchased additional hints
-- **Leaderboards**: Daily, weekly, monthly, and all-time rankings
+- **Leaderboards**: Daily, and all-time rankings (weekly and monthly will come latter)
 - **Statistics Tracking**: Comprehensive performance analytics
-- **Gem Economy**: Earn gems for first-time completions
+- **Gem Economy**: Earn gems for completions
 - **Real-time Sync**: Server-based data synchronization
 - **User Generated Content (UGC)**: Players can comment on their game results and share experiences on game posts
 
@@ -54,8 +54,8 @@ Explanation: "board" should be "bought" - they sound similar but have different 
 ### Hints & Rewards
 
 - **Free Hints**: 3 per challenge
-- **Gem Hints**: 1 gem = 3 additional hints
-- **Gems**: Earned for first-time challenge completions
+- **Gem Hints**: Get additional hints by using gems
+- **Gems**: Earned for challenge completions
 - **Leaderboards**: Compete with other players globally
 
 ## 💬 User Generated Content (UGC)
@@ -83,8 +83,8 @@ Explanation: "board" should be "bought" - they sound similar but have different 
 ### Prerequisites
 
 - **Node.js 22+**: Download from [nodejs.org](https://nodejs.org/)
-- **Reddit Account**: Required for Devvit platform access
-- **Devvit CLI**: Installed via npm
+- **Reddit Account**: Required for Devvit platform access [reddit.com](https://www.reddit.com/)
+- **Devvit CLI**: Installed via npm [developers.reddit.com](https://developers.reddit.com/)
 
 ### Installation
 
@@ -209,6 +209,7 @@ The app is configured via `devvit.json`:
 
 ```json
 {
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
   "name": "dailyhomophone",
   "post": {
     "dir": "dist/client",
@@ -222,13 +223,32 @@ The app is configured via `devvit.json`:
     "dir": "dist/server",
     "entry": "index.cjs"
   },
+  "media": {},
+  "menu": {
+    "items": [
+      {
+        "label": "Create a new post",
+        "description": "dailyhomophone",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/post-create"
+      }
+    ]
+  },
+  "triggers": {
+    "onAppInstall": "/internal/on-app-install"
+  },
   "dev": {
-    "subreddit": "dailyhomophone_dev"
+    "subreddit": <YOUR_TEST_SUBREDDIT>
   },
   "permissions": {
-    "redis": true
+    "redis": true,
+    "reddit": {
+      "asUser": ["SUBMIT_COMMENT"]
+    }
   }
 }
+
 ```
 
 ## 🔧 Technical Details
@@ -237,16 +257,16 @@ The app is configured via `devvit.json`:
 
 - **Frontend**: React 19, TypeScript, Tailwind CSS, Vite
 - **Backend**: Node.js, Express, TypeScript
-- **Platform**: Reddit Devvit
+- **Platform**: Reddit Devvit Web
 - **Database**: Redis (via Devvit)
 - **Build Tools**: Vite, ESLint, Prettier
 
 ### Key Technologies
 
-- **Devvit**: Reddit's developer platform for building immersive experiences
+- **Devvit Web**: Reddit's developer platform for building immersive experiences
 - **React**: Modern UI library with hooks and context
 - **Express**: Web framework for API endpoints
-- **Redis**: In-memory data store for game data and leaderboards
+- **Redis**: In-memory data store for game data and leaderboards (via Devvit)
 - **Tailwind CSS**: Utility-first CSS framework
 - **TypeScript**: Type-safe JavaScript development
 
@@ -254,7 +274,6 @@ The app is configured via `devvit.json`:
 
 - **Client-Server**: React frontend communicates with Express backend
 - **Real-time Sync**: Server-based data synchronization
-- **Offline Fallback**: Graceful degradation when server unavailable
 - **Redis Storage**: Efficient data persistence and leaderboard operations
 - **UGC Integration**: Seamless integration with Reddit's native commenting system for user-generated content
 
@@ -264,17 +283,16 @@ The app is configured via `devvit.json`:
 
 Daily challenges are stored in `src/client/game/data/dailyChallengesData.ts`. Each day includes:
 
-- **8 Themed Challenges**: Unique content with different difficulty levels
+- **Themed Challenges**: Unique content with different difficulty levels
 - **Progressive Unlocking**: Complete challenges to unlock harder ones
 - **Gem Rewards**: 5, 10, or 20 gems based on difficulty
 - **Server Time**: All times based on server timezone
 
 ### Adding New Content
 
-1. **Use the Template**: Copy from `dailyChallengesTemplate.ts`
-2. **Update Data**: Add to `dailyChallengesData.ts` array
-3. **Follow Structure**: Include all required fields (date, theme, content, etc.)
-4. **Test**: Verify in development environment
+1. **Update Data**: Add to `dailyChallengesData.ts` array
+2. **Follow Structure**: Include all required fields (date, theme, content, etc.)
+3. **Test**: Verify in development environment
 
 ### Data Structure
 
@@ -296,7 +314,6 @@ Daily challenges are stored in `src/client/game/data/dailyChallengesData.ts`. Ea
 
 - **Background Images**: Add to `src/client/public/images/`
 - **Color Scheme**: Modify Tailwind classes in components
-- **Game Assets**: Update `src/client/game/assets/GameAssets.ts`
 
 ### Game Configuration
 
@@ -329,14 +346,6 @@ Daily challenges are stored in `src/client/game/data/dailyChallengesData.ts`. Ea
    - Check `devvit.json` configuration
    - Verify Redis permissions
 
-### Debug Mode
-
-Enable debug logging by setting environment variables:
-
-```bash
-DEBUG=true npm run dev
-```
-
 ## 📈 Performance
 
 ### Optimization Features
@@ -345,12 +354,6 @@ DEBUG=true npm run dev
 - **Tree Shaking**: Unused code elimination
 - **Redis Caching**: Efficient data storage and retrieval
 - **Lazy Loading**: Components loaded on demand
-
-### Monitoring
-
-- **Server Logs**: Available via Devvit CLI
-- **Performance Metrics**: Tracked in game statistics
-- **Error Handling**: Comprehensive error boundaries
 
 ## 🚀 Future Plans
 
