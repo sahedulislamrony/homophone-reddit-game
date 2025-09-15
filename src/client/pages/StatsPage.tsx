@@ -2,19 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from '@client/contexts/RouterContext';
 import { useUserContext } from '@client/contexts/UserContext';
-import {
-  Trophy,
-  BarChart3,
-  Play,
-  Flame,
-  TargetIcon,
-  Clock,
-  Gem,
-  ShoppingCart,
-  Medal,
-  Globe,
-  User,
-} from 'lucide-react';
+import { Trophy, Play, Flame, TargetIcon, Gem, ShoppingCart, Medal, Globe } from 'lucide-react';
 import { UserStats } from '@shared/types/stats';
 import NavigationBar from '@client/components/basic/Navigation';
 import { FullScreenLoader } from '@client/components';
@@ -225,7 +213,6 @@ export default function StatsPage() {
                 </div>
               </div>
             </div>
-
           </div>
           {/* Detailed Stats Section */}
           {/* <div className="grid lg:grid-cols-2 gap-8 mb-10"> */}
@@ -277,7 +264,6 @@ export default function StatsPage() {
                   </div>
                 </div>
               </div> */}
-
 
           {/* Additional Stats */}
           {/* <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">

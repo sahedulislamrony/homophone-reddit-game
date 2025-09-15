@@ -144,16 +144,6 @@ export default function GameResultPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   return (
     <div className="w-full min-h-screen bg-transparent text-white overflow-y-auto py-8 px-4">
       {/* Header */}
