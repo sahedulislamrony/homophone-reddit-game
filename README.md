@@ -16,6 +16,7 @@ A Reddit-based word game where players hunt down impostor words and replace them
 - **Statistics Tracking**: Comprehensive performance analytics
 - **Gem Economy**: Earn gems for first-time completions
 - **Real-time Sync**: Server-based data synchronization
+- **User Generated Content (UGC)**: Players can comment on their game results and share experiences on game posts
 
 ## 🎯 How to Play
 
@@ -57,6 +58,26 @@ Explanation: "board" should be "bought" - they sound similar but have different 
 - **Gems**: Earned for first-time challenge completions
 - **Leaderboards**: Compete with other players globally
 
+## 💬 User Generated Content (UGC)
+
+### Community Interaction
+
+**The Daily Homophone** encourages community engagement through user-generated content features that allow players to share their gaming experiences and connect with fellow word enthusiasts.
+
+### Comment System
+
+- **Game Result Comments**: Players can comment on their game results directly on game posts
+- **Experience Sharing**: Share strategies, tips, and funny moments from gameplay
+- **Community Discussion**: Engage in conversations about homophones and language learning
+- **Social Features**: Connect with other players and build a community around word games
+
+### UGC Benefits
+
+- **Learning Enhancement**: Learn from other players' approaches and mistakes
+- **Community Building**: Create lasting connections with fellow word game enthusiasts
+- **Content Discovery**: Discover new strategies and insights through community discussions
+- **Engagement Boost**: Increased player retention through social interaction features
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -70,7 +91,7 @@ Explanation: "board" should be "bought" - they sound similar but have different 
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/sahedulislamrony/homophone-reddit-game
    cd dailyhomophone
    ```
 
@@ -235,6 +256,7 @@ The app is configured via `devvit.json`:
 - **Real-time Sync**: Server-based data synchronization
 - **Offline Fallback**: Graceful degradation when server unavailable
 - **Redis Storage**: Efficient data persistence and leaderboard operations
+- **UGC Integration**: Seamless integration with Reddit's native commenting system for user-generated content
 
 ## 📊 Game Data Management
 
@@ -330,6 +352,38 @@ DEBUG=true npm run dev
 - **Performance Metrics**: Tracked in game statistics
 - **Error Handling**: Comprehensive error boundaries
 
+## 🚀 Future Plans
+
+### Upcoming Features
+
+**The Daily Homophone** has exciting developments planned to enhance the gaming experience and community engagement:
+
+#### Content Expansion
+
+- **Expanding Themes and Puzzles**: Adding more variety with diverse themes, seasonal content, and creative puzzle types to keep the game fresh and engaging
+
+#### User Experience Improvements
+
+- **UI/UX Polish**: Implementing faster transitions, smoother animations, and enhanced visual feedback to create a more polished gaming experience
+
+#### Social Features Enhancement
+
+- **Achievements System**: Adding comprehensive achievement badges for various accomplishments
+- **Streak Badges**: Visual recognition for consecutive daily completions and milestone streaks
+- **Friend Leaderboards**: Private leaderboards to compete with friends and create more personal competition
+
+#### Game Variety
+
+- **Word-Based Mini-Games**: Exploring additional word-based mini-games under the same umbrella to provide variety while maintaining the core language learning focus
+
+#### Community Automation
+
+- **Automated Winner Posts**: Automated custom posts on the game subreddit featuring daily winners (top 3 in daily, weekly, and monthly leaderboards) to celebrate achievements and drive community engagement
+
+### Development Roadmap
+
+These features are planned for future releases and will be implemented based on community feedback and technical feasibility. Stay tuned for updates!
+
 ## 🤝 Contributing
 
 ### Development Setup
@@ -363,6 +417,7 @@ This project is licensed under the BSD-3-Clause License - see the [LICENSE](LICE
 
 - **Reddit**: Join the discussion in your test subreddit
 - **Discord**: Connect with other Devvit developers
+- **UGC Features**: Engage with the community through game result comments and shared experiences
 
 ---
 
