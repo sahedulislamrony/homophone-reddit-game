@@ -6,15 +6,21 @@ export const createPost = async () => {
     throw new Error('subredditName is required');
   }
 
+  const today = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return await reddit.submitCustomPost({
     splash: {
       appIconUri: 'logo.png',
       appDisplayName: 'The Daily Homophone',
-      backgroundUri: 'root_bg.png',
+      backgroundUri: 'splash.png',
       description: 'Hunt down Impostor words and claim your linguistic Victory',
       buttonLabel: 'Play Now',
     },
     subredditName: subredditName,
-    title: 'The Daily Homophone',
+    title: `Daily Homophone Challenge - ${today} `,
   });
 };

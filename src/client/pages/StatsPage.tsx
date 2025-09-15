@@ -103,47 +103,26 @@ export default function StatsPage() {
     return <FullScreenLoader isLoading={true} variant="stats" message="Loading stats" />;
   }
 
-  if (error || !userStats) {
+  if (error) {
     return (
-      <div
-        className="w-full min-h-screen bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: "url('/root_bg.png')" }}
-      >
-        <div className="w-full min-h-screen bg-black/70 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-red-400 text-xl mb-4">Error loading stats</div>
-            <div className="text-gray-300">{error || 'No stats available'}</div>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 transition-colors"
-            >
-              Retry
-            </button>
-          </div>
+      <div className="w-full min-h-screen bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-xl mb-4">Error loading stats</div>
+          <div className="text-gray-300">{error}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
-  const formatDate = (dateString: string) => {
-    if (!dateString || dateString === 'Never' || dateString === '') return 'Not played yet';
-
-    try {
-      const date = new Date(dateString);
-      // Check if the date is valid
-      if (isNaN(date.getTime())) {
-        return 'Not played yet';
-      }
-
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
-      return 'Not played yet';
-    }
-  };
+  if (!userStats) {
+    return <FullScreenLoader isLoading={true} variant="stats" message="Loading stats" />;
+  }
 
   const getRankDisplay = (rank: number) => {
     if (rank === 0) return 'Unranked';
@@ -154,109 +133,103 @@ export default function StatsPage() {
   };
 
   return (
-    <div
-      className="w-full min-h-screen bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: "url('/root_bg.png')" }}
-    >
-      <div className="w-full min-h-screen bg-black/70  ">
-        {/* Main Content */}
-        <div className="p-6">
-          <div className="max-w-6xl mx-auto">
-            <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
-            {/* Header
+    <div className="w-full min-h-screen bg-transparent ">
+      {/* Main Content */}
+      <div className="p-6">
+        <div className="max-w-6xl mx-auto">
+          <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
+          {/* Header
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-white mb-2">Your Statistics</h1>
               <p className="text-gray-400">
                 Track your progress and achievements in The Daily Homophone
               </p>
             </div> */}
-            {/* Gems Section - Prominent Display */}
-            <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 backdrop-blur-sm rounded-2xl border border-yellow-400/30 p-8 mb-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 bg-yellow-400/20 rounded-xl">
-                    <Gem className="w-8 h-8 text-yellow-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Total Gems</h2>
-                    <div className="text-4xl font-bold text-yellow-400">{userData?.gems || 0}</div>
-                    <p className="text-gray-300">Available gems</p>
-                  </div>
+          {/* Gems Section - Prominent Display */}
+          <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 backdrop-blur-sm rounded-2xl border border-yellow-400/30 p-8 mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-yellow-400/20 rounded-xl">
+                  <Gem className="w-8 h-8 text-yellow-400" />
                 </div>
-                <button className="px-6 py-3 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5" />
-                  Buy Gems
-                </button>
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-1">Total Gems</h2>
+                  <div className="text-4xl font-bold text-yellow-400">{userData?.gems || 0}</div>
+                  <p className="text-gray-300">Available gems</p>
+                </div>
               </div>
+              <button className="px-6 py-3 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5" />
+                Buy Gems
+              </button>
             </div>
-            {/* Main Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {/* Current Streak */}
-              <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-orange-500/30 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-orange-500/20 rounded-xl">
-                    <Flame className="w-6 h-6 text-orange-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">Current Streak</h3>
-                    <div className="text-2xl font-bold text-white">{userStats?.streak || 0}</div>
-                    <p className="text-xs text-gray-400">days</p>
-                  </div>
+          </div>
+          {/* Main Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Current Streak */}
+            <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-orange-500/30 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-orange-500/20 rounded-xl">
+                  <Flame className="w-6 h-6 text-orange-400" />
                 </div>
-              </div>
-
-              {/* Total Games Played */}
-              <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-blue-500/30 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-blue-500/20 rounded-xl">
-                    <TargetIcon className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">Games Played</h3>
-                    <div className="text-2xl font-bold text-white">
-                      {userStats?.gamesPlayed || 0}
-                    </div>
-                    <p className="text-xs text-gray-400">total</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Today's Rank */}
-              <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-yellow-500/30 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-yellow-500/20 rounded-xl">
-                    <Medal className="w-6 h-6 text-yellow-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">Today's Rank</h3>
-                    <div className="text-2xl font-bold text-white">
-                      {getRankDisplay(userStats?.todaysRank || 0)}
-                    </div>
-                    <p className="text-xs text-gray-400">daily ranking</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Global Rank */}
-              <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-purple-500/30 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-purple-500/20 rounded-xl">
-                    <Globe className="w-6 h-6 text-purple-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">Global Rank</h3>
-                    <div className="text-2xl font-bold text-white">
-                      {getRankDisplay(userStats?.allTimeRank || 0)}
-                    </div>
-                    <p className="text-xs text-gray-400">all-time ranking</p>
-                  </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400">Current Streak</h3>
+                  <div className="text-2xl font-bold text-white">{userStats?.streak || 0}</div>
+                  <p className="text-xs text-gray-400">days</p>
                 </div>
               </div>
             </div>
-            {/* Detailed Stats Section */}
-            {/* <div className="grid lg:grid-cols-2 gap-8 mb-10"> */}
-            {/* Performance Overview */}
-            {/* <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+
+            {/* Total Games Played */}
+            <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-blue-500/30 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-blue-500/20 rounded-xl">
+                  <TargetIcon className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400">Games Played</h3>
+                  <div className="text-2xl font-bold text-white">{userStats?.gamesPlayed || 0}</div>
+                  <p className="text-xs text-gray-400">total</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Today's Rank */}
+            <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-yellow-500/30 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-yellow-500/20 rounded-xl">
+                  <Medal className="w-6 h-6 text-yellow-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400">Today's Rank</h3>
+                  <div className="text-2xl font-bold text-white">
+                    {getRankDisplay(userStats?.todaysRank || 0)}
+                  </div>
+                  <p className="text-xs text-gray-400">daily ranking</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Global Rank */}
+            <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-purple-500/30 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-purple-500/20 rounded-xl">
+                  <Globe className="w-6 h-6 text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400">Global Rank</h3>
+                  <div className="text-2xl font-bold text-white">
+                    {getRankDisplay(userStats?.allTimeRank || 0)}
+                  </div>
+                  <p className="text-xs text-gray-400">all-time ranking</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Detailed Stats Section */}
+          {/* <div className="grid lg:grid-cols-2 gap-8 mb-10"> */}
+          {/* Performance Overview */}
+          {/* <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <BarChart3 className="w-6 h-6 text-yellow-400" />
                   Performance Overview
@@ -303,8 +276,8 @@ export default function StatsPage() {
                 </div>
               </div> */}
 
-            {/* Additional Stats */}
-            {/* <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
+          {/* Additional Stats */}
+          {/* <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <Trophy className="w-6 h-6 text-yellow-400" />
                   Additional Stats
@@ -349,24 +322,23 @@ export default function StatsPage() {
                 </div>
               </div>
             </div> */}
-            {/* Quick Actions */}
-            <div className="text-center">
-              <div className="flex flex-wrap justify-center gap-4">
-                <button
-                  onClick={() => router.goto('game')}
-                  className="px-6 py-3 flex items-center justify-center gap-2 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold group"
-                >
-                  <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  Play Now
-                </button>
-                <button
-                  onClick={() => router.goto('leaderboard')}
-                  className="px-6 py-3 flex items-center justify-center gap-2 bg-black/80 text-white border border-gray-700 rounded-xl hover:bg-black/70 transition-all duration-300 font-semibold group"
-                >
-                  <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  View Leaderboard
-                </button>
-              </div>
+          {/* Quick Actions */}
+          <div className="text-center">
+            <div className="flex flex-wrap justify-center gap-4">
+              <button
+                onClick={() => router.goto('game')}
+                className="px-6 py-3 flex items-center justify-center gap-2 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold group"
+              >
+                <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                Play Now
+              </button>
+              <button
+                onClick={() => router.goto('leaderboard')}
+                className="px-6 py-3 flex items-center justify-center gap-2 bg-black/80 text-white border border-gray-700 rounded-xl hover:bg-black/70 transition-all duration-300 font-semibold group"
+              >
+                <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                View Leaderboard
+              </button>
             </div>
           </div>
         </div>

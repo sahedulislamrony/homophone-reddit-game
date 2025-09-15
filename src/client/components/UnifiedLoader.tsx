@@ -195,7 +195,7 @@ export const UnifiedLoader: React.FC<UnifiedLoaderProps> = ({
 
   if (showBackground) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
         <LoaderContent />
       </div>
     );

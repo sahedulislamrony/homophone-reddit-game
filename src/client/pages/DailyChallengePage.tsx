@@ -156,7 +156,7 @@ export default function DailyChallengePage() {
 
   if (error) {
     return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
+      <div className="w-full min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-400 text-xl mb-4">Error loading challenges</div>
           <div className="text-gray-300 mb-4">{error}</div>
@@ -173,14 +173,14 @@ export default function DailyChallengePage() {
 
   if (!dailyChallenge) {
     return (
-      <div className="w-full min-h-screen bg-black flex items-center justify-center">
+      <div className="w-full min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-white text-xl">No challenges available</div>
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen bg-black pb-4">
+    <div className="w-full min-h-screen bg-transparent pb-4">
       {/* Header */}
       <div className="relative z-10 p-6">
         <NavigationBar title="Daily Challenges" onBack={handleBackToHome} />
@@ -188,7 +188,7 @@ export default function DailyChallengePage() {
         {/* Date and Stats */}
         <div className="mt-6 text-center">
           <div className="flex items-center justify-center gap-2 text-white mb-2">
-            <Calendar className="w-5 h-5" />
+            <Calendar className="w-5 h-5 text-yellow-400" />
             <span className="text-lg font-semibold">
               {today
                 ? new Date(today).toLocaleDateString('en-US', {
