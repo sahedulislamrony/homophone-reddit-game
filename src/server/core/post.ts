@@ -6,11 +6,11 @@ export const createPost = async () => {
     throw new Error('subredditName is required');
   }
 
-  const today = new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  // const today = new Date().toLocaleDateString('en-US', {
+  //   year: 'numeric',
+  //   month: 'long',
+  //   day: 'numeric',
+  // });
 
   return await reddit.submitCustomPost({
     splash: {
@@ -21,6 +21,6 @@ export const createPost = async () => {
       buttonLabel: 'Play Now',
     },
     subredditName: subredditName,
-    title: `Daily Homophone Challenge - ${today} `,
+    title: `Daily Homophone Challenge`,
   });
 };
