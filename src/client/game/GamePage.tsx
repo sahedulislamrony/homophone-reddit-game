@@ -223,9 +223,9 @@ export default function GamePage() {
       <div className="relative z-10 min-h-screen flex flex-col p-6">
         <NavigationBar title={gameObject.themeName} onBack={handleBackToHome} />
         <div className="flex-1 flex flex-col items-center justify-center">
-          <h2 className="text-2xl font-bold text-white mb-6">
+          {/* <h2 className="text-2xl font-bold text-white mb-6">
             Find The <span className="text-yellow-400 font-[800]">Homophone</span>
-          </h2>
+          </h2> */}
 
           <div className="max-w-2xl w-full mx-auto text-center">
             <GameCard

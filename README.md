@@ -361,26 +361,10 @@ Daily challenges are stored in `src/client/game/data/dailyChallengesData.ts`. Ea
 
 **The Daily Homophone** has exciting developments planned to enhance the gaming experience and community engagement:
 
-#### Content Expansion
-
 - **Expanding Themes and Puzzles**: Adding more variety with diverse themes, seasonal content, and creative puzzle types to keep the game fresh and engaging
-
-#### User Experience Improvements
-
 - **UI/UX Polish**: Implementing faster transitions, smoother animations, and enhanced visual feedback to create a more polished gaming experience
-
-#### Social Features Enhancement
-
 - **Achievements System**: Adding comprehensive achievement badges for various accomplishments
 - **Streak Badges**: Visual recognition for consecutive daily completions and milestone streaks
-- **Friend Leaderboards**: Private leaderboards to compete with friends and create more personal competition
-
-#### Game Variety
-
-- **Word-Based Mini-Games**: Exploring additional word-based mini-games under the same umbrella to provide variety while maintaining the core language learning focus
-
-#### Community Automation
-
 - **Automated Winner Posts**: Automated custom posts on the game subreddit featuring daily winners (top 3 in daily, weekly, and monthly leaderboards) to celebrate achievements and drive community engagement
 
 ### Development Roadmap
