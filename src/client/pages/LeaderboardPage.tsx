@@ -230,11 +230,11 @@ export default function LeaderboardPage() {
     <div className="w-full min-h-screen bg-transparent ">
       {/* Navigation Header */}
 
+      <NavigationBar title="Leaderboard" onBack={() => router.goto('home')} />
+
       {/* Main Content */}
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
-          <NavigationBar title="Leaderboard" onBack={() => router.goto('home')} />
-
           {/* Date Navigation - Only show for Today tab */}
           {activeTab === 'today' && (
             <div className="flex justify-center mb-4">

@@ -18,6 +18,7 @@ export const submitGameResultComment = async (req: Request, res: Response): Prom
 
     // Get the current post ID from context
     const postId = context.postId;
+    const subreddit = context.subredditName || ' ';
     if (!postId) {
       res.status(400).json({
         status: 'error',
@@ -99,21 +100,19 @@ ${
 
 ---
 
-*🤖 Posted via [Daily Homophone Challenge App](https://www.reddit.com/r/dailyhomophone_dev)*`;
+*🤖 Posted via [Daily Homophone Challenge App](https://www.reddit.com/r/${subreddit})*`;
 
     // Submit the comment using Reddit API
-    await reddit.submitComment({
+    const result = await reddit.submitComment({
       id: postId,
       text: commentText,
       runAs: 'USER',
     });
 
-    // Update the game result to mark as commented
-    // Note: This will be handled by the client-side API call
-
     res.json({
       status: 'success',
       message: 'Comment posted successfully',
+      data: result,
     });
   } catch (error) {
     console.error('Error submitting comment:', error);

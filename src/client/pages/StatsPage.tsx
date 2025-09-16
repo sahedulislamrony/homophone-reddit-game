@@ -122,10 +122,10 @@ export default function StatsPage() {
 
   return (
     <div className="w-full min-h-screen bg-transparent ">
-      {/* Main Content */}
+      {/* Navigation Header */}
+      <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
-          <NavigationBar title="Your Statistics" onBack={() => router.goto('home')} />
           {/* Header
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-white mb-2">Your Statistics</h1>
@@ -318,17 +318,17 @@ export default function StatsPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => router.goto('game')}
-                className="px-6 py-3 flex items-center justify-center gap-2 bg-yellow-500 text-black rounded-xl hover:bg-yellow-400 transition-all duration-300 font-semibold group"
+                className="px-6 py-3 flex items-center justify-center gap-2 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all duration-300 font-semibold group"
               >
                 <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 Play Now
               </button>
               <button
                 onClick={() => router.goto('leaderboard')}
-                className="px-6 py-3 flex items-center justify-center gap-2 bg-black/80 text-white border border-gray-700 rounded-xl hover:bg-black/70 transition-all duration-300 font-semibold group"
+                className="px-6 py-3 flex items-center justify-center gap-2 bg-black/80 text-white border border-yellow-400 rounded-full hover:bg-black/70 transition-all duration-300 font-semibold group"
               >
                 <Trophy className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                View Leaderboard
+                Leaderboard
               </button>
             </div>
           </div>

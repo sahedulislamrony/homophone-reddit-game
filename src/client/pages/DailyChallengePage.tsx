@@ -181,10 +181,9 @@ export default function DailyChallengePage() {
 
   return (
     <div className="w-full min-h-screen bg-transparent pb-4">
+      <NavigationBar title="Daily Challenges" onBack={handleBackToHome} />
       {/* Header */}
       <div className="relative z-10 p-6">
-        <NavigationBar title="Daily Challenges" onBack={handleBackToHome} />
-
         {/* Date and Stats */}
         <div className="mt-6 text-center">
           <div className="flex items-center justify-center gap-2 text-white mb-2">

@@ -36,7 +36,7 @@ export default function ChallengeCard({
           ? 'border-gray-600 cursor-not-allowed opacity-60'
           : challenge.isCompleted
             ? 'border-green-400 cursor-pointer hover:border-green-300'
-            : 'border-blue-400 cursor-pointer hover:border-blue-300 hover:scale-105'
+            : 'border-blue-400 cursor-pointer hover:border-yellow-400 hover:scale-101'
       }`}
       onClick={isClickable ? onClick : undefined}
     >
@@ -71,7 +71,7 @@ export default function ChallengeCard({
       )}
 
       {/* Content */}
-      <div className="relative z-20 p-4 h-full flex flex-col">
+      <div className="relative z-20 p-4 h-full flex flex-col group">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function ChallengeCard({
         {/* Action Button */}
         <div className="mt-auto">
           {!challenge.isLocked && !challenge.isCompleted && (
-            <button className="w-full bg-blue-500 hover:bg-blue-400 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 text-xs">
+            <button className="w-full bg-blue-500 group-hover:bg-yellow-400 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 text-xs">
               Start
             </button>
           )}

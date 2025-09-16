@@ -34,7 +34,7 @@ export default function GameCard({
   streakInfo,
 }: GameCardProps) {
   return (
-    <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8 mb-6">
+    <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8  mb-6">
       {/* Score and Hint */}
       <div className="flex justify-between items-start mb-6 ">
         <div className="text-white">
@@ -90,7 +90,7 @@ export default function GameCard({
       </div>
 
       {/* Input Section */}
-      <div className="space-y-4">
+      <div className="space-y-4 max-w-md mx-auto">
         <div className="flex justify-between items-center border border-gray-700 rounded-full p-1 transition-all duration-300 focus-within:border-yellow-400 focus-within:ring-2 focus-within:ring-yellow-400/20">
           <input
             type="text"
@@ -99,10 +99,11 @@ export default function GameCard({
             onKeyDown={onKeyDown}
             placeholder="Enter the correct word..."
             className="flex-1 w-full px-4 py-3 bg-black/80 text-white rounded-full border-0 focus:outline-none focus:ring-0 transition-all duration-300"
+            autoFocus
           />
           <button
             onClick={onSubmit}
-            className="px-6 py-3 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all duration-300 font-semibold min-w-[120px]"
+            className="px-6 py-3 shadow-sm shadow-yellow-500/30 bg-yellow-500 text-black rounded-full hover:bg-yellow-400  hover:shadow-yellow-500/40 transition-all duration-300 font-semibold min-w-[120px]"
           >
             Submit
           </button>

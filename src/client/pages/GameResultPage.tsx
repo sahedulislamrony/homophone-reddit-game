@@ -13,6 +13,7 @@ export default function GameResultPage() {
   const [error, setError] = useState<string | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
+  const [commentUrl, setCommentUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchGameResult = async () => {
@@ -86,6 +87,7 @@ export default function GameResultPage() {
       const result = await response.json();
 
       if (result.status === 'success') {
+        setCommentUrl(result.data?.url);
         setShowSuccessPopup(true);
         // Update the game result to mark as commented
         if (gameResult) {
@@ -145,7 +147,7 @@ export default function GameResultPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-transparent text-white overflow-y-auto py-8 px-4">
+    <div className="w-full min-h-screen bg-transparent text-white overflow-y-auto ">
       {/* Header */}
       <NavigationBar title="Game Results" onBack={handleBackToChallenges} />
       {/* Main Content */}
@@ -169,24 +171,24 @@ export default function GameResultPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
           {/* Theme Card */}
-          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-black/90 backdrop-blur-lg rounded-2xl border border-gray-800 hover:border-yellow-400 p-6 transform hover:-translate-y-1 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-white">Theme</h3>
-              <div className="p-2 bg-yellow-500/20 rounded-full">
+              <div className="p-2 bg-gray-800 rounded-full">
                 <Target className="w-6 h-6 text-yellow-400" />
               </div>
             </div>
             <div className="flex items-end justify-between">
-              <div className="text-2xl font-bold text-white">{gameResult.themeName}</div>
-              <div className="text-yellow-500/70 text-sm font-medium">Challenge</div>
+              <div className="text-2xl font-bold text-yellow-400">{gameResult.themeName}</div>
+              <div className="text-gray-400 text-sm font-medium">Challenge</div>
             </div>
           </div>
 
           {/* Difficulty Card */}
-          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-black/90 backdrop-blur-lg rounded-2xl border border-gray-800 hover:border-yellow-400 p-6 transform hover:-translate-y-1 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-white">Difficulty</h3>
-              <div className="p-2 bg-yellow-500/20 rounded-full">
+              <div className="p-2 bg-gray-800 rounded-full">
                 <Zap className="w-6 h-6 text-yellow-400" />
               </div>
             </div>
@@ -196,45 +198,45 @@ export default function GameResultPage() {
                   {gameResult.difficulty.charAt(0).toUpperCase() + gameResult.difficulty.slice(1)}
                 </span>
               </div>
-              <div className="text-yellow-500/70 text-sm font-medium">Level</div>
+              <div className="text-gray-400 text-sm font-medium">Level</div>
             </div>
           </div>
 
           {/* Gems Earned */}
-          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-black/90 backdrop-blur-lg rounded-2xl border border-gray-800 hover:border-yellow-400 p-6 transform hover:-translate-y-1 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-white">Gems Earned</h3>
-              <div className="p-2 bg-yellow-500/20 rounded-full">
+              <div className="p-2 bg-gray-800 rounded-full">
                 <Gem className="w-6 h-6 text-yellow-400" />
               </div>
             </div>
             <div className="flex items-end justify-between">
               <div className="text-4xl font-bold text-yellow-400">+{gameResult.gemsEarned}</div>
-              <div className="text-yellow-500/70 text-sm font-medium">Reward</div>
+              <div className="text-gray-400 text-sm font-medium">Reward</div>
             </div>
           </div>
 
           {/* Time Spent */}
-          <div className="bg-gradient-to-br from-black/60 to-gray-900/60 backdrop-blur-lg rounded-2xl border border-yellow-500/20 p-6 transform hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-black/90 backdrop-blur-lg rounded-2xl border border-gray-800 hover:border-yellow-400 p-6 transform hover:-translate-y-1 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-white">Time Spent</h3>
-              <div className="p-2 bg-yellow-500/20 rounded-full">
+              <div className="p-2 bg-gray-800 rounded-full">
                 <Clock className="w-6 h-6 text-yellow-400" />
               </div>
             </div>
             <div className="flex items-end justify-between">
               <div className="text-4xl font-bold text-yellow-400">{gameResult.timeSpent}s</div>
-              <div className="text-yellow-500/70 text-sm font-medium">Duration</div>
+              <div className="text-gray-400 text-sm font-medium">Duration</div>
             </div>
           </div>
         </div>
 
         {/* Comment Button */}
-        <div className="mb-10 mt-8">
+        <div className="mb-10 mt-8 flex justify-center items-center">
           <button
             onClick={handleCommentResult}
             disabled={isCommenting || gameResult?.isResultCommented}
-            className={`w-full flex items-center justify-center gap-3 px-8 py-4 font-bold rounded-xl transition-all duration-300 transform ${
+            className={`w-[60%]  flex items-center justify-center gap-3 px-8 py-4 font-bold rounded-full transition-all duration-300 transform ${
               isCommenting
                 ? 'bg-gray-400 text-gray-600 cursor-not-allowed scale-95'
                 : gameResult?.isResultCommented
@@ -268,6 +270,7 @@ export default function GameResultPage() {
         onClose={() => setShowSuccessPopup(false)}
         title="Comment Posted!"
         message="Your game result has been successfully posted as a comment on this Reddit post."
+        commentUrl={commentUrl}
       />
     </div>
   );

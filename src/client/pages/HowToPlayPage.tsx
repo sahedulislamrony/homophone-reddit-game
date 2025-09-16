@@ -10,14 +10,14 @@ export default function HowToPlayPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-transparent flex items-center justify-center p-6">
-      <div className=" w-full mx-auto">
-        {/* Navigation Buttons */}
-        <NavigationBar title="How to Play" onBack={() => router.goto('home')} />
+    <div className="w-full min-h-screen bg-transparent  ">
+      {/* Navigation Buttons */}
+      <NavigationBar title="How to Play" onBack={() => router.goto('home')} />
+      <div className=" w-full mx-auto p-6 px-8">
         {/* Header */}
 
         {/* Main Instructions Card */}
-        <div className="bg-transparent  rounded-2xl shadow-lg  p-8 mb-8">
+        <div className="bg-transparent  rounded-2xl shadow-lg  pb-6 pt-0">
           <div className="text-center mb-8">
             <Target className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-4">The Objective</h2>
@@ -205,16 +205,16 @@ export default function HowToPlayPage() {
         </div>
 
         {/* Server Time Caution */}
-        <div className="bg-orange-500/20 border border-orange-500/50 rounded-xl p-4 mb-6">
+        <div className="bg-black border border-yellow-400/50 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 bg-white rounded-full flex items-center justify-center mt-0.5">
-              <span className="text-red-800 text-sm font-bold">!</span>
+            <div className="flex-shrink-0 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center mt-0.5">
+              <span className="text-orange-400 text-sm font-bold">!</span>
             </div>
             <div>
-              <h4 className="text-yellow-400 font-semibold text-sm mb-2">Important Notice</h4>
+              <h4 className="text-orange-400 font-semibold text-sm mb-2">Important Notice</h4>
               <p className="text-white text-sm leading-relaxed">
                 All game times, daily challenges, and leaderboards are based on{' '}
-                <strong className="text-yellow-400">server time</strong>, which may differ from your
+                <strong className="text-orange-400">server time</strong>, which may differ from your
                 local time. Daily challenges reset at midnight server time, and leaderboard rankings
                 are calculated using server time zones.
               </p>
@@ -223,13 +223,13 @@ export default function HowToPlayPage() {
         </div>
 
         {/* Start Game Button */}
-        <div className="text-center mb-5">
+        <div className="text-center mb-2">
           <button
             onClick={handleStartGame}
             className="group w-full max-w-sm mx-auto py-3 px-6 bg-yellow-500 text-black rounded-full hover:bg-yellow-400 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-3"
           >
             <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            <span className="font-medium">Start Playing Now!</span>
+            <span className="font-medium">Start Playing Now !</span>
           </button>
         </div>
       </div>

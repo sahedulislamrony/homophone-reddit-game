@@ -76,7 +76,7 @@ export const week1Challenges: DailyData[] = [
     date: '2025-09-16',
     themes: [
       {
-        themeId: '2025-09-16-magic-academy',
+        themeId: '2025-09-16-magic-yy',
         themeName: 'Magic Academy',
         content:
           'The student was grate at potions but new she needed to brake threw her fears to succeed.',
@@ -97,7 +97,7 @@ export const week1Challenges: DailyData[] = [
         pointPerCorrectWord: 10,
       },
       {
-        themeId: '2025-09-16-time-travel',
+        themeId: '2025-09-16-time-yy',
         themeName: 'Time Travel',
         content:
           'The scientist road threw time and new that grate care was needed to avoid changing history.',

@@ -213,36 +213,36 @@ export default function GamePage() {
 
   return (
     <div
-      className="w-full min-h-screen relative bg-cover bg-center bg-no-repeat bg-transparent"
+      className="w-full min-h-screen relative bg-cover bg-center bg-no-repeat bg-transparent bg-fixed"
       style={{ backgroundImage: `url(${gameObject.themeBgImage})` }}
     >
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/70"></div>
-
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col p-6">
+      <div className="w-full bg-black/70">
         <NavigationBar title={gameObject.themeName} onBack={handleBackToHome} />
-        <div className="flex-1 flex flex-col items-center justify-center">
-          {/* <h2 className="text-2xl font-bold text-white mb-6">
+        {/* Main Content */}
+        <div className="relative z-10 min-h-screen flex flex-col p-6 pt-0 ">
+          <div className="flex-1 flex flex-col items-center justify-center">
+            {/* <h2 className="text-2xl font-bold text-white mb-6">
             Find The <span className="text-yellow-400 font-[800]">Homophone</span>
           </h2> */}
 
-          <div className="max-w-2xl w-full mx-auto text-center">
-            <GameCard
-              gameState={gameState}
-              content={gameObject.content}
-              correctWords={gameObject.correctWords}
-              userInput={userInput}
-              onInputChange={setUserInput}
-              onSubmit={handleSubmit}
-              onKeyDown={handleKeyDown}
-              onHint={handleHint}
-              canUseHint={gameEngine.canUseHint()}
-              feedback={feedback}
-              streakInfo={gameEngine.getStreakInfo()}
-            />
+            <div className="max-w-2xl w-full mx-auto text-center">
+              <GameCard
+                gameState={gameState}
+                content={gameObject.content}
+                correctWords={gameObject.correctWords}
+                userInput={userInput}
+                onInputChange={setUserInput}
+                onSubmit={handleSubmit}
+                onKeyDown={handleKeyDown}
+                onHint={handleHint}
+                canUseHint={gameEngine.canUseHint()}
+                feedback={feedback}
+                streakInfo={gameEngine.getStreakInfo()}
+              />
 
-            {feedback && <FeedbackMessage feedback={feedback} />}
+              {feedback && <FeedbackMessage feedback={feedback} />}
+            </div>
           </div>
         </div>
       </div>
