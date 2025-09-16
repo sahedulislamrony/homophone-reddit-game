@@ -17,8 +17,8 @@
   "menu": {
     "items": [
       {
-        "label": "Create a new post",
-        "description": "dailyhomophone",
+        "label": "Post a new challenge",
+        "description": "Hunt down Impostor words.",
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"
