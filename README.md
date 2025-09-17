@@ -790,19 +790,11 @@ leaderboard:alltime           // All-time leaderboard
 
 ### Performance Optimization
 
-#### **Caching Strategy**
-
-- **Static Content**: Cached in client bundle
-- **User Data**: Cached with 30-second refresh
-- **Leaderboards**: Cached with 5-minute refresh
-- **Game Results**: Real-time updates
-
 #### **Data Efficiency**
 
 - **Lazy Loading**: Load content only when needed
 - **Compression**: Minimize bundle size
 - **Redis Optimization**: Efficient key structure
-- **CDN**: Static assets served via Reddit CDN
 
 ## 🎨 Customization
 
@@ -825,7 +817,7 @@ leaderboard:alltime           // All-time leaderboard
 
    - Ensure Node.js 22+ is installed
    - Run `npm install` to update dependencies
-   - Check TypeScript errors with `npm run type-check`
+   - Check TypeScript errors with `npm run check`
 
 2. **Devvit Login Issues**
 
@@ -841,15 +833,6 @@ leaderboard:alltime           // All-time leaderboard
    - Ensure `npm run build` completes successfully
    - Check `devvit.json` configuration
    - Verify Redis permissions
-
-## 📈 Performance
-
-### Optimization Features
-
-- **Code Splitting**: Automatic route-based splitting
-- **Tree Shaking**: Unused code elimination
-- **Redis Caching**: Efficient data storage and retrieval
-- **Lazy Loading**: Components loaded on demand
 
 ## 🚀 Future Plans
 
@@ -895,12 +878,7 @@ This project is licensed under the BSD-3-Clause License - see the [LICENSE](LICE
 - **Documentation**: Check this README and inline code comments
 - **Issues**: Report bugs via GitHub issues
 - **Devvit Docs**: [developers.reddit.com](https://developers.reddit.com/)
-
-### Community
-
-- **Reddit**: Join the discussion in your test subreddit
-- **Discord**: Connect with other Devvit developers
-- **UGC Features**: Engage with the community through game result comments and shared experiences
+- **Email Me**: sahedul.dev@gmail.com
 
 ---
 
