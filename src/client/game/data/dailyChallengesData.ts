@@ -1,12 +1,10 @@
 // Import week data
-import { week1Challenges } from './assets/week1';
-import { week2Challenges } from './assets/week2';
+import { week3Challenges, week4Challenges } from './assets';
+
 import { DailyData } from '@shared/types/game';
 
-// Raw daily challenge data - easily add new days here
-
 // Daily challenge data for each day - imported from week files
-export const dailyChallengesData: DailyData[] = [...week1Challenges, ...week2Challenges];
+export const dailyChallengesData: DailyData[] = [...week3Challenges, ...week4Challenges];
 
 // Helper function to get challenges for a specific date
 export const getChallengesForDate = (date: string): DailyData | null => {

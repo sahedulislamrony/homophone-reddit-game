@@ -34,7 +34,7 @@ export default function GameCard({
   streakInfo,
 }: GameCardProps) {
   return (
-    <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700 p-8  mb-6">
+    <div className="bg-black/80 backdrop-blur-sm rounded-2xl shadow-lg border border-yellow-400/50 p-8  mb-6">
       {/* Score and Hint */}
       <div className="flex justify-between items-start mb-6 ">
         <div className="text-white">
@@ -65,9 +65,9 @@ export default function GameCard({
       {/* Content */}
       <div className="text-center mb-8">
         <div className="text-lg text-gray-100 leading-relaxed mb-6 px-4 py-6 relative">
-          <Quote className="size-10 text-gray-900 rotate-180 opacity-80 absolute top-0 left-0 z-10" />
-          <div className="z-20">{content}</div>
-          <Quote className="size-10 text-gray-900 opacity-80 absolute -bottom-3 right-0 z-10" />
+          <Quote className="size-10 text-gray-900/50 rotate-180 opacity-80 absolute top-0 left-0 z-10" />
+          <div className="z-20 font-semibold">{content}</div>
+          <Quote className="size-10 text-gray-900/50 opacity-80 absolute -bottom-3 right-0 z-10" />
         </div>
       </div>
 
