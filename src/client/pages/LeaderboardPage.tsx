@@ -59,9 +59,6 @@ export default function LeaderboardPage() {
 
         // Handle today's leaderboard
         if (todayResponse.status === 'fulfilled') {
-          console.log('Daily leaderboard response:', todayResponse.value);
-          console.log('Daily leaderboard entries:', todayResponse.value.entries);
-          console.log('Daily leaderboard entries length:', todayResponse.value.entries?.length);
           setTodayData(todayResponse.value.entries || []);
         } else {
           console.error('Failed to fetch daily leaderboard:', todayResponse.reason);
@@ -165,7 +162,7 @@ export default function LeaderboardPage() {
   };
 
   const [isToday, setIsToday] = useState(false);
-  const isFirstDay = selectedDate === '2025-09-10'; // Adjust based on your app's start date
+  const is_FIRST_DAY = selectedDate === '2025-09-17';
 
   // Check if selected date is today (server time)
   useEffect(() => {
@@ -243,9 +240,9 @@ export default function LeaderboardPage() {
                   {/* Previous Day Button */}
                   <button
                     onClick={goToPreviousDay}
-                    disabled={isFirstDay}
+                    disabled={is_FIRST_DAY}
                     className={`p-3 rounded-full transition-all duration-200 ${
-                      isFirstDay
+                      is_FIRST_DAY
                         ? 'bg-black/50 text-yellow-400/30 cursor-not-allowed'
                         : 'bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400/20 hover:scale-105 active:scale-95'
                     }`}
