@@ -1,5 +1,5 @@
 import { GameData, DailyData } from '@shared/types/game';
-import { dailyChallengesData } from './dailyChallengesData';
+import { dailyChallengesData, getChallengesForDate, isFallbackData } from './dailyChallengesData';
 import { TimeService } from '@client/services/TimeService';
 
 // Since we're now using DailyData directly, we just need to add isCompleted property
@@ -20,8 +20,42 @@ export const getGameData = (): GameData => {
   return gameData;
 };
 
+/**
+ * Get daily game data for a specific date with automatic fallback support.
+ *
+ * @param date - The date string in YYYY-MM-DD format
+ * @returns DailyData with themes marked as incomplete by default
+ *
+ * This function first checks for official game data, and if none exists,
+ * it automatically provides fallback content to ensure the game always
+ * has challenges available for any requested date.
+ */
 export const getDailyData = (date: string) => {
-  return gameData.dailyData.find((daily) => daily.date === date) || null;
+  const existingData = gameData.dailyData.find((daily) => daily.date === date);
+
+  if (existingData) {
+    return existingData;
+  }
+
+  // Use fallback data if no existing data found
+  const fallbackData = getChallengesForDate(date);
+  return {
+    ...fallbackData,
+    themes: fallbackData.themes.map((theme) => ({
+      ...theme,
+      isCompleted: false, // This will be updated from server data
+    })),
+  };
+};
+
+/**
+ * Check if a specific date is using fallback data instead of official content.
+ *
+ * @param date - The date string in YYYY-MM-DD format
+ * @returns true if the date uses fallback data, false if official data exists
+ */
+export const isUsingFallbackData = (date: string): boolean => {
+  return isFallbackData(date);
 };
 
 export const getTodayData = async () => {
@@ -31,8 +65,6 @@ export const getTodayData = async () => {
 
 export const getThemeData = (date: string, themeId: string) => {
   const dailyData = getDailyData(date);
-  if (!dailyData) return null;
-
   return dailyData.themes.find((theme) => theme.themeId === themeId) || null;
 };
 
@@ -50,9 +82,7 @@ export const getWeekData = async () => {
     const dateString = date.toISOString().split('T')[0] || date.toISOString().substring(0, 10);
 
     const dailyData = getDailyData(dateString);
-    if (dailyData) {
-      weekData.push(dailyData);
-    }
+    weekData.push(dailyData);
   }
 
   return weekData;
@@ -71,15 +101,11 @@ export const getThemesByDifficulty = (difficulty: 'easy' | 'medium' | 'hard') =>
 
 export const getTotalGemsForDate = (date: string): number => {
   const dailyData = getDailyData(date);
-  if (!dailyData) return 0;
-
   return dailyData.themes.reduce((total, theme) => total + theme.gemsEarn, 0);
 };
 
 export const getEarnedGemsForDate = (date: string): number => {
   const dailyData = getDailyData(date);
-  if (!dailyData) return 0;
-
   return dailyData.themes
     .filter((theme) => theme.isCompleted)
     .reduce((total, theme) => total + theme.gemsEarn, 0);
@@ -87,8 +113,6 @@ export const getEarnedGemsForDate = (date: string): number => {
 
 export const getCompletionStats = (date: string) => {
   const dailyData = getDailyData(date);
-  if (!dailyData) return { total: 0, completed: 0, percentage: 0 };
-
   const total = dailyData.themes.length;
   const completed = dailyData.themes.filter((theme) => theme.isCompleted).length;
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -98,15 +122,11 @@ export const getCompletionStats = (date: string) => {
 
 export const getCompletedThemes = (date: string) => {
   const dailyData = getDailyData(date);
-  if (!dailyData) return [];
-
   return dailyData.themes.filter((theme) => theme.isCompleted);
 };
 
 export const getIncompleteThemes = (date: string) => {
   const dailyData = getDailyData(date);
-  if (!dailyData) return [];
-
   return dailyData.themes.filter((theme) => !theme.isCompleted);
 };
 
